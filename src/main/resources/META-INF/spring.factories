@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  cn.monitor4all.logRecord.mq.RabbitMqConfig,\
+  cn.monitor4all.logRecord.aop.SystemLogAspect,\
+  cn.monitor4all.logRecord.service.impl.RabbitMqLogServiceImpl

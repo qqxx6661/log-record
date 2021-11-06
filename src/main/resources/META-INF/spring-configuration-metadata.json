@@ -1,0 +1,66 @@
+{
+  "groups": [
+    {
+      "name": "log-record",
+      "type": "cn.monitor4all.logRecord.configuration.LogProperties",
+      "sourceType": "cn.monitor4all.logRecord.configuration.LogProperties"
+    },
+    {
+      "name": "log-record.rabbitmq",
+      "type": "cn.monitor4all.logRecord.configuration.LogProperties$RabbitMq",
+      "sourceType": "cn.monitor4all.logRecord.configuration.LogProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "log-record.rabbitmq.host",
+      "type": "java.lang.String",
+      "description": "log-record.rabbitmq.host",
+      "sourceType": "cn.monitor4all.logRecord.configuration.LogProperties$RabbitMq",
+      "defaultValue": ""
+    },
+    {
+      "name": "log-record.rabbitmq.port",
+      "type": "java.lang.String",
+      "description": "log-record.rabbitmq.port",
+      "sourceType": "cn.monitor4all.logRecord.configuration.LogProperties$RabbitMq",
+      "defaultValue": ""
+    },
+    {
+      "name": "log-record.rabbitmq.username",
+      "type": "java.lang.String",
+      "description": "log-record.rabbitmq.username",
+      "sourceType": "cn.monitor4all.logRecord.configuration.LogProperties$RabbitMq",
+      "defaultValue": ""
+    },
+    {
+      "name": "log-record.rabbitmq.password",
+      "type": "java.lang.String",
+      "description": "log-record.rabbitmq.password",
+      "sourceType": "cn.monitor4all.logRecord.configuration.LogProperties$RabbitMq",
+      "defaultValue": ""
+    },
+    {
+      "name": "log-record.rabbitmq.queue-name",
+      "type": "java.lang.String",
+      "description": "log-record.rabbitmq.queue-name",
+      "sourceType": "cn.monitor4all.logRecord.configuration.LogProperties$RabbitMq",
+      "defaultValue": ""
+    },
+    {
+      "name": "log-record.rabbitmq.exchange-name",
+      "type": "java.lang.String",
+      "description": "log-record.rabbitmq.exchange-name",
+      "sourceType": "cn.monitor4all.logRecord.configuration.LogProperties$RabbitMq",
+      "defaultValue": ""
+    },
+    {
+      "name": "log-record.rabbitmq.routing-key",
+      "type": "java.lang.String",
+      "description": "log-record.rabbitmq.routing-key",
+      "sourceType": "cn.monitor4all.logRecord.configuration.LogProperties$RabbitMq",
+      "defaultValue": ""
+    }
+  ],
+  "hints": []
+}
