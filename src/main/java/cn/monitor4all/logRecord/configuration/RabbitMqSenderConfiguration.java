@@ -45,7 +45,7 @@ public class RabbitMqSenderConfiguration {
         this.exchange= properties.getRabbitMqProperties().getExchangeName();
         this.username= properties.getRabbitMqProperties().getUsername();
         this.password= properties.getRabbitMqProperties().getPassword();
-        log.info("LogRecord RabbitMqSenderConfiguration rabbitHost [{}] rabbitPort [{}] exchange [{}] queue [{}] routingKey [{}]",
+        log.info("LogRecord RabbitMqSenderConfiguration host [{}] port [{}] exchange [{}] queue [{}] routingKey [{}]",
                 rabbitHost, rabbitPort, exchange, queue, routingKey);
     }
 
