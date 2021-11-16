@@ -1,49 +1,52 @@
-package cn.monitor4all.logRecord.mq;
-
+package cn.monitor4all.logRecord.configuration;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-@Component
+import javax.annotation.PostConstruct;
+
+/**
+ * @author yangzhendong
+ */
 @Slf4j
-@EnableRabbit
-public class RabbitMqConfig {
+@Configuration
+@ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = "rabbitMq")
+@EnableConfigurationProperties({LogRecordProperties.class})
+public class RabbitMqSenderConfiguration {
 
-    private final String rabbitHost;
-    private final int rabbitPort;
-    private final String exchange;
-    private final String queue;
-    private final String routingKey;
-    private final String username;
-    private final String password;
+    private String rabbitHost;
+    private int rabbitPort;
+    private String exchange;
+    private String queue;
+    private String routingKey;
+    private String username;
+    private String password;
 
-    public RabbitMqConfig(
-            @Value("${log-record.rabbitmq.host}") String rabbitHost,
-            @Value("${log-record.rabbitmq.port}") int rabbitPort,
-            @Value("${log-record.rabbitmq.username}") String username,
-            @Value("${log-record.rabbitmq.password}") String password,
-            @Value("${log-record.rabbitmq.queue-name}") String queue,
-            @Value("${log-record.rabbitmq.routing-key}") String routingKey,
-            @Value("${log-record.rabbitmq.exchange-name}") String exchange) {
-        log.info("LogRecord RabbitMqConfig rabbitHost [{}] rabbitPort [{}] exchange [{}] queue [{}] routingKey [{}]",
+    @Autowired
+    private LogRecordProperties properties;
+
+    @PostConstruct
+    public void rabbitMqConfig() {
+        this.rabbitHost = properties.getRabbitMqProperties().getHost();
+        this.rabbitPort = properties.getRabbitMqProperties().getPort();
+        this.queue = properties.getRabbitMqProperties().getQueueName();
+        this.routingKey = properties.getRabbitMqProperties().getRoutingKey();
+        this.exchange= properties.getRabbitMqProperties().getExchangeName();
+        this.username= properties.getRabbitMqProperties().getUsername();
+        this.password= properties.getRabbitMqProperties().getPassword();
+        log.info("LogRecord RabbitMqSenderConfiguration rabbitHost [{}] rabbitPort [{}] exchange [{}] queue [{}] routingKey [{}]",
                 rabbitHost, rabbitPort, exchange, queue, routingKey);
-        this.rabbitHost = rabbitHost;
-        this.rabbitPort = rabbitPort;
-        this.queue = queue;
-        this.routingKey = routingKey;
-        this.exchange= exchange;
-        this.username= username;
-        this.password= password;
     }
 
     @Bean
