@@ -25,7 +25,7 @@ public class RabbitMqLogServiceImpl implements LogService {
 
     @Override
     public boolean createLog(LogDTO logDTO) {
-        log.info("RabbitMq ready to send routingKey [{}] LogDTO [{}]", properties.getRabbitMqProperties().getRoutingKey(), logDTO);
+        log.info("LogRecord RabbitMq ready to send routingKey [{}] LogDTO [{}]", properties.getRabbitMqProperties().getRoutingKey(), logDTO);
         // 消息队列处理逻辑
         rubeExchangeTemplate.convertAndSend(properties.getRabbitMqProperties().getRoutingKey(), JSON.toJSONString(logDTO));
         return true;

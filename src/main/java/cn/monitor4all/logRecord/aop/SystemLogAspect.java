@@ -119,9 +119,16 @@ public class SystemLogAspect {
                 logDTO.setException(throwable.getMessage());
             });
             throw throwable;
-        } finally {
+        }
+        finally {
             List<LogDTO> logDTOList = logDTOThreadLocal.get();
-            logDTOList.forEach(logDTO -> logService.createLog(logDTO));
+            logDTOList.forEach(logDTO -> {
+                try {
+                    logService.createLog(logDTO);
+                } catch (Throwable throwable) {
+                    log.error("logRecord send message failure", throwable);
+                }
+            });
             logDTOThreadLocal.remove();
         }
         return result;
