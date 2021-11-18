@@ -5,7 +5,7 @@
 **只需要简单的加上一个@OperationLog便可以将方法的参数，返回结果甚至是异常堆栈通过消息队列发送出去，统一处理。**
 
 ```
-@OperationLog(bizType = "bizType", bizId = "#request.orderId", pipeline = DataPipelineEnum.QUEUE)
+@OperationLog(bizType = "bizType", bizId = "#request.orderId")
 public Response<BaseResult> function(Request request) {
   // 方法执行逻辑
 }
@@ -96,7 +96,7 @@ log-record.rabbitmq.exchange-name=logrecord
 **第三步：** 在你自己的项目中，在需要记录日志的方法上，添加注解。
 
 ```
-@OperationLog(bizType = "bizType", bizId = "#request.orderId", pipeline = DataPipelineEnum.QUEUE)
+@OperationLog(bizType = "bizType", bizId = "#request.orderId")
 public Response<BaseResult> function(Request request) {
 	// 方法执行逻辑
 }
@@ -104,7 +104,6 @@ public Response<BaseResult> function(Request request) {
 
 - （必填）bizType：业务类型
 - （必填）bizId：唯一业务ID（支持SpEL表达式）
-- （必填）pipeline：数据管道，目前只有QUEUE一个数据管道，后续可考虑接入更多数据源
 - （非必填）msg：需要传递的其他数据（支持SpEL表达式）
 - （非必填）tag：自定义标签
 

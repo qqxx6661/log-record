@@ -24,5 +24,4 @@ public @interface OperationLog {
 
     String tag() default "operation";
 
-    DataPipelineEnum pipeline();
 }
