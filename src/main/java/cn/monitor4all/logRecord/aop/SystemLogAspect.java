@@ -37,59 +37,70 @@ public class SystemLogAspect {
     @Autowired
     private LogService logService;
 
-    private static final ThreadLocal<List<LogDTO>> logDTOThreadLocal = new NamedThreadLocal<>("ThreadLocal logDTOList");
+    private static final ThreadLocal<List<LogDTO>> LOGDTO_THREAD_LOCAL = new NamedThreadLocal<>("ThreadLocal logDTOList");
 
-    private SpelExpressionParser parser = new SpelExpressionParser();
+    private final SpelExpressionParser parser = new SpelExpressionParser();
 
-    private DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
+    private final DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 
     @Before("@annotation(cn.monitor4all.logRecord.annotation.OperationLog) || @annotation(cn.monitor4all.logRecord.annotation.OperationLogs)")
     public void doBefore(JoinPoint joinPoint){
         try {
+
             List<LogDTO> logDTOList = new ArrayList<>();
-            logDTOThreadLocal.set(logDTOList);
+            LOGDTO_THREAD_LOCAL.set(logDTOList);
 
             Object[] arguments = joinPoint.getArgs();
             Method method = getMethod(joinPoint);
             OperationLog[] annotations = method.getAnnotationsByType(OperationLog.class);
+
+            // 批量处理注解
             for (OperationLog annotation: annotations) {
-                // 放在最前防止下方逻辑执行异常
+
+                // 初始化logDTO
                 LogDTO logDTO = new LogDTO();
                 logDTOList.add(logDTO);
-                // 解析Spel表达式
-                String[] params = discoverer.getParameterNames(method);
-                //获取方法的实际参数值
-                EvaluationContext context = new StandardEvaluationContext();
-                if (params != null) {
-                    for (int len = 0; len < params.length; len++) {
-                        context.setVariable(params[len], arguments[len]);
-                    }
-                }
-                //解析表达式并获取spel的值
                 String bizIdSpel = annotation.bizId();
-                Expression bizIdExpression = parser.parseExpression(bizIdSpel);
-                String bizId = bizIdExpression.getValue(context, String.class);
-
                 String msgSpel = annotation.msg();
-                String msg = null;
-                if (StringUtils.isNotBlank(msgSpel)) {
-                    Expression msgExpression = parser.parseExpression(msgSpel);
-                    Object msgObj = msgExpression.getValue(context, Object.class);
-                    msg = JSON.toJSONString(msgObj, SerializerFeature.WriteMapNullValue);
-                }
+                String bizId = bizIdSpel;
+                String extraMsg = msgSpel;
 
-                // 写入LogDTO
-                logDTO.setLogId(UUID.randomUUID().toString());
-                logDTO.setSuccess(true);
-                logDTO.setBizId(bizId);
-                logDTO.setBizType(annotation.bizType());
-                logDTO.setOperateDate(new Date());
-                logDTO.setMsg(msg);
-                logDTO.setTag(annotation.tag());
+                try {
+                    String[] params = discoverer.getParameterNames(method);
+                    EvaluationContext context = new StandardEvaluationContext();
+                    if (params != null) {
+                        for (int len = 0; len < params.length; len++) {
+                            context.setVariable(params[len], arguments[len]);
+                        }
+                    }
+
+                    // bizId 处理：直接传入字符串会抛出异常，写入默认传入的字符串
+                    if (StringUtils.isNotBlank(bizIdSpel)) {
+                        Expression bizIdExpression = parser.parseExpression(bizIdSpel);
+                        bizId = bizIdExpression.getValue(context, String.class);
+                    }
+                    // extraMsg 处理，写入默认传入的字符串
+                    if (StringUtils.isNotBlank(msgSpel)) {
+                        Expression msgExpression = parser.parseExpression(msgSpel);
+                        Object msgObj = msgExpression.getValue(context, Object.class);
+                        extraMsg = JSON.toJSONString(msgObj, SerializerFeature.WriteMapNullValue);
+                    }
+
+                } catch (Exception e) {
+                    log.error("SystemLogAspect doBefore error", e);
+                } finally {
+                    logDTO.setLogId(UUID.randomUUID().toString());
+                    logDTO.setSuccess(true);
+                    logDTO.setBizId(bizId);
+                    logDTO.setBizType(annotation.bizType());
+                    logDTO.setOperateDate(new Date());
+                    logDTO.setExtraMsg(extraMsg);
+                    logDTO.setTag(annotation.tag());
+                }
             }
 
         } catch (Exception e) {
-            log.error("OperationLog doBefore error", e);
+            log.error("SystemLogAspect doBefore error", e);
         }
     }
 
@@ -101,7 +112,7 @@ public class SystemLogAspect {
             Object target = joinPoint.getTarget();
             method = target.getClass().getMethod(ms.getName(), ms.getParameterTypes());
         } catch (NoSuchMethodException e) {
-            log.error("getMethod error", e);
+            log.error("SystemLogAspect getMethod error", e);
         }
         return method;
     }
@@ -111,8 +122,13 @@ public class SystemLogAspect {
         Object result;
         try {
             result = pjp.proceed();
+            // logDTO写入返回值信息 若方法抛出异常，则不会走入下方逻辑
+            List<LogDTO> logDTOList = LOGDTO_THREAD_LOCAL.get();
+            String returnStr = JSON.toJSONString(result);
+            logDTOList.forEach(logDTO -> logDTO.setReturnStr(returnStr));
         } catch (Throwable throwable) {
-            List<LogDTO> logDTOList = logDTOThreadLocal.get();
+            // logDTO写入异常信息
+            List<LogDTO> logDTOList = LOGDTO_THREAD_LOCAL.get();
             logDTOList.forEach(logDTO -> {
                 logDTO.setSuccess(false);
                 logDTO.setException(throwable.getMessage());
@@ -120,7 +136,8 @@ public class SystemLogAspect {
             throw throwable;
         }
         finally {
-            List<LogDTO> logDTOList = logDTOThreadLocal.get();
+            // logDTO发送至数据管道
+            List<LogDTO> logDTOList = LOGDTO_THREAD_LOCAL.get();
             logDTOList.forEach(logDTO -> {
                 try {
                     logService.createLog(logDTO);
@@ -128,7 +145,7 @@ public class SystemLogAspect {
                     log.error("logRecord send message failure", throwable);
                 }
             });
-            logDTOThreadLocal.remove();
+            LOGDTO_THREAD_LOCAL.remove();
         }
         return result;
     }

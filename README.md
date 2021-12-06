@@ -21,7 +21,7 @@ public Response<BaseResult> function(Request request) {
 <dependency>
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 

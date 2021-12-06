@@ -10,7 +10,7 @@
     </parent>
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <!--  申明打包到Github私有Maven仓库  -->
     <distributionManagement>

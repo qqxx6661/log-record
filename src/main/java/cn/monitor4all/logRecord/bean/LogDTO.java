@@ -14,7 +14,8 @@ public class LogDTO {
 	private String exception;
 	private Date operateDate;
 	private Boolean success;
-	private String msg;
+	private String extraMsg;
 	private String tag;
+	private String returnStr;
 
 }
