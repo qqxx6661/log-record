@@ -94,7 +94,7 @@ public class SystemLogAspect {
                     logDTO.setBizId(bizId);
                     logDTO.setBizType(annotation.bizType());
                     logDTO.setOperateDate(new Date());
-                    logDTO.setExtraMsg(extraMsg);
+                    logDTO.setMsg(extraMsg);
                     logDTO.setTag(annotation.tag());
                 }
             }
