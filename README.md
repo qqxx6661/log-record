@@ -25,72 +25,31 @@ public Response<BaseResult> function(Request request) {
 </dependency>
 ```
 
-这里先打断一下，由于Maven公共仓库，是全球唯一托管的，个人开发的项目要提交上去，需要复杂的审核流程，我搞了一会没搞定，就先将包传到了Github Package上（实际就是Github的私有Maven库），所以大家引入依赖后，是不会直接拉到包的，需要配置下你的Maven settings.xml文件。（**之后我肯定想办法发到公共仓库，呜呜呜~**）
+**第二步：** 在Spring配置文件中添加数据源配置
 
-配置很简单，两步，一步是去Github登录，到自己的Settings中，申请一个token，拿到一串字符串。
+目前支持RabbitMq和RocketMq
 
-![image-20211106162359065](https://tva1.sinaimg.cn/large/008i3skNly1gw5oyzcaz0j31560u00wd.jpg)
-
-第二步，找到你的settings.xml文件，添加上：
-
-```
-activeProfiles>
-    <activeProfile>github</activeProfile>
-  </activeProfiles>
-
-  <profiles>
-    <profile>
-      <id>github</id>
-      <repositories>
-        <repository>
-          <id>central</id>
-          <url>https://repo1.maven.org/maven2</url>
-        </repository>
-        <repository>
-          <id>github</id>
-          <url>https://maven.pkg.github.com/OWNER/REPOSITORY</url>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </repository>
-      </repositories>
-    </profile>
-  </profiles>
-
-  <servers>
-    <server>
-      <id>github</id>
-      <username>这里填写你的Github用户名</username>
-      <password>这里填写你刚才申请的token</password>
-    </server>
-  </servers>
-```
-
-还搞不定的同学，这里是Github官方中文教程：
-
-https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry
-
-重启下你的IDEA，能看到下面这个，应该你的settings.xml生效了。
-
-![](https://tva1.sinaimg.cn/large/008i3skNly1gw5oyvj81zj30n80oejsi.jpg)
-
-目前我的版本号是1.0.0，之后会更新，未来最新版本号在我仓库查询：
-
-https://github.com/qqxx6661/logRecord
-
-**第二步：** 在Spring配置文件中添加RabbitMq数据源配置
-
-在自己公司里由于阿里封装了自己的MQ叫做MetaQ，并没有对外开源，所以这里先接入了RabbitMQ，也算是比较通用，图个方便。未来会接其他数据源。RabbitMq的安装在这里不展开了，实在是不想把篇幅拉得太大，大家可以自行谷歌下，比如“Docker安装RabbitMq”类似的文章，几分钟就可以设置安装好。
+未来会接其他数据源。RabbitMq和RocketMq的安装在这里不展开了，实在是不想把篇幅拉得太大，大家可以自行谷歌下，比如“Docker安装RabbitMq”类似的文章，几分钟就可以设置安装好。
 
 
 ```
-log-record.rabbitmq.host=localhost
-log-record.rabbitmq.port=5672
-log-record.rabbitmq.username=admin
-log-record.rabbitmq.password=xxxxxxxx
-log-record.rabbitmq.queue-name=logrecord
-log-record.rabbitmq.routing-key=
-log-record.rabbitmq.exchange-name=logrecord
+#log-record.data-pipeline=rabbitMq
+log-record.data-pipeline=rocketMq
+
+# 若使用rabbitMq
+log-record.rabbit-mq-properties.host=localhost
+log-record.rabbit-mq-properties.port=5672
+log-record.rabbit-mq-properties.username=admin
+log-record.rabbit-mq-properties.password=xxxxxx
+log-record.rabbit-mq-properties.queue-name=logRecord
+log-record.rabbit-mq-properties.routing-key=
+log-record.rabbit-mq-properties.exchange-name=logRecord
+
+# 若使用rocketMq
+log-record.rocket-mq-properties.topic=logRecord
+log-record.rocket-mq-properties.tag=
+log-record.rocket-mq-properties.group-name=logRecord
+log-record.rocket-mq-properties.namesrv-addr=localhost:9876
 ```
 
 **第三步：** 在你自己的项目中，在需要记录日志的方法上，添加注解。
@@ -134,8 +93,9 @@ bizType：注解中传递的bizType
 exception：若方法执行失败，写入执行的异常信息
 operateDate:操作执行的当前时间
 success：方式是否执行成功
-msg：注解中传递的tag
+msg：注解中传递的msg（JSON化）
 tag：注解中传递的tag
+returnStr: 方法执行成功后的返回值（JSON化）
 ```
 
 我还加上了重复注解的支持，可以在一个方法上同时加多个@OperationLog，下图是最终使用效果，可以看到，有几个@OperationLog，就能同时发送多条日志：
