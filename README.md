@@ -1,11 +1,17 @@
 # log-record
 
-本项目支持用户使用注解的方式从方法中获取操作日志，并推送到指定数据源
+本项目支持用户使用注解的方式从方法中获取操作日志，并推送到指定数据源。
+
+支持推送日志数据至：
+
+- 本地应用监听
+- RabbitMQ
+- RocketMQ
 
 **只需要简单的加上一个@OperationLog便可以将方法的参数，返回结果甚至是异常堆栈通过消息队列发送出去，统一处理。**
 
 ```
-@OperationLog(bizType = "bizType", bizId = "#request.orderId")
+@OperationLog(bizType = "orderCreate", bizId = "#request.orderId", msg = "#request")
 public Response<BaseResult> function(Request request) {
   // 方法执行逻辑
 }
@@ -21,7 +27,7 @@ public Response<BaseResult> function(Request request) {
 <dependency>
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-starter</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
@@ -55,9 +61,9 @@ log-record.rocket-mq-properties.namesrv-addr=localhost:9876
 **第三步：** 在你自己的项目中，在需要记录日志的方法上，添加注解。
 
 ```
-@OperationLog(bizType = "bizType", bizId = "#request.orderId")
+@OperationLog(bizType = "orderCreate", bizId = "#request.orderId", msg = "#request")
 public Response<BaseResult> function(Request request) {
-	// 方法执行逻辑
+  // 方法执行逻辑
 }
 ```
 
@@ -68,9 +74,9 @@ public Response<BaseResult> function(Request request) {
 
 ### 代码工作原理
 
-由于采用的是SpringBoot Starter方式，所以只要你是用的是SpringBoot，会自动扫描到依赖包中的类，并自动通过Spring进行配置和管理。
+由于采用的是SpringBoot Starter方式，会自动扫描到依赖包中的类，并自动通过Spring进行配置和管理。
 
-该注解通过在切面中解析SpEL参数（啥事SpEL？快去谷歌下，之后要讲），将数据发往数据源。目前仅支持RabbitMq，发送的消息体如下：
+该注解通过在切面中解析SpEL参数（啥事SpEL？快去谷歌下），将数据发往数据源。发送的消息体如下：
 
 方法处理正常发送消息体：
 

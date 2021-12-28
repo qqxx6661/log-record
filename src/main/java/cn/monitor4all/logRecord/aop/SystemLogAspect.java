@@ -2,6 +2,7 @@ package cn.monitor4all.logRecord.aop;
 
 import cn.monitor4all.logRecord.annotation.OperationLog;
 import cn.monitor4all.logRecord.bean.LogDTO;
+import cn.monitor4all.logRecord.service.CustomLogListener;
 import cn.monitor4all.logRecord.service.LogService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -34,8 +35,11 @@ import java.util.UUID;
 @Slf4j
 public class SystemLogAspect {
 
-    @Autowired
+    @Autowired(required = false)
     private LogService logService;
+
+    @Autowired(required = false)
+    private CustomLogListener customLogListener;
 
     private static final ThreadLocal<List<LogDTO>> LOGDTO_THREAD_LOCAL = new NamedThreadLocal<>("ThreadLocal logDTOList");
 
@@ -140,7 +144,12 @@ public class SystemLogAspect {
             List<LogDTO> logDTOList = LOGDTO_THREAD_LOCAL.get();
             logDTOList.forEach(logDTO -> {
                 try {
-                    logService.createLog(logDTO);
+                    if (customLogListener != null) {
+                        customLogListener.createLog(logDTO);
+                    }
+                    if (logService != null) {
+                        logService.createLog(logDTO);
+                    }
                 } catch (Throwable throwable) {
                     log.error("logRecord send message failure", throwable);
                 }
