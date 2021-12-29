@@ -306,3 +306,22 @@ https://mp.weixin.qq.com/s/B9LA6be_cPAKACbZot_Nrg
 公众号：后端技术漫谈
 
 全网博客名：蛮三刀酱
+
+## Release Note
+
+### v1.0.4
+
+- 自定义函数支持
+
+### v1.0.3
+
+- 自定义上下文支持
+- 本地监听支持
+
+### v1.0.2
+
+- RocketMq队列支持
+
+### v1.0.1
+
+- RabbitMq队列支持
