@@ -3,6 +3,7 @@ package cn.monitor4all.logRecord.aop;
 import cn.monitor4all.logRecord.annotation.OperationLog;
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.context.LogRecordContext;
+import cn.monitor4all.logRecord.function.CustomFunctionRegistrar;
 import cn.monitor4all.logRecord.service.CustomLogListener;
 import cn.monitor4all.logRecord.service.LogService;
 import com.alibaba.fastjson.JSON;
@@ -98,6 +99,7 @@ public class SystemLogAspect {
                 try {
                     String[] params = discoverer.getParameterNames(method);
                     StandardEvaluationContext context = LogRecordContext.getContext();
+                    CustomFunctionRegistrar.register(context);
                     if (params != null) {
                         for (int len = 0; len < params.length; len++) {
                             context.setVariable(params[len], arguments[len]);
