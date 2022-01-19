@@ -22,6 +22,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -48,7 +49,9 @@ public class SystemLogAspect {
     public Object doAround(ProceedingJoinPoint pjp) throws Throwable{
         Object result;
         List<LogDTO> logS = new ArrayList<>();
+        StopWatch stopWatch = new StopWatch();
         try {
+            stopWatch.start();
             result = pjp.proceed();
             logS = resolveExpress(pjp, result);
         } catch (Throwable throwable) {
@@ -62,8 +65,11 @@ public class SystemLogAspect {
             throw throwable;
         }
         finally {
+            stopWatch.stop();
             logS.forEach(logDTO -> {
                 try {
+                    // 记录执行时间
+                    logDTO.setExecutionTime(stopWatch.getTotalTimeMillis());
                     // 发送本地监听
                     if (customLogListener != null) {
                         customLogListener.createLog(logDTO);

@@ -17,5 +17,6 @@ public class LogDTO {
 	private String msg;
 	private String tag;
 	private String returnStr;
+	private Long executionTime;
 
 }

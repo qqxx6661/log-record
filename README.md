@@ -92,9 +92,10 @@ bizType：业务类型
 exception：函数执行失败时写入异常信息
 operateDate：操作执行时间
 success：函数是否执行成功
-msg：注解中传递的msg（支持JSON）
+msg：注解中传递的msg（JSON）
 tag：用户自定义标签
-returnStr: 方法执行成功后的返回值（JSON化）
+returnStr: 方法执行成功后的返回值（JSON）
+executionTime：方法执行耗时（毫秒）
 ```
 
 本项目特点：
@@ -306,22 +307,3 @@ https://mp.weixin.qq.com/s/B9LA6be_cPAKACbZot_Nrg
 公众号：后端技术漫谈
 
 全网博客名：蛮三刀酱
-
-## Release Note
-
-### v1.0.4
-
-- 自定义函数支持
-
-### v1.0.3
-
-- 自定义上下文支持
-- 本地监听支持
-
-### v1.0.2
-
-- RocketMq队列支持
-
-### v1.0.1
-
-- RabbitMq队列支持
