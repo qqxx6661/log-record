@@ -1,5 +1,6 @@
 package cn.monitor4all.logRecord.configuration;
 
+import cn.monitor4all.logRecord.constans.LogConstans;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -21,7 +22,7 @@ import javax.annotation.PostConstruct;
  */
 @Slf4j
 @Configuration
-@ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = "rabbitMq")
+@ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstans.DataPipeline.RABBIT_MQ)
 @EnableConfigurationProperties({LogRecordProperties.class})
 public class RabbitMqSenderConfiguration {
 
