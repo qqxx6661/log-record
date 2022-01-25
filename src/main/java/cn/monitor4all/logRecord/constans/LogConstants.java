@@ -5,7 +5,7 @@ package cn.monitor4all.logRecord.constans;
  * @version 1.0
  * @since 2022-01-24 14:55
  */
-public interface LogConstans {
+public interface LogConstants {
 
     interface DataPipeline {
 

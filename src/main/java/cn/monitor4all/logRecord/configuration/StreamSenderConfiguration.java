@@ -1,6 +1,6 @@
 package cn.monitor4all.logRecord.configuration;
 
-import cn.monitor4all.logRecord.constans.LogConstans;
+import cn.monitor4all.logRecord.constans.LogConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -8,14 +8,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.cloud.stream.config.BindingProperties;
 import org.springframework.cloud.stream.config.BindingServiceConfiguration;
 import org.springframework.cloud.stream.config.BindingServiceProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.SubscribableChannel;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -29,7 +27,7 @@ import java.util.Optional;
  */
 @Slf4j
 @Configuration
-@ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstans.DataPipeline.STREAM)
+@ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstants.DataPipeline.STREAM)
 @EnableConfigurationProperties({LogRecordProperties.class})
 @ConditionalOnClass(BindingServiceConfiguration.class)
 @AutoConfigureBefore({BindingServiceConfiguration.class})

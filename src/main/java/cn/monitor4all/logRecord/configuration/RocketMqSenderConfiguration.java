@@ -1,6 +1,6 @@
 package cn.monitor4all.logRecord.configuration;
 
-import cn.monitor4all.logRecord.constans.LogConstans;
+import cn.monitor4all.logRecord.constans.LogConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -17,7 +17,7 @@ import javax.annotation.PostConstruct;
  */
 @Slf4j
 @Configuration
-@ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstans.DataPipeline.ROCKET_MQ)
+@ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstants.DataPipeline.ROCKET_MQ)
 @EnableConfigurationProperties({LogRecordProperties.class})
 public class RocketMqSenderConfiguration {
 

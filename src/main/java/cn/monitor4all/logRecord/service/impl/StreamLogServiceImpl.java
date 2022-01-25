@@ -3,7 +3,7 @@ package cn.monitor4all.logRecord.service.impl;
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.configuration.StreamSenderConfiguration;
-import cn.monitor4all.logRecord.constans.LogConstans;
+import cn.monitor4all.logRecord.constans.LogConstants;
 import cn.monitor4all.logRecord.service.LogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @EnableConfigurationProperties({LogRecordProperties.class})
-@ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstans.DataPipeline.STREAM)
+@ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstants.DataPipeline.STREAM)
 public class StreamLogServiceImpl implements LogService {
 
     @Autowired
