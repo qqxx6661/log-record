@@ -82,6 +82,7 @@ public Response<T> function(Request request) {
 1. 本地监听处理
 2. 发送至RabbitMQ
 3. 发送至RocketMQ
+4. SpringCloud Stream
 
 日志内包含：
 
@@ -130,7 +131,7 @@ executionTime：方法执行耗时（毫秒）
 1. 本地应用监听
 2. RabbitMQ 
 3. RocketMQ
-4. springCloudStream
+4. SpringCloud Stream
 
 **1. 本地应用监听**
 
