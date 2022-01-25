@@ -130,6 +130,7 @@ executionTime：方法执行耗时（毫秒）
 1. 本地应用监听
 2. RabbitMQ 
 3. RocketMQ
+4. springCloudStream
 
 **1. 本地应用监听**
 
@@ -173,6 +174,19 @@ log-record.rocket-mq-properties.topic=logRecord
 log-record.rocket-mq-properties.tag=
 log-record.rocket-mq-properties.group-name=logRecord
 log-record.rocket-mq-properties.namesrv-addr=localhost:9876
+```
+
+**4. Stream**
+配置好 stream 
+```
+log-record.data-pipeline=stream
+log-record.stream.destination=logRecord
+log-record.stream.group=logRecord
+# 为空时 默认为spring.cloud.stream.default-binder指定的Binder
+log-record.stream.binder=
+# rocketmq binder例子
+spring.cloud.stream.rocketmq.binder.name-server=127.0.0.1:9876
+spring.cloud.stream.rocketmq.binder.enable-msg-trace=false
 ```
 
 **第三步：** 在你自己的项目中，在需要记录日志的方法上，添加@OperationLog注解。

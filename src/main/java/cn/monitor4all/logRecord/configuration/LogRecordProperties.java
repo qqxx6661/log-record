@@ -15,7 +15,12 @@ public class LogRecordProperties {
     private RocketMqProperties rocketMqProperties;
 
     /**
-     * choose pipeline for message: rabbitMq, rocketMq
+     * spring cloud stream 配置
+     */
+    private StreamProperties stream;
+
+    /**
+     * choose pipeline for message: rabbitMq, rocketMq, stream
      */
     private String dataPipeline;
 
@@ -40,4 +45,24 @@ public class LogRecordProperties {
         private int sendMsgTimeout = 3000;
         private int retryTimesWhenSendFailed = 2;
     }
+
+    @Data
+    public class StreamProperties {
+
+        /**
+         * 默认对应消息中间件topic rocketmq的topic, RabbitMq的 exchangeName
+         */
+        private String destination;
+
+        /**
+         * 默认对应的分组
+         */
+        private String group;
+
+        /**
+         * 默认的binder（对应的消息中间件）
+         */
+        private String binder;
+    }
+
 }
