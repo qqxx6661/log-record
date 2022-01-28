@@ -230,21 +230,47 @@ public Response<T> function(Request request) {
 @LogRecordFunc
 public class MyFuction {
 
-    private static TestService testService;
-
+    private static UserService userService;
+    
+    // 不指定方法名时，默认为方法名 即 在Spel 里 #queryUserName(#request.userId) 调用方法
     @LogRecordFunc
-    public static String testFunc(String str) {
-        if (testService == null) {
-            testService = SpringContextUtils.getBean(TestService.class);
+    public static String queryUserName(String userId) {
+        if (userService == null) {
+            userService = SpringContextUtils.getBean(UserService.class);
         }
-        return testService.testServiceFunc2(str);
+        return userService.queryUserName(str);
     }
 }
+
+ @LogRecordFunc
+ public class MyFuction1 {
+ 
+     private static OrderService orderService;
+     
+     // 指定方法名，使用设置命名调用对应方法，即在 Spel 里写 #queryOldAddress(#request.orderId)
+     @LogRecordFunc("queryOldAddress")
+     public static String queryAddress(String orderId) {
+         if (orderService == null) {
+             orderService = SpringContextUtils.getBean(OrderService.class);
+         }
+         return orderService.queryUserName(str);
+     }
+ }
+ 
+ @LogRecordFunc("id")
+ public class MyFuction2 {
+    
+     // 自定义类名并自定义方法名，使用设置命名调用对应方法，即在 Spel 里写 #id_generate(#request.orderId)
+     @LogRecordFunc("generate")
+     public static String queryAddress(String orderId) {
+        return orderId;
+     }
+ }
 ```
 
 
 ```
-@OperationLog(bizType = "addressChange", bizId = "#request.orderId", msg = "'用户' + #queryUserName(#request.userId) + '修改了订单的配送地址：从' + #oldAddress + '修改到' + #queryOldAddress(#request.orderId)")
+@OperationLog(bizType = "addressChange", bizId = "#id_generate(#request.orderId)", msg = "'用户' + #queryUserName(#request.userId) + '修改了订单的配送地址：从' + #oldAddress + '修改到' + #queryOldAddress(#request.orderId)")
 public Response<T> function(Request request) {
   // 业务执行逻辑
 }
