@@ -9,9 +9,15 @@ import java.lang.annotation.Target;
 
 /**
  * 自定义函数注册
+ * @author yangzhendong
  */
 @Target({ElementType.TYPE,ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Component
 public @interface LogRecordFunc {
+    /**
+     * 注册的function命名，便于自定义命名
+     * @return 自定义的名字，如果为空即使用method的命名
+     */
+    String value() default "";
 }
