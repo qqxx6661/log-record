@@ -4,7 +4,7 @@
 
 大家一定见过下图的操作日志：
 
-![](https://p1.meituan.net/travelcube/ae35fb1babaab193c1dd0b1bbbe9f07d96643.png)
+![](https://tva1.sinaimg.cn/large/008i3skNly1gz57cmf7nsj30v40u0jt4.jpg)
 
 在代码层面，如何优雅的实现上面的日志记录呢？ 
 
