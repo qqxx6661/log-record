@@ -5,7 +5,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 public class LogRecordContext {
 
-    private static final ThreadLocal<StandardEvaluationContext> CONTEXT_THREAD_LOCAL = new NamedThreadLocal<>("ThreadLocal StandardEvaluationContext");
+    private static final ThreadLocal<StandardEvaluationContext> CONTEXT_THREAD_LOCAL = new InheritableThreadLocal<>();
 
     public static StandardEvaluationContext getContext() {
         return CONTEXT_THREAD_LOCAL.get() == null ? new StandardEvaluationContext(): CONTEXT_THREAD_LOCAL.get();
