@@ -51,13 +51,18 @@ public class SystemLogAspect {
         List<LogDTO> logS = new ArrayList<>();
         StopWatch stopWatch = new StopWatch();
         try {
+            logS = resolveExpress(pjp);
             stopWatch.start();
             result = pjp.proceed();
-            logS = resolveExpress(pjp, result);
+            stopWatch.stop();
+            logS.forEach(logDTO -> {
+                logDTO.setSuccess(true);
+                logDTO.setReturnStr(JSON.toJSONString(result));
+            });
         } catch (Throwable throwable) {
-            // 方法执行异常，自定义上下文未写入，但是仍然需要初始化其他变量
-            logS = resolveExpress(pjp, null);
-            // logDTO写入异常信息
+            stopWatch.stop();
+            // 方法执行异常，自定义上下文未写入，但是仍然需要写入其他变量
+            logS = resolveExpress(pjp);
             logS.forEach(logDTO -> {
                 logDTO.setSuccess(false);
                 logDTO.setException(throwable.getMessage());
@@ -65,7 +70,6 @@ public class SystemLogAspect {
             throw throwable;
         }
         finally {
-            stopWatch.stop();
             logS.forEach(logDTO -> {
                 try {
                     // 记录执行时间
@@ -88,7 +92,7 @@ public class SystemLogAspect {
         return result;
     }
 
-    public List<LogDTO> resolveExpress(JoinPoint joinPoint, Object returnObj) {
+    public List<LogDTO> resolveExpress(JoinPoint joinPoint) {
         try {
             List<LogDTO> logDTOList = new ArrayList<>();
             Object[] arguments = joinPoint.getArgs();
@@ -100,8 +104,7 @@ public class SystemLogAspect {
                 String bizIdSpel = annotation.bizId();
                 String msgSpel = annotation.msg();
                 String bizId = bizIdSpel;
-                String extraMsg = msgSpel;
-                String returnMsg = null;
+                String msg = msgSpel;
                 try {
                     String[] params = discoverer.getParameterNames(method);
                     StandardEvaluationContext context = LogRecordContext.getContext();
@@ -118,27 +121,22 @@ public class SystemLogAspect {
                         bizId = bizIdExpression.getValue(context, String.class);
                     }
 
-                    // extraMsg 处理：写入默认传入的字符串
+                    // msg 处理：写入默认传入的字符串
                     if (StringUtils.isNotBlank(msgSpel)) {
                         Expression msgExpression = parser.parseExpression(msgSpel);
                         Object msgObj = msgExpression.getValue(context, Object.class);
-                        extraMsg = JSON.toJSONString(msgObj, SerializerFeature.WriteMapNullValue);
+                        msg = msgObj instanceof String ? String.valueOf(msgObj) : JSON.toJSONString(msgObj, SerializerFeature.WriteMapNullValue);
                     }
-
-                    // returnObj 处理
-                    returnMsg = JSON.toJSONString(returnObj);
 
                 } catch (Exception e) {
                     log.error("SystemLogAspect resolveExpress error", e);
                 } finally {
                     logDTO.setLogId(UUID.randomUUID().toString());
-                    logDTO.setSuccess(true);
                     logDTO.setBizId(bizId);
                     logDTO.setBizType(annotation.bizType());
                     logDTO.setOperateDate(new Date());
-                    logDTO.setMsg(extraMsg);
+                    logDTO.setMsg(msg);
                     logDTO.setTag(annotation.tag());
-                    logDTO.setReturnStr(returnMsg);
                 }
             }
             return logDTOList;

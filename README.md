@@ -1,5 +1,21 @@
 # log-record
 
+使用注解优雅的记录系统日志，操作日志等，支持SpEL表达式，自定义上下文，自定义函数，并支持将日志消息传递至消息队列。
+
+采用SpringBoot Starter的方式，只需要一个依赖，便可以让系统无缝支持操作日志的聚合和传递。
+
+```
+<dependency>
+    <groupId>cn.monitor4all</groupId>
+    <artifactId>log-record-starter</artifactId>
+    <version>{最新版本号}</version>
+</dependency>
+```
+
+
+
+[toc]
+
 ## 项目背景
 
 大家一定见过下图的操作日志：
@@ -114,13 +130,17 @@ executionTime：方法执行耗时（毫秒）
 
 **只需要简单的三步：**
 
-**第一步：** SpringBoot项目中引入依赖（最新版本号请查阅Maven公共仓库）
+**第一步：** SpringBoot项目中引入依赖
+
+最新版本号请查阅Maven公共仓库：
+
+https://search.maven.org/artifact/cn.monitor4all/log-record-starter
 
 ```
 <dependency>
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-starter</artifactId>
-    <version>1.0.4</version>
+    <version>{最新版本号}</version>
 </dependency>
 ```
 
@@ -328,10 +348,9 @@ public Response<T> function(Request request) {
 
 最后，肯定有小伙伴希望有一个完整的使用Demo，这就奉上！
 
-完整Demo项目:
+完整客户端Demo项目:
 
 https://github.com/qqxx6661/systemLog
-
 
 ## 配套教程文章
 
