@@ -12,9 +12,19 @@
 </dependency>
 ```
 
+最新版本号请查阅项目的[Maven公共仓库](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+
+只需一句注解，日志轻松记录，不侵入业务逻辑：
 
 
-[toc]
+```
+@OperationLog(bizType = "addressChange", bizId = "#request.orderId", msg = "'用户' + #queryUserName(#request.userId) + '修改了订单的配送地址：从' + #oldAddress + '修改到' + #queryOldAddress(#request.orderId)")
+public Response<T> function(Request request) {
+  // 业务执行逻辑
+}
+```
+
+
 
 ## 项目背景
 
