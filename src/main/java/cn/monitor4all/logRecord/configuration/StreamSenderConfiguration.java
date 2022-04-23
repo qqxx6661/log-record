@@ -1,6 +1,6 @@
 package cn.monitor4all.logRecord.configuration;
 
-import cn.monitor4all.logRecord.constans.LogConstants;
+import cn.monitor4all.logRecord.constants.LogConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -19,12 +19,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import java.util.Optional;
 
-/**
- * spring cloud stream send 配置
- * @author pumbf
- * @version 1.0
- * @since 2022-01-24 14:59
- */
+
 @Slf4j
 @Configuration
 @ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstants.DataPipeline.STREAM)

@@ -1,6 +1,6 @@
 package cn.monitor4all.logRecord.configuration;
 
-import cn.monitor4all.logRecord.constans.LogConstants;
+import cn.monitor4all.logRecord.constants.LogConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -17,9 +17,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 
-/**
- * @author yangzhendong
- */
+
 @Slf4j
 @Configuration
 @ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstants.DataPipeline.RABBIT_MQ)

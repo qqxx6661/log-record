@@ -2,7 +2,7 @@ package cn.monitor4all.logRecord.service.impl;
 
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
-import cn.monitor4all.logRecord.constans.LogConstants;
+import cn.monitor4all.logRecord.constants.LogConstants;
 import cn.monitor4all.logRecord.service.LogService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +25,18 @@ public class RocketMqLogServiceImpl implements LogService {
     private LogRecordProperties properties;
 
     @Autowired
-    private DefaultMQProducer defaultMQProducer;
+    private DefaultMQProducer defaultMqProducer;
 
     @Override
-    public boolean createLog(LogDTO logDTO) throws Exception {
-        log.info("LogRecord RocketMq ready to send topic [{}] tag [{}] LogDTO [{}]", properties.getRocketMqProperties().getTopic(), properties.getRocketMqProperties().getTag(), logDTO);
-        Message msg = new Message(properties.getRocketMqProperties().getTopic(), properties.getRocketMqProperties().getTag(), (JSON.toJSONString(logDTO)).getBytes(RemotingHelper.DEFAULT_CHARSET));
-        SendResult sendResult = defaultMQProducer.send(msg);
-        log.info("LogRecord RocketMq sendResult: [{}]",sendResult);
-        return true;
+    public boolean createLog(LogDTO logDTO) {
+        try {
+            Message msg = new Message(properties.getRocketMqProperties().getTopic(), properties.getRocketMqProperties().getTag(), (JSON.toJSONString(logDTO)).getBytes(RemotingHelper.DEFAULT_CHARSET));
+            SendResult sendResult = defaultMqProducer.send(msg);
+            log.info("LogRecord RocketMq send LogDTO [{}] sendResult: [{}]", logDTO, sendResult);
+            return true;
+        } catch (Exception e) {
+            log.error("LogRecord RocketMq send LogDTO error", e);
+            return false;
+        }
     }
 }

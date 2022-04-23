@@ -3,9 +3,7 @@ package cn.monitor4all.logRecord.configuration;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * @author yangzhendong
- */
+
 @Data
 @ConfigurationProperties(prefix = "log-record")
 public class LogRecordProperties {
@@ -14,15 +12,11 @@ public class LogRecordProperties {
 
     private RocketMqProperties rocketMqProperties;
 
-    /**
-     * spring cloud stream 配置
-     */
     private StreamProperties stream;
 
-    /**
-     * choose pipeline for message: rabbitMq, rocketMq, stream
-     */
     private String dataPipeline;
+
+    private int poolSize = 4;
 
     @Data
     public static class RabbitMqProperties {
@@ -47,8 +41,7 @@ public class LogRecordProperties {
     }
 
     @Data
-    public class StreamProperties {
-
+    public static class StreamProperties {
         /**
          * 默认对应消息中间件topic rocketmq的topic, RabbitMq的 exchangeName
          */

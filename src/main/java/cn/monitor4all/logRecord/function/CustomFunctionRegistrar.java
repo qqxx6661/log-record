@@ -12,11 +12,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-/**
- * Classname FunctionRegistrar
- * Description SpringEL注册自定义函数
- * @author yangzhendong
- */
 @Data
 @Slf4j
 public class CustomFunctionRegistrar implements ApplicationContextAware {
@@ -47,7 +42,7 @@ public class CustomFunctionRegistrar implements ApplicationContextAware {
                                 LogRecordFunc logRecordFunc = method.getAnnotation(LogRecordFunc.class);
                                 String registerName = StringUtils.hasText(logRecordFunc.value()) ? logRecordFunc.value() : method.getName();
                                 functionMap.put(prefixName + registerName, method);
-                                log.info("LogRecord register custom function [{}] as name [{}]", method, registerName);
+                                log.info("LogRecord register custom function [{}] as name [{}]", method, prefixName + registerName);
                             }
                         }
                     }

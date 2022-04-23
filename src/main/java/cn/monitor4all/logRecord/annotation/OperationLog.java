@@ -7,9 +7,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * @author yangzhendong
- */
 @Documented
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -24,4 +21,9 @@ public @interface OperationLog {
 
     String tag() default "operation";
 
+    String extra() default "";
+
+    String operatorId() default "";
+
+    boolean executeBeforeFunc() default false;
 }

@@ -4,6 +4,6 @@ import cn.monitor4all.logRecord.bean.LogDTO;
 
 public interface LogService {
 
-    boolean createLog(LogDTO logDTO) throws Exception;
+    boolean createLog(LogDTO logDTO);
 
 }

@@ -1,6 +1,6 @@
 package cn.monitor4all.logRecord.configuration;
 
-import cn.monitor4all.logRecord.constans.LogConstants;
+import cn.monitor4all.logRecord.constants.LogConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -12,9 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 
-/**
- * @author yangzhendong
- */
+
 @Slf4j
 @Configuration
 @ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstants.DataPipeline.ROCKET_MQ)
@@ -39,13 +37,12 @@ public class RocketMqSenderConfiguration {
         this.sendMsgTimeout = properties.getRocketMqProperties().getSendMsgTimeout();
         this.retryTimesWhenSendFailed = properties.getRocketMqProperties().getRetryTimesWhenSendFailed();
         this.topic = properties.getRocketMqProperties().getTopic();
-        log.info("LogRecord RocketMqSenderConfiguration namesrvAddr [{}] groupName [{}] maxMessageSize [{}] " +
-                        "sendMsgTimeout [{}] retryTimesWhenSendFailed [{}] topic [{}]",
+        log.info("LogRecord RocketMqSenderConfiguration namesrvAddr [{}] groupName [{}] maxMessageSize [{}] sendMsgTimeout [{}] retryTimesWhenSendFailed [{}] topic [{}]",
                 namesrvAddr, groupName, maxMessageSize, sendMsgTimeout, retryTimesWhenSendFailed, topic);
     }
 
     @Bean
-    public DefaultMQProducer defaultMQProducer() throws RuntimeException {
+    public DefaultMQProducer defaultMqProducer() throws RuntimeException {
         DefaultMQProducer producer = new DefaultMQProducer(this.groupName);
         producer.setNamesrvAddr(this.namesrvAddr);
         producer.setCreateTopicKey(this.topic);
@@ -59,9 +56,9 @@ public class RocketMqSenderConfiguration {
         producer.setRetryTimesWhenSendFailed(this.retryTimesWhenSendFailed);
         try {
             producer.start();
-            log.info("LogRecord Rocket producer is started");
+            log.info("LogRecord RocketMq producer is started");
         } catch (MQClientException e) {
-            log.error("LogRecord failed to start Rocket producer", e);
+            log.error("LogRecord failed to start RocketMq producer", e);
             throw new RuntimeException(e);
         }
         return producer;

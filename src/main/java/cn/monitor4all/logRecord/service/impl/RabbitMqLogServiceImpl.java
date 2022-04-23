@@ -2,7 +2,7 @@ package cn.monitor4all.logRecord.service.impl;
 
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
-import cn.monitor4all.logRecord.constans.LogConstants;
+import cn.monitor4all.logRecord.constants.LogConstants;
 import cn.monitor4all.logRecord.service.LogService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,6 @@ public class RabbitMqLogServiceImpl implements LogService {
     @Override
     public boolean createLog(LogDTO logDTO) {
         log.info("LogRecord RabbitMq ready to send routingKey [{}] LogDTO [{}]", properties.getRabbitMqProperties().getRoutingKey(), logDTO);
-        // 消息队列处理逻辑
         rubeExchangeTemplate.convertAndSend(properties.getRabbitMqProperties().getRoutingKey(), JSON.toJSONString(logDTO));
         return true;
     }
