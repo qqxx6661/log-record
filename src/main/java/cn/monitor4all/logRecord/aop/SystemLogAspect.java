@@ -28,13 +28,14 @@ import org.springframework.util.StopWatch;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Function;
 
 @Aspect
 @Component
 @Slf4j
 public class SystemLogAspect {
 
-    @Autowired
+    @Autowired(required = false)
     private LogRecordThreadPool logRecordThreadPool;
 
     @Autowired(required = false)
@@ -51,7 +52,7 @@ public class SystemLogAspect {
     private final DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 
     @Around("@annotation(cn.monitor4all.logRecord.annotation.OperationLog) || @annotation(cn.monitor4all.logRecord.annotation.OperationLogs)")
-    public Object doAround(ProceedingJoinPoint pjp) throws Throwable{
+    public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
         Object result;
         List<LogDTO> logDTOList = new ArrayList<>();
         Method method = getMethod(pjp);
@@ -101,10 +102,9 @@ public class SystemLogAspect {
                 logDTO.setException(throwable.getMessage());
             });
             throw throwable;
-        }
-        finally {
-            // 异步发送消息
-            logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> {
+        } finally {
+            // 通过自定义方法处理日志
+            Function<LogDTO, Void> createLogFunction = logDTO -> {
                 try {
                     // 记录执行时间
                     logDTO.setExecutionTime(stopWatch.getTotalTimeMillis());
@@ -119,7 +119,15 @@ public class SystemLogAspect {
                 } catch (Throwable throwable) {
                     log.error("Send logDTO error", throwable);
                 }
-            }));
+                return null;
+            };
+            if (logRecordThreadPool != null) {
+                logDTOList.forEach(logDTO ->
+                        logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> createLogFunction.apply(logDTO))
+                );
+            } else {
+                logDTOList.forEach(createLogFunction::apply);
+            }
             // 清除变量上下文
             LogRecordContext.clearContext();
         }

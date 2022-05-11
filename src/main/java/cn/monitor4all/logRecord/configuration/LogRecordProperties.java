@@ -1,5 +1,6 @@
 package cn.monitor4all.logRecord.configuration;
 
+import cn.monitor4all.logRecord.constants.LogConstants;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -14,9 +15,17 @@ public class LogRecordProperties {
 
     private StreamProperties stream;
 
+    private ThreadPoolProperties ThreadPool = new ThreadPoolProperties();
+
     private String dataPipeline;
 
-    private int poolSize = 4;
+    @Data
+    public static class ThreadPoolProperties {
+
+        private int poolSize = 4;
+
+        private boolean enabled = true;
+    }
 
     @Data
     public static class RabbitMqProperties {
