@@ -52,7 +52,7 @@ public class SystemLogAspect {
     private final DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 
     @Around("@annotation(cn.monitor4all.logRecord.annotation.OperationLog) || @annotation(cn.monitor4all.logRecord.annotation.OperationLogs)")
-    public Object doAround(ProceedingJoinPoint pjp) throws Throwable{
+    public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
         Object result;
         List<LogDTO> logDTOList = new ArrayList<>();
         Method method = getMethod(pjp);
@@ -87,7 +87,7 @@ public class SystemLogAspect {
             IntStream.range(0, logDTOList.size()).forEach(i -> {
                 LogDTO logDTO = finalLogDTOList.get(i);
                 logDTO.setSuccess(true);
-                if (annotations[i].recordResult()) {
+                if (annotations[i].recordReturnValue()) {
                     logDTO.setReturnStr(JSON.toJSONString(result));
                 }
             });
@@ -106,8 +106,7 @@ public class SystemLogAspect {
                 logDTO.setException(throwable.getMessage());
             });
             throw throwable;
-        }
-        finally {
+        } finally {
             // 异步发送消息
             logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> {
                 try {

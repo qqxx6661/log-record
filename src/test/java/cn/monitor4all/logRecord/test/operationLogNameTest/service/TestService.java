@@ -21,8 +21,8 @@ public class TestService {
         return "returnStr";
     }
 
-    @OperationLog(bizId = "1", bizType = "testRecordResult", recordResult = false)
-    public String testRecordResult() {
+    @OperationLog(bizId = "1", bizType = "testRecordReturnValue", recordReturnValue = false)
+    public String testRecordReturnValue() {
         return "disable record result";
     }
 

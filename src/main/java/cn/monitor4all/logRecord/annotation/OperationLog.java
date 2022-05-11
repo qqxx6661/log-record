@@ -32,5 +32,5 @@ public @interface OperationLog {
      *
      * @return true:记录返回值，false:不记录返回值
      */
-    boolean recordResult() default true;
+    boolean recordReturnValue() default true;
 }

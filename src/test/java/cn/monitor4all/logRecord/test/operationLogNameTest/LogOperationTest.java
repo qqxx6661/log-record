@@ -35,7 +35,7 @@ public class LogOperationTest {
     public void logRecordFuncTest() {
         testService.testBizId("1");
         testService.testReturnStr();
-        testService.testRecordResult();
+        testService.testRecordReturnValue();
         testService.testReturnObject();
         try {
             testService.testException();
@@ -64,7 +64,7 @@ public class LogOperationTest {
                 Assertions.assertEquals(logDTO.getReturnStr(), "\"returnStr\"");
             }
 
-            if ("testRecordResult".equals(logDTO.getBizType())) {
+            if ("testRecordReturnValue".equals(logDTO.getBizType())) {
                 Assertions.assertNull(logDTO.getReturnStr());
             }
 
