@@ -21,9 +21,14 @@ public class TestService {
         return "returnStr";
     }
 
+    @OperationLog(bizId = "1", bizType = "testRecordResult", recordResult = false)
+    public String testRecordResult() {
+        return "disable record result";
+    }
+
     @OperationLog(bizId = "1", bizType = "testReturnObject")
     public TestClass testReturnObject() {
-        return new TestClass(1,"张三");
+        return new TestClass(1, "张三");
     }
 
     @OperationLog(bizId = "1", bizType = "testException")

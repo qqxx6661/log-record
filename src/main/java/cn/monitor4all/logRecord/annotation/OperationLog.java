@@ -26,4 +26,11 @@ public @interface OperationLog {
     String operatorId() default "";
 
     boolean executeBeforeFunc() default false;
+
+    /**
+     * 是否记录返回值
+     *
+     * @return true:记录返回值，false:不记录返回值
+     */
+    boolean recordResult() default true;
 }
