@@ -28,6 +28,7 @@ import org.springframework.util.StopWatch;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 @Aspect
@@ -35,7 +36,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class SystemLogAspect {
 
-    @Autowired
+    @Autowired(required = false)
     private LogRecordThreadPool logRecordThreadPool;
 
     @Autowired(required = false)
@@ -107,8 +108,8 @@ public class SystemLogAspect {
             });
             throw throwable;
         } finally {
-            // 异步发送消息
-            logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> {
+            // 通过自定义方法处理日志
+            Function<LogDTO, Void> createLogFunction = logDTO -> {
                 try {
                     // 记录执行时间
                     logDTO.setExecutionTime(stopWatch.getTotalTimeMillis());
@@ -123,7 +124,15 @@ public class SystemLogAspect {
                 } catch (Throwable throwable) {
                     log.error("Send logDTO error", throwable);
                 }
-            }));
+                return null;
+            };
+            if (logRecordThreadPool != null) {
+                logDTOList.forEach(logDTO ->
+                        logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> createLogFunction.apply(logDTO))
+                );
+            } else {
+                logDTOList.forEach(createLogFunction::apply);
+            }
             // 清除变量上下文
             LogRecordContext.clearContext();
         }

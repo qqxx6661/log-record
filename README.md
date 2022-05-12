@@ -336,10 +336,11 @@ public void testCustomFunc() {
 
 在组装好logDTO后，默认使用线程池对消息进行分发，发送至本地监听函数或者消息队列发送者。
 
-可以使用如下配置修改线程池大小
+可以使用如下配置开启或关闭线程池、修改线程池大小
 
 ```
-log-record.pool-size=4（默认为4）
+log-record.thread-pool.enabled=true（默认为true）
+log-record.thread-pool.pool-size=4（默认为4）
 ```
 
 
