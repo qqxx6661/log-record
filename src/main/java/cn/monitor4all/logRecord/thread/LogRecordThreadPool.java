@@ -1,7 +1,6 @@
 package cn.monitor4all.logRecord.thread;
 
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
-import cn.monitor4all.logRecord.constants.LogConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -12,13 +11,8 @@ import java.util.concurrent.*;
 
 @Slf4j
 @Component
-@EnableConfigurationProperties(value = LogRecordProperties.class)
-@ConditionalOnProperty(
-        prefix = "log-record.thread-pool",
-        name = "enabled",
-        havingValue = "true",
-        matchIfMissing = true
-)
+@ConditionalOnProperty(name = "log-record.thread-pool.enabled", havingValue = "true", matchIfMissing = true)
+@EnableConfigurationProperties({LogRecordProperties.class})
 public class LogRecordThreadPool {
 
     private static final ThreadFactory THREAD_FACTORY = new CustomizableThreadFactory("log-record-");

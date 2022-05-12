@@ -4,6 +4,7 @@ package cn.monitor4all.logRecord.bean;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class LogDTO {
@@ -59,5 +60,9 @@ public class LogDTO {
 	 * 操作人ID
 	 */
 	private String operatorId;
+	/**
+	 * 实体DIFF列表
+	 */
+	private List<DiffDTO> diffDTOList;
 
 }

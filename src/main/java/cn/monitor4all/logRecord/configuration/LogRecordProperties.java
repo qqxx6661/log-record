@@ -1,6 +1,5 @@
 package cn.monitor4all.logRecord.configuration;
 
-import cn.monitor4all.logRecord.constants.LogConstants;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -15,9 +14,13 @@ public class LogRecordProperties {
 
     private StreamProperties stream;
 
-    private ThreadPoolProperties ThreadPool = new ThreadPoolProperties();
+    private ThreadPoolProperties threadPool = new ThreadPoolProperties();
 
     private String dataPipeline;
+
+    private String diffMsgFormat = "【${_fieldName}】从【${_oldValue}】变成了【${_newValue}】";
+
+    private String diffMsgSeparator = " ";
 
     @Data
     public static class ThreadPoolProperties {

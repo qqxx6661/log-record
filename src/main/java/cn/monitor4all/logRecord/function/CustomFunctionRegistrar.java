@@ -1,5 +1,6 @@
 package cn.monitor4all.logRecord.function;
 
+import cn.monitor4all.logRecord.annotation.LogRecordFunc;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;

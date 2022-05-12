@@ -3,6 +3,7 @@ package cn.monitor4all.logRecord.test.operationLogNameTest;
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordAutoConfiguration;
 import cn.monitor4all.logRecord.service.IOperationLogGetService;
+import cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser;
 import cn.monitor4all.logRecord.test.operationLogNameTest.service.OperationLogGetService;
 import cn.monitor4all.logRecord.test.operationLogNameTest.service.TestService;
 import com.alibaba.fastjson.JSON;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -25,6 +27,7 @@ import org.springframework.test.context.ContextConfiguration;
         LogOperationTest.CustomFuncTestOperationLogGetService.class,
         OperationLogGetService.class,
         TestService.class,})
+@PropertySource("classpath:test.properties")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class LogOperationTest {
 
@@ -40,10 +43,12 @@ public class LogOperationTest {
         try {
             testService.testException();
         } catch (Exception ignored) {}
-        testService.testMsgAndExtra("李四", new TestService.TestClass(1, "name"));
+        testService.testMsgAndExtra("李四", new TestUser(1, "name"));
         testService.testCustomFunc();
         testService.testOperatorId("001");
         testService.testExecuteBeforeFunc();
+        testService.testObjectDiff(new TestUser(2, "李四"));
+        testService.testCondition(new TestUser(1, "张三"));
     }
 
     @TestComponent
@@ -64,7 +69,11 @@ public class LogOperationTest {
                 Assertions.assertEquals(logDTO.getReturnStr(), "\"returnStr\"");
             }
 
-            if ("testRecordReturnValue".equals(logDTO.getBizType())) {
+            if ("testRecordReturnValueTrue".equals(logDTO.getBizType())) {
+                Assertions.assertEquals(logDTO.getReturnStr(), "\"returnStr\"");
+            }
+
+            if ("testRecordReturnValueFalse".equals(logDTO.getBizType())) {
                 Assertions.assertNull(logDTO.getReturnStr());
             }
 
@@ -111,6 +120,24 @@ public class LogOperationTest {
             }
             if ("testExecuteBeforeFunc2".equals(logDTO.getBizType())) {
                 Assertions.assertNull(logDTO.getBizId());
+            }
+
+            if ("testObjectDiff".equals(logDTO.getBizType())) {
+                Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息实体");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewFieldAlias(), "用户工号");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 1);
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewValue(), 2);
+            }
+
+            if ("testCondition1".equals(logDTO.getBizType())) {
+                Assertions.assertEquals(logDTO.getBizId(), "1");
+            }
+            if ("testCondition2".equals(logDTO.getBizType())) {
+                Assertions.assertEquals(logDTO.getBizId(), "2");
             }
         }
     }

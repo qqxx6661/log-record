@@ -1,4 +1,4 @@
-package cn.monitor4all.logRecord.function;
+package cn.monitor4all.logRecord.annotation;
 
 import org.springframework.stereotype.Component;
 
@@ -11,9 +11,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Component
 public @interface LogRecordFunc {
+
     /**
-     * 注册的function命名，便于自定义命名
-     * @return 自定义的名字，如果为空即使用method的命名
+     * 自定义函数的别名，如果为空即使用函数名
      */
     String value() default "";
 }

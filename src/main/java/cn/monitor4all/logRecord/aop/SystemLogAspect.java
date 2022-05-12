@@ -28,8 +28,7 @@ import org.springframework.util.StopWatch;
 
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.IntStream;
+import java.util.function.Consumer;
 
 @Aspect
 @Component
@@ -59,18 +58,18 @@ public class SystemLogAspect {
         Method method = getMethod(pjp);
         OperationLog[] annotations = method.getAnnotationsByType(OperationLog.class);
 
-        // 将前置和后置执行分开处理并保证顺序
+        // 将前置和后置执行的注解分开处理并保证最终写入顺序
         Map<OperationLog, LogDTO> logDtoMap = new LinkedHashMap<>();
-        for (OperationLog annotation : annotations) {
-            logDtoMap.put(annotation, null);
-        }
 
         StopWatch stopWatch = new StopWatch();
         try {
             // 方法执行前
             for (OperationLog annotation : annotations) {
                 if (annotation.executeBeforeFunc()) {
-                    logDtoMap.put(annotation, resolveExpress(annotation, pjp));
+                    LogDTO logDTO = resolveExpress(annotation, pjp);
+                    if (logDTO != null) {
+                        logDtoMap.put(annotation, logDTO);
+                    }
                 }
             }
             stopWatch.start();
@@ -79,16 +78,17 @@ public class SystemLogAspect {
             // 方法执行后
             for (OperationLog annotation : annotations) {
                 if (!annotation.executeBeforeFunc()) {
-                    logDtoMap.put(annotation, resolveExpress(annotation, pjp));
+                    LogDTO logDTO = resolveExpress(annotation, pjp);
+                    if (logDTO != null) {
+                        logDtoMap.put(annotation, logDTO);
+                    }
                 }
             }
             // 写入成功执行结果
             logDTOList = new ArrayList<>(logDtoMap.values());
-            List<LogDTO> finalLogDTOList = logDTOList;
-            IntStream.range(0, logDTOList.size()).forEach(i -> {
-                LogDTO logDTO = finalLogDTOList.get(i);
+            logDtoMap.forEach((annotation, logDTO) -> {
                 logDTO.setSuccess(true);
-                if (annotations[i].recordReturnValue()) {
+                if (annotation.recordReturnValue()) {
                     logDTO.setReturnStr(JSON.toJSONString(result));
                 }
             });
@@ -108,8 +108,10 @@ public class SystemLogAspect {
             });
             throw throwable;
         } finally {
-            // 通过自定义方法处理日志
-            Function<LogDTO, Void> createLogFunction = logDTO -> {
+            // 清除Context：每次方法执行一次
+            LogRecordContext.clearContext();
+            // 提交logDTO至主线程或线程池
+            Consumer<LogDTO> createLogFunction = logDTO -> {
                 try {
                     // 记录执行时间
                     logDTO.setExecutionTime(stopWatch.getTotalTimeMillis());
@@ -124,27 +126,23 @@ public class SystemLogAspect {
                 } catch (Throwable throwable) {
                     log.error("Send logDTO error", throwable);
                 }
-                return null;
             };
             if (logRecordThreadPool != null) {
-                logDTOList.forEach(logDTO ->
-                        logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> createLogFunction.apply(logDTO))
-                );
+                logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> createLogFunction.accept(logDTO)));
             } else {
-                logDTOList.forEach(createLogFunction::apply);
+                logDTOList.forEach(createLogFunction);
             }
-            // 清除变量上下文
-            LogRecordContext.clearContext();
         }
         return result;
     }
 
-    public LogDTO resolveExpress(OperationLog annotation, JoinPoint joinPoint) {
-        LogDTO logDTO = new LogDTO();
+    private LogDTO resolveExpress(OperationLog annotation, JoinPoint joinPoint) {
+        LogDTO logDTO = null;
         String bizIdSpel = annotation.bizId();
         String msgSpel = annotation.msg();
         String extraSpel = annotation.extra();
         String operatorIdSpel = annotation.operatorId();
+        String conditionSpel = annotation.condition();
         String bizId = bizIdSpel;
         String msg = msgSpel;
         String extra = extraSpel;
@@ -158,6 +156,15 @@ public class SystemLogAspect {
             if (params != null) {
                 for (int len = 0; len < params.length; len++) {
                     context.setVariable(params[len], arguments[len]);
+                }
+            }
+
+            // condition 处理：SpEL解析
+            if (StringUtils.isNotBlank(conditionSpel)) {
+                Expression conditionExpression = parser.parseExpression(conditionSpel);
+                boolean passed = Boolean.TRUE.equals(conditionExpression.getValue(context, Boolean.class));
+                if (!passed) {
+                    return null;
                 }
             }
 
@@ -191,9 +198,7 @@ public class SystemLogAspect {
                 operatorId = operatorIdObj instanceof String ? (String) operatorIdObj : JSON.toJSONString(operatorIdObj, SerializerFeature.WriteMapNullValue);
             }
 
-        } catch (Exception e) {
-            log.error("OperationLogAspect resolveExpress error", e);
-        } finally {
+            logDTO = new LogDTO();
             logDTO.setLogId(UUID.randomUUID().toString());
             logDTO.setBizId(bizId);
             logDTO.setBizType(annotation.bizType());
@@ -202,11 +207,17 @@ public class SystemLogAspect {
             logDTO.setMsg(msg);
             logDTO.setExtra(extra);
             logDTO.setOperatorId(operatorId);
+            logDTO.setDiffDTOList(LogRecordContext.getDiffDTOList());
+        } catch (Exception e) {
+            log.error("OperationLogAspect resolveExpress error", e);
+        } finally {
+            // 清除Diff实体列表：每次注解执行一次
+            LogRecordContext.clearDiffDTOList();
         }
         return logDTO;
     }
 
-    protected Method getMethod(JoinPoint joinPoint) {
+    private Method getMethod(JoinPoint joinPoint) {
         Method method = null;
         try {
             Signature signature = joinPoint.getSignature();

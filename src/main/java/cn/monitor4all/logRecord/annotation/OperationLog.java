@@ -27,10 +27,7 @@ public @interface OperationLog {
 
     boolean executeBeforeFunc() default false;
 
-    /**
-     * 是否记录返回值
-     *
-     * @return true:记录返回值，false:不记录返回值
-     */
     boolean recordReturnValue() default true;
+
+    String condition() default "true";
 }
