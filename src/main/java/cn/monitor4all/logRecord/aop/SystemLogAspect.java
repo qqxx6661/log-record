@@ -29,6 +29,7 @@ import org.springframework.util.StopWatch;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 @Aspect
 @Component
@@ -83,9 +84,13 @@ public class SystemLogAspect {
             }
             // 写入成功执行结果
             logDTOList = new ArrayList<>(logDtoMap.values());
-            logDTOList.forEach(logDTO -> {
+            List<LogDTO> finalLogDTOList = logDTOList;
+            IntStream.range(0, logDTOList.size()).forEach(i -> {
+                LogDTO logDTO = finalLogDTOList.get(i);
                 logDTO.setSuccess(true);
-                logDTO.setReturnStr(JSON.toJSONString(result));
+                if (annotations[i].recordReturnValue()) {
+                    logDTO.setReturnStr(JSON.toJSONString(result));
+                }
             });
         } catch (Throwable throwable) {
             stopWatch.stop();
