@@ -28,6 +28,7 @@ import org.springframework.util.StopWatch;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.IntStream;
 
 @Aspect
 @Component
@@ -51,7 +52,7 @@ public class SystemLogAspect {
     private final DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 
     @Around("@annotation(cn.monitor4all.logRecord.annotation.OperationLog) || @annotation(cn.monitor4all.logRecord.annotation.OperationLogs)")
-    public Object doAround(ProceedingJoinPoint pjp) throws Throwable{
+    public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
         Object result;
         List<LogDTO> logDTOList = new ArrayList<>();
         Method method = getMethod(pjp);
@@ -82,9 +83,13 @@ public class SystemLogAspect {
             }
             // 写入成功执行结果
             logDTOList = new ArrayList<>(logDtoMap.values());
-            logDTOList.forEach(logDTO -> {
+            List<LogDTO> finalLogDTOList = logDTOList;
+            IntStream.range(0, logDTOList.size()).forEach(i -> {
+                LogDTO logDTO = finalLogDTOList.get(i);
                 logDTO.setSuccess(true);
-                logDTO.setReturnStr(JSON.toJSONString(result));
+                if (annotations[i].recordReturnValue()) {
+                    logDTO.setReturnStr(JSON.toJSONString(result));
+                }
             });
         } catch (Throwable throwable) {
             stopWatch.stop();
@@ -101,8 +106,7 @@ public class SystemLogAspect {
                 logDTO.setException(throwable.getMessage());
             });
             throw throwable;
-        }
-        finally {
+        } finally {
             // 异步发送消息
             logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> {
                 try {
