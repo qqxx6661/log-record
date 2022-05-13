@@ -1,6 +1,6 @@
 # log-record
 
-通过Java注解优雅的记录操作日志，并支持SpEL表达式，自定义上下文，自定义函数，支持将日志传递至消息队列。
+通过Java注解优雅的记录操作日志，并支持SpEL表达式，自定义上下文，自定义函数，实体类DIFF等功能，最终日志实体可由用户自行监听或推送至消息队列。
 
 采用SpringBoot Starter的方式，只需要一个依赖，便可以让系统无缝支持操作日志的聚合和传递。
 
@@ -118,7 +118,20 @@ public Response<T> function(Request request) {
 3. 发送至RocketMQ
 4. 发送至SpringCloud Stream
 
-日志内包含：
+本项目特点：
+
+- 快速接入：使用Spring Boot Starter实现，用户直接在pom.xml引入依赖即可使用
+- SpEL解析：支持SpEL表达式
+- 实体类Diff：支持相同甚至不同类对象的Diff
+- 条件注解：满足Condition条件后才记录日志，通过SpEL进行解析
+- 自定义上下文：支持手动传递键值对，通过SpEL进行解析
+- 自定义函数：支持注册自定义函数，通过SpEL进行解析
+- 全局操作人ID：自定义操作人ID获取逻辑
+- 指定日志数据管道：自定义操作日志处理逻辑（写数据库，TLog等..）
+- 支持重复注解：同一个方法上可以写多个操作日志注解
+- 支持MetaQ：快速配置MetaQ数据管道，将日志写入MetaQ
+
+**日志实体内包含：**
 
 ```
 logId：生成的UUID
@@ -133,16 +146,65 @@ returnStr: 方法执行成功后的返回值（JSON）
 executionTime：方法执行耗时（毫秒）
 extra：额外信息（支持SpEL）
 operatorId：操作人ID
+List<diffDTO>: 实体类对象Diff数据，包括变更的字段名，字段值，类名等
 ```
 
-本项目特点：
+完整日志实体示例：
 
-- 快速接入：使用Spring Boot Starter实现，用户直接在pom.xml引入依赖即可使用
-- SpEL解析：支持SpEL表达式
-- 自定义上下文：支持手动传递键值对，通过SpEL进行解析
-- 自定义函数：支持注册自定义函数，通过SpEL进行解析
-- SPI拓展实现：操作人ID获取，日志本地监听
-- 支持重复注解
+```json
+{
+  "bizId":"1",
+  "bizType":"testObjectDiff",
+  "diffDTOList":[
+    {
+      "diffFieldDTOList":[
+        {
+          "fieldName":"id",
+          "newFieldAlias":"用户工号",
+          "newValue":2,
+          "oldFieldAlias":"用户工号",
+          "oldValue":1
+        },
+        {
+          "fieldName":"name",
+          "newValue":"李四",
+          "oldValue":"张三"
+        }],
+      "newClassAlias":"用户信息实体",
+      "newClassName":"cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser",
+      "oldClassAlias":"用户信息实体",
+      "oldClassName":"cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser"
+    },
+    {
+      "diffFieldDTOList":[
+        {
+          "fieldName":"id",
+          "newFieldAlias":"用户工号",
+          "newValue":2,
+          "oldFieldAlias":"用户工号",
+          "oldValue":1
+        },
+        {
+          "fieldName":"name",
+          "newValue":"李四",
+          "oldValue":"张三"
+        }],
+      "newClassAlias":"用户信息实体",
+      "newClassName":"cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser",
+      "oldClassAlias":"用户信息实体",
+      "oldClassName":"cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser"
+    }],
+  "executionTime":0,
+  "extra":"【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】",
+  "logId":"38f7f417-2cc3-40ed-8c98-2fe3ee057518",
+  "msg":"【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】",
+  "operateDate":1651116932299,
+  "operatorId":"操作人",
+  "returnStr":"null",
+  "success":true,
+  "tag":"operation"
+}
+```
 
 
 ## 使用方法
@@ -243,6 +305,146 @@ public Response<T> function(Request request) {
 ```
 
 ## 进阶使用
+
+### 实体类Diff
+
+支持两个类（相同或者不同类皆可）对象的Diff。
+
+需要在对比的字段上申明@LogRecordDiff(alias = "用户工号")，alias别名为可选字段。
+
+类上也可以申明@LogRecordDiff(alias = "用户信息实体")，但只是为了获取类的别名，不是必须的。
+
+```
+@LogRecordDiff(alias = "用户信息实体")
+public class TestUser {
+
+    @LogRecordDiff(alias = "用户工号")
+    private Integer id;
+
+    @LogRecordDiff
+    private String name;
+
+}
+```
+
+比较后的结果在日志实体中以diffDTO实体呈现。
+
+```
+{
+  "diffFieldDTOList":[
+    {
+      "fieldName":"id",
+      "newFieldAlias":"用户工号",
+      "newValue":2,
+      "oldFieldAlias":"用户工号",
+      "oldValue":1
+    },
+    {
+      "fieldName":"name",
+      "newValue":"李四",
+      "oldValue":"张三"
+    }],
+  "newClassAlias":"用户信息实体",
+  "newClassName":"cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser",
+  "oldClassAlias":"用户信息实体",
+  "oldClassName":"cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser"
+}
+```
+
+在@OperationLog注解上，通过调用系统内置实现的自定义函数 _DIFF ，传入两个对象即可拿到Diff结果。
+
+```
+@OperationLog(bizId = "1", bizType = "testObjectDiff", msg = "#_DIFF(#oldObject, #testUser)", extra = "#_DIFF(#oldObject, #testUser)")
+public void testObjectDiff(TestUser testUser) {
+    LogRecordContext.putVariables("oldObject", new TestUser(1, "张三"));
+}
+```
+
+调用方法：
+
+```
+testService.testObjectDiff(new TestUser(2, "李四"));
+```
+
+
+最终得到的日志消息实体：
+
+```json
+{
+  "bizId":"1",
+  "bizType":"testObjectDiff",
+  "diffDTOList":[
+    {
+      "diffFieldDTOList":[
+        {
+          "fieldName":"id",
+          "newFieldAlias":"用户工号",
+          "newValue":2,
+          "oldFieldAlias":"用户工号",
+          "oldValue":1
+        },
+        {
+          "fieldName":"name",
+          "newValue":"李四",
+          "oldValue":"张三"
+        }],
+      "newClassAlias":"用户信息实体",
+      "newClassName":"cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser",
+      "oldClassAlias":"用户信息实体",
+      "oldClassName":"cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser"
+    },
+    {
+      "diffFieldDTOList":[
+        {
+          "fieldName":"id",
+          "newFieldAlias":"用户工号",
+          "newValue":2,
+          "oldFieldAlias":"用户工号",
+          "oldValue":1
+        },
+        {
+          "fieldName":"name",
+          "newValue":"李四",
+          "oldValue":"张三"
+        }],
+      "newClassAlias":"用户信息实体",
+      "newClassName":"cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser",
+      "oldClassAlias":"用户信息实体",
+      "oldClassName":"cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser"
+    }],
+  "executionTime":0,
+  "extra":"【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】",
+  "logId":"38f7f417-2cc3-40ed-8c98-2fe3ee057518",
+  "msg":"【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】",
+  "operateDate":1651116932299,
+  "operatorId":"操作人",
+  "returnStr":"null",
+  "success":true,
+  "tag":"operation"
+}
+```
+
+### condition条件记录
+
+@OperationLog注解拥有字段condition，用户可以使用SpEL表达式来决定该条日志是否记录。
+
+方法上加上注解：
+
+```
+@OperationLog(bizId = "1", bizType = "testCondition1", condition = "#testUser != null")
+@OperationLog(bizId = "2", bizType = "testCondition2", condition = "#testUser.id == 1")
+@OperationLog(bizId = "3", bizType = "testCondition3", condition = "#testUser.id == 2")
+public void testCondition(TestUser testUser) {
+}
+```
+
+调用方法：
+
+```
+testService.testCondition(new TestUser(1, "张三"));
+```
+
+上述注解中，只有前两条注解满足condition条件，会输出日志。
 
 ### 全局操作人ID获取
 
@@ -364,7 +566,7 @@ log-record.thread-pool.enabled=true（线程池开关 默认为开启 若关闭�
 
 ### 通知
 
-应用之间通过关键操作的日志消息，互相通知
+应用之间通过关键操作的日志消息，互相通知。
 
 ### 跨应用数据聚合
 
