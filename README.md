@@ -8,7 +8,7 @@
 <dependency>
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-starter</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.4</version>
 </dependency>
 ```
 
@@ -226,8 +226,8 @@ https://search.maven.org/artifact/cn.monitor4all/log-record-starter
     <version>{最新版本号}</version>
 </dependency>
 ```
-
-**推荐使用>=1.1.0版本**
+1.1.0
+**推荐使用>=版本**
 
 **第二步：** 添加数据源配置
 
