@@ -54,83 +54,120 @@ public class SystemLogAspect {
     @Around("@annotation(cn.monitor4all.logRecord.annotation.OperationLog) || @annotation(cn.monitor4all.logRecord.annotation.OperationLogs)")
     public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
         Object result;
+        OperationLog[] annotations;
         List<LogDTO> logDTOList = new ArrayList<>();
-        Method method = getMethod(pjp);
-        OperationLog[] annotations = method.getAnnotationsByType(OperationLog.class);
-
-        // 将前置和后置执行的注解分开处理并保证最终写入顺序
         Map<OperationLog, LogDTO> logDtoMap = new LinkedHashMap<>();
+        StopWatch stopWatch = null;
+        Long executionTime = null;
 
-        StopWatch stopWatch = new StopWatch();
+        // 注解解析：若解析失败直接不执行日志切面逻辑
         try {
-            // 方法执行前
-            for (OperationLog annotation : annotations) {
-                if (annotation.executeBeforeFunc()) {
-                    LogDTO logDTO = resolveExpress(annotation, pjp);
-                    if (logDTO != null) {
-                        logDtoMap.put(annotation, logDTO);
-                    }
-                }
-            }
-            stopWatch.start();
-            result = pjp.proceed();
-            stopWatch.stop();
-            // 方法执行后
-            for (OperationLog annotation : annotations) {
-                if (!annotation.executeBeforeFunc()) {
-                    LogDTO logDTO = resolveExpress(annotation, pjp);
-                    if (logDTO != null) {
-                        logDtoMap.put(annotation, logDTO);
-                    }
-                }
-            }
-            // 写入成功执行结果
-            logDTOList = new ArrayList<>(logDtoMap.values());
-            logDtoMap.forEach((annotation, logDTO) -> {
-                logDTO.setSuccess(true);
-                if (annotation.recordReturnValue()) {
-                    logDTO.setReturnStr(JSON.toJSONString(result));
-                }
-            });
+            Method method = getMethod(pjp);
+            annotations = method.getAnnotationsByType(OperationLog.class);
         } catch (Throwable throwable) {
-            stopWatch.stop();
-            // 方法执行异常后
-            for (OperationLog annotation : annotations) {
-                if (!annotation.executeBeforeFunc()) {
-                    logDtoMap.put(annotation, resolveExpress(annotation, pjp));
+            return pjp.proceed();
+        }
+
+        // 日志切面逻辑
+        try {
+            // 方法执行前日志切面
+            try {
+                // 将前置和后置执行的注解分开处理并保证最终写入顺序
+                for (OperationLog annotation : annotations) {
+                    if (annotation.executeBeforeFunc()) {
+                        LogDTO logDTO = resolveExpress(annotation, pjp);
+                        if (logDTO != null) {
+                            logDtoMap.put(annotation, logDTO);
+                        }
+                    }
                 }
+                stopWatch = new StopWatch();
+                stopWatch.start();
+            } catch (Throwable throwableBeforeFunc) {
+                log.error("OperationLogAspect doAround before function, error:", throwableBeforeFunc);
             }
-            // 写入异常执行结果
-            logDTOList = new ArrayList<>(logDtoMap.values());
-            logDTOList.forEach(logDTO -> {
-                logDTO.setSuccess(false);
-                logDTO.setException(throwable.getMessage());
-            });
+            // 原方法执行
+            result = pjp.proceed();
+            // 方法成功执行后日志切面
+            try {
+                if (stopWatch != null) {
+                    stopWatch.stop();
+                    executionTime = stopWatch.getTotalTimeMillis();
+                }
+                for (OperationLog annotation : annotations) {
+                    if (!annotation.executeBeforeFunc()) {
+                        LogDTO logDTO = resolveExpress(annotation, pjp);
+                        if (logDTO != null) {
+                            logDtoMap.put(annotation, logDTO);
+                        }
+                    }
+                }
+                // 写入成功执行后日志
+                logDTOList = new ArrayList<>(logDtoMap.values());
+                logDtoMap.forEach((annotation, logDTO) -> {
+                    logDTO.setSuccess(true);
+                    if (annotation.recordReturnValue()) {
+                        logDTO.setReturnStr(JSON.toJSONString(result));
+                    }
+                });
+            } catch (Throwable throwableAfterFuncSuccess) {
+                log.error("OperationLogAspect doAround after function success, error:", throwableAfterFuncSuccess);
+            }
+
+        }
+        // 原方法执行异常
+        catch (Throwable throwable) {
+            // 方法异常执行后日志切面
+            try {
+                if (stopWatch != null) {
+                    stopWatch.stop();
+                    executionTime = stopWatch.getTotalTimeMillis();
+                }
+                for (OperationLog annotation : annotations) {
+                    if (!annotation.executeBeforeFunc()) {
+                        logDtoMap.put(annotation, resolveExpress(annotation, pjp));
+                    }
+                }
+                // 写入异常执行后日志
+                logDTOList = new ArrayList<>(logDtoMap.values());
+                logDTOList.forEach(logDTO -> {
+                    logDTO.setSuccess(false);
+                    logDTO.setException(throwable.getMessage());
+                });
+            } catch (Throwable throwableAfterFuncFailure) {
+                log.error("OperationLogAspect doAround after function failure, error:", throwableAfterFuncFailure);
+            }
+            // 抛出原方法异常
             throw throwable;
         } finally {
-            // 清除Context：每次方法执行一次
-            LogRecordContext.clearContext();
-            // 提交logDTO至主线程或线程池
-            Consumer<LogDTO> createLogFunction = logDTO -> {
-                try {
-                    // 记录执行时间
-                    logDTO.setExecutionTime(stopWatch.getTotalTimeMillis());
-                    // 发送日志本地监听
-                    if (iOperationLogGetService != null) {
-                        iOperationLogGetService.createLog(logDTO);
+            try {
+                // 提交日志至主线程或线程池
+                Long finalExecutionTime = executionTime;
+                Consumer<LogDTO> createLogFunction = logDTO -> {
+                    try {
+                        // 记录执行时间
+                        logDTO.setExecutionTime(finalExecutionTime);
+                        // 发送日志本地监听
+                        if (iOperationLogGetService != null) {
+                            iOperationLogGetService.createLog(logDTO);
+                        }
+                        // 发送消息管道
+                        if (logService != null) {
+                            logService.createLog(logDTO);
+                        }
+                    } catch (Throwable throwable) {
+                        log.error("OperationLogAspect send logDTO error", throwable);
                     }
-                    // 发送消息管道
-                    if (logService != null) {
-                        logService.createLog(logDTO);
-                    }
-                } catch (Throwable throwable) {
-                    log.error("Send logDTO error", throwable);
+                };
+                if (logRecordThreadPool != null) {
+                    logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> createLogFunction.accept(logDTO)));
+                } else {
+                    logDTOList.forEach(createLogFunction);
                 }
-            };
-            if (logRecordThreadPool != null) {
-                logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> createLogFunction.accept(logDTO)));
-            } else {
-                logDTOList.forEach(createLogFunction);
+                // 清除Context：每次方法执行一次
+                LogRecordContext.clearContext();
+            } catch (Throwable throwableFinal) {
+                log.error("OperationLogAspect doAround final error", throwableFinal);
             }
         }
         return result;
