@@ -483,7 +483,7 @@ public Response<T> function(Request request) {
 
 ### 自定义函数
 
-将@LogRecordFunc注解申明在需要注册到SpEL的自定义函数上。
+将@LogRecordFunc注解申明在需要注册到SpEL的自定义函数上（受限于SpringEL解析，函数需为static）。
 
 注意，需要在类上也声明@LogRecordFunc，否则无法找到该函数。
 
