@@ -15,7 +15,6 @@ public class LogDTO {
 	private String logId;
 	/**
 	 * 业务ID
-	 * 支持SpEL
 	 */
 	private String bizId;
 	/**
@@ -36,7 +35,6 @@ public class LogDTO {
 	private Boolean success;
 	/**
 	 * 日志内容
-	 * 支持SpEL
 	 */
 	private String msg;
 	/**
@@ -44,16 +42,15 @@ public class LogDTO {
 	 */
 	private String tag;
 	/**
-	 * 方法结果（JSON）
+	 * 方法结果
 	 */
 	private String returnStr;
 	/**
-	 * 方法执行时间
+	 * 方法执行时间（单位：毫秒）
 	 */
 	private Long executionTime;
 	/**
 	 * 额外信息
-	 * 支持SpEL
 	 */
 	private String extra;
 	/**

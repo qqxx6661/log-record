@@ -94,6 +94,8 @@ public class SystemLogAspect {
                     stopWatch.stop();
                     executionTime = stopWatch.getTotalTimeMillis();
                 }
+                // 在LogRecordContext中写入执行后信息
+                LogRecordContext.putVariables(LogRecordContext.CONTEXT_KEY_NAME_RETURN, result);
                 for (OperationLog annotation : annotations) {
                     if (!annotation.executeBeforeFunc()) {
                         LogDTO logDTO = resolveExpress(annotation, pjp);
@@ -105,7 +107,10 @@ public class SystemLogAspect {
                 // 写入成功执行后日志
                 logDTOList = new ArrayList<>(logDtoMap.values());
                 logDtoMap.forEach((annotation, logDTO) -> {
-                    logDTO.setSuccess(true);
+                    // 若自定义成功失败，则logDTO.getSuccess非null
+                    if (logDTO.getSuccess() == null) {
+                        logDTO.setSuccess(true);
+                    }
                     if (annotation.recordReturnValue()) {
                         logDTO.setReturnStr(JSON.toJSONString(result));
                     }
@@ -123,6 +128,8 @@ public class SystemLogAspect {
                     stopWatch.stop();
                     executionTime = stopWatch.getTotalTimeMillis();
                 }
+                // 在LogRecordContext中写入执行后信息
+                LogRecordContext.putVariables(LogRecordContext.CONTEXT_KEY_NAME_ERROR_MSG, throwable.getMessage());
                 for (OperationLog annotation : annotations) {
                     if (!annotation.executeBeforeFunc()) {
                         logDtoMap.put(annotation, resolveExpress(annotation, pjp));
@@ -176,14 +183,20 @@ public class SystemLogAspect {
     private LogDTO resolveExpress(OperationLog annotation, JoinPoint joinPoint) {
         LogDTO logDTO = null;
         String bizIdSpel = annotation.bizId();
+        String bizTypeSpel = annotation.bizType();
+        String tagSpel = annotation.tag();
         String msgSpel = annotation.msg();
         String extraSpel = annotation.extra();
         String operatorIdSpel = annotation.operatorId();
         String conditionSpel = annotation.condition();
+        String successSpel = annotation.success();
         String bizId = bizIdSpel;
+        String bizType = bizTypeSpel;
+        String tag = tagSpel;
         String msg = msgSpel;
         String extra = extraSpel;
-        String operatorId = annotation.operatorId();
+        String operatorId = operatorIdSpel;
+        Boolean functionExecuteSuccess = null;
         try {
             Object[] arguments = joinPoint.getArgs();
             Method method = getMethod(joinPoint);
@@ -196,7 +209,7 @@ public class SystemLogAspect {
                 }
             }
 
-            // condition 处理：SpEL解析
+            // condition 处理：SpEL解析 必须符合表达式
             if (StringUtils.isNotBlank(conditionSpel)) {
                 Expression conditionExpression = parser.parseExpression(conditionSpel);
                 boolean passed = Boolean.TRUE.equals(conditionExpression.getValue(context, Boolean.class));
@@ -205,20 +218,38 @@ public class SystemLogAspect {
                 }
             }
 
-            // bizId 处理：SpEL解析
+            // success 处理：SpEL解析 必须符合表达式
+            if (StringUtils.isNotBlank(successSpel)) {
+                Expression successExpression = parser.parseExpression(successSpel);
+                functionExecuteSuccess = Boolean.TRUE.equals(successExpression.getValue(context, Boolean.class));
+            }
+
+            // bizId 处理：SpEL解析 必须符合表达式
             if (StringUtils.isNotBlank(bizIdSpel)) {
                 Expression bizIdExpression = parser.parseExpression(bizIdSpel);
                 bizId = bizIdExpression.getValue(context, String.class);
             }
 
-            // msg 处理：SpEL解析 默认写入原字符串
+            // bizType 处理：SpEL解析 必须符合表达式
+            if (StringUtils.isNotBlank(bizTypeSpel)) {
+                Expression bizTypeExpression = parser.parseExpression(bizTypeSpel);
+                bizType = bizTypeExpression.getValue(context, String.class);
+            }
+
+            // tag 处理：SpEL解析 必须符合表达式
+            if (StringUtils.isNotBlank(tagSpel)) {
+                Expression tagExpression = parser.parseExpression(tagSpel);
+                tag = tagExpression.getValue(context, String.class);
+            }
+
+            // msg 处理：SpEL解析 必须符合表达式 若为实体则JSON序列化实体
             if (StringUtils.isNotBlank(msgSpel)) {
                 Expression msgExpression = parser.parseExpression(msgSpel);
                 Object msgObj = msgExpression.getValue(context, Object.class);
                 msg = msgObj instanceof String ? (String) msgObj : JSON.toJSONString(msgObj, SerializerFeature.WriteMapNullValue);
             }
 
-            // extra 处理：SpEL解析 默认写入原字符串
+            // extra 处理：SpEL解析 必须符合表达式 若为实体则JSON序列化实体
             if (StringUtils.isNotBlank(extraSpel)) {
                 Expression extraExpression = parser.parseExpression(extraSpel);
                 Object extraObj = extraExpression.getValue(context, Object.class);
@@ -226,24 +257,25 @@ public class SystemLogAspect {
             }
 
             // operatorId 处理：优先级 注解传入 > 自定义接口实现
+            // 必须符合表达式
             if (iOperatorIdGetService != null) {
                 operatorId = iOperatorIdGetService.getOperatorId();
             }
             if (StringUtils.isNotBlank(operatorIdSpel)) {
                 Expression operatorIdExpression = parser.parseExpression(operatorIdSpel);
-                Object operatorIdObj = operatorIdExpression.getValue(context, Object.class);
-                operatorId = operatorIdObj instanceof String ? (String) operatorIdObj : JSON.toJSONString(operatorIdObj, SerializerFeature.WriteMapNullValue);
+                operatorId = operatorIdExpression.getValue(context, String.class);
             }
 
             logDTO = new LogDTO();
             logDTO.setLogId(UUID.randomUUID().toString());
             logDTO.setBizId(bizId);
-            logDTO.setBizType(annotation.bizType());
-            logDTO.setTag(annotation.tag());
+            logDTO.setBizType(bizType);
+            logDTO.setTag(tag);
             logDTO.setOperateDate(new Date());
             logDTO.setMsg(msg);
             logDTO.setExtra(extra);
             logDTO.setOperatorId(operatorId);
+            logDTO.setSuccess(functionExecuteSuccess);
             logDTO.setDiffDTOList(LogRecordContext.getDiffDTOList());
         } catch (Exception e) {
             log.error("OperationLogAspect resolveExpress error", e);

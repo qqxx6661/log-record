@@ -1,4 +1,4 @@
-package cn.monitor4all.logRecord.test.operationLogNameTest.bean;
+package cn.monitor4all.logRecord.test.bean;
 
 import cn.monitor4all.logRecord.annotation.LogRecordDiff;
 import lombok.AllArgsConstructor;

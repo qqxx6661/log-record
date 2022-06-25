@@ -1,4 +1,4 @@
-package cn.monitor4all.logRecord.test.operationLogNameTest.service;
+package cn.monitor4all.logRecord.test.service;
 
 import cn.monitor4all.logRecord.service.IOperatorIdGetService;
 
