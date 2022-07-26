@@ -51,7 +51,7 @@ public class CustomFunctionObjectDiff {
         String oldClassName = oldObject.getClass().getName();
         String newClassName = newObject.getClass().getName();
         LogRecordDiff oldClassLogRecordDiff = oldObject.getClass().getDeclaredAnnotation(LogRecordDiff.class);
-        LogRecordDiff newClassLogRecordDiff = oldObject.getClass().getDeclaredAnnotation(LogRecordDiff.class);
+        LogRecordDiff newClassLogRecordDiff = newObject.getClass().getDeclaredAnnotation(LogRecordDiff.class);
         String oldClassAlias = oldClassLogRecordDiff != null && StringUtils.isNotBlank(oldClassLogRecordDiff.alias()) ? oldClassLogRecordDiff.alias() : null;
         String newClassAlias = newClassLogRecordDiff != null && StringUtils.isNotBlank(newClassLogRecordDiff.alias()) ? newClassLogRecordDiff.alias() : null;
         log.debug("oldClassName [{}] oldClassAlias [{}] newClassName [{}] newClassAlias [{}]", oldClassName, oldClassAlias, newClassName, newClassAlias);
