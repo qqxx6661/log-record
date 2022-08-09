@@ -6,7 +6,9 @@ import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.test.bean.TestUser;
 import org.springframework.boot.test.context.TestComponent;
 
-
+/**
+ * 测试服务
+ */
 @TestComponent
 public class TestService {
 
@@ -27,18 +29,10 @@ public class TestService {
     }
 
     /**
-     * 测试返回值
-     */
-    @OperationLog(bizId = "'1'", bizType = "'testReturnStr'")
-    public String testReturnStr() {
-        return "returnStr";
-    }
-
-    /**
      * 测试返回值开关
      */
-    @OperationLog(bizId = "'1'", bizType = "'testRecordReturnValueTrue'")
-    @OperationLog(bizId = "'1'", bizType = "'testRecordReturnValueFalse'", recordReturnValue = false)
+    @OperationLog(bizId = "'1'", bizType = "'testRecordReturnValueTrue'", recordReturnValue = true)
+    @OperationLog(bizId = "'1'", bizType = "'testRecordReturnValueFalse'")
     public String testRecordReturnValue() {
         return "returnStr";
     }
@@ -46,7 +40,7 @@ public class TestService {
     /**
      * 测试返回值JSON化
      */
-    @OperationLog(bizId = "'1'", bizType = "'testReturnObject'")
+    @OperationLog(bizId = "'1'", bizType = "'testReturnObject'", recordReturnValue = true)
     public TestUser testReturnObject() {
         return new TestUser(1, "张三");
     }

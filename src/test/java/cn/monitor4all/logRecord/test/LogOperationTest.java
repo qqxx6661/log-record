@@ -38,7 +38,6 @@ public class LogOperationTest {
     public void logRecordFuncTest() {
         testService.testBizId("1");
         testService.testTag("tag1");
-        testService.testReturnStr();
         testService.testRecordReturnValue();
         testService.testReturnObject();
         try {
@@ -77,10 +76,6 @@ public class LogOperationTest {
             }
             if ("testTagWithRawString".equals(logDTO.getBizType())) {
                 Assertions.assertEquals(logDTO.getTag(), "tag2");
-            }
-
-            if ("testReturnStr".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getReturnStr(), "\"returnStr\"");
             }
 
             if ("testRecordReturnValueTrue".equals(logDTO.getBizType())) {

@@ -67,7 +67,7 @@ public @interface OperationLog {
      * true: 记录返回值
      * false: 不记录返回值
      */
-    boolean recordReturnValue() default true;
+    boolean recordReturnValue() default false;
 
     /**
      * 日志记录条件
