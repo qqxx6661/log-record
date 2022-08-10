@@ -1,7 +1,6 @@
 # log-record
 
 ![](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter)
-![](https://img.shields.io/github/languages/code-size/qqxx6661/logRecord)
 ![](https://img.shields.io/github/license/qqxx6661/logRecord)
 ![](https://img.shields.io/github/stars/qqxx6661/logRecord?style=social)
 ![](https://img.shields.io/github/issues/qqxx6661/logRecord)
