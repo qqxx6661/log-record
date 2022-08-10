@@ -1,10 +1,13 @@
 # log-record
 
 ![](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter)
+![](https://img.shields.io/codecov/c/github/qqxx6661/logRecord)
 ![](https://img.shields.io/github/license/qqxx6661/logRecord)
 ![](https://img.shields.io/github/stars/qqxx6661/logRecord?style=social)
+
 ![](https://img.shields.io/github/issues/qqxx6661/logRecord)
 ![](https://img.shields.io/github/issues-closed/qqxx6661/logRecord)
+![](https://img.shields.io/github/issues-pr/qqxx6661/logRecord)
 ![](https://img.shields.io/github/issues-pr-closed/qqxx6661/logRecord)
 
 
