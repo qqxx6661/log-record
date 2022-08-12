@@ -12,7 +12,7 @@
 
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-starter</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2-SNAPSHOT</version>
 
     <dependencies>
 
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.80</version>
+            <version>1.2.83</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

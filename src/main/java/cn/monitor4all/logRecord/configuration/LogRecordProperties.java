@@ -1,5 +1,6 @@
 package cn.monitor4all.logRecord.configuration;
 
+import cn.monitor4all.logRecord.function.CustomFunctionObjectDiff;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -18,7 +19,7 @@ public class LogRecordProperties {
 
     private String dataPipeline;
 
-    private String diffMsgFormat = "【${_fieldName}】从【${_oldValue}】变成了【${_newValue}】";
+    private String diffMsgFormat = CustomFunctionObjectDiff.DEFAULT_DIFF_MSG_FORMAT;
 
     private String diffMsgSeparator = " ";
 

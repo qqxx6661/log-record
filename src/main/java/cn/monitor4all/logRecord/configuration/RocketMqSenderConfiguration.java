@@ -1,6 +1,7 @@
 package cn.monitor4all.logRecord.configuration;
 
 import cn.monitor4all.logRecord.constants.LogConstants;
+import cn.monitor4all.logRecord.exception.LogRecordException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -58,8 +59,7 @@ public class RocketMqSenderConfiguration {
             producer.start();
             log.info("LogRecord RocketMq producer is started");
         } catch (MQClientException e) {
-            log.error("LogRecord failed to start RocketMq producer", e);
-            throw new RuntimeException(e);
+            throw new LogRecordException("LogRecord failed to start RocketMq producer", e.getCause());
         }
         return producer;
     }
