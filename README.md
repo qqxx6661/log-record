@@ -341,7 +341,7 @@ https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html
 
 举例来说，bizType中我们经常会填入常量，例如订单创建orderCreate, 订单修改orderModify。
 
-在SpEL表达式中，若传入`bizType="orderCreate"`，SpEL会解析失败，因为纯字符串会被认为是一个方法名，导致SpEL找不到方法而报错，需要使用`bizType="orderCreate"`，才能被正确解析。
+在SpEL表达式中，若传入`bizType="orderCreate"`，SpEL会解析失败，因为纯字符串会被认为是一个方法名，导致SpEL找不到方法而报错，需要使用`bizType="'orderCreate'"`，才能被正确解析。
 
 有时，我们会用枚举值和常量值来规范bizType等参数，合理写法如下：
 
@@ -528,8 +528,8 @@ public class CustomFunctionService {
 注解中使用：
 
 ```
-@OperationLog(bizId = "#test_testMethodWithCustomName()", bizType = "testMethodWithCustomName")
-@OperationLog(bizId = "#test_testMethodWithoutCustomName()", bizType = "testMethodWithoutCustomName")
+@OperationLog(bizId = "#test_testMethodWithCustomName()", bizType = "'testMethodWithCustomName'")
+@OperationLog(bizId = "#test_testMethodWithoutCustomName()", bizType = "'testMethodWithoutCustomName'")
 public void testCustomFunc() {
 }
 ```
