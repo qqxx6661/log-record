@@ -21,7 +21,7 @@
 <dependency>
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-starter</artifactId>
-    <version>1.2.1</version>
+    <version>{最新版本号}</version>
 </dependency>
 ```
 
@@ -92,8 +92,8 @@ public Response<T> function(Request request) {
   // 业务执行逻辑
   ...
   // 手动传递日志上下文：用户信息 地址旧值
-  LogRecordContext.putVariables("userName", queryUserName(request.getUserId()));
-  LogRecordContext.putVariables("oldAddress", queryOldAddress(request.getOrderId()));
+  LogRecordContext.putVariable("userName", queryUserName(request.getUserId()));
+  LogRecordContext.putVariable("oldAddress", queryOldAddress(request.getOrderId()));
 }
 ```
 
@@ -394,7 +394,7 @@ public class TestConstant {
 @OperationLog(bizId = "#keyInBiz", bizType = "'testExecuteAfterFunc'")
 @OperationLog(bizId = "#keyInBiz", bizType = "'testExecuteBeforeFunc2'", executeBeforeFunc = true)
 public void testExecuteBeforeFunc() {
-    LogRecordContext.putVariables("keyInBiz", "valueInBiz");
+    LogRecordContext.putVariable("keyInBiz", "valueInBiz");
 }
 ```
 
@@ -485,8 +485,8 @@ public Response<T> function(Request request) {
   // 业务执行逻辑
   ...
   // 手动传递日志上下文：用户信息 地址旧值
-  LogRecordContext.putVariables("userName", queryUserName(request.getUserId()));
-  LogRecordContext.putVariables("oldAddress", queryOldAddress(request.getOrderId()));
+  LogRecordContext.putVariable("userName", queryUserName(request.getUserId()));
+  LogRecordContext.putVariable("oldAddress", queryOldAddress(request.getOrderId()));
 }
 ```
 
@@ -552,7 +552,7 @@ public void testCustomFunc() {
 public Result<Void> createOrder(Request request) {
     try {
         Response response = tradeCreateService.create(request);
-        LogRecordContext.putVariables("isSuccess", response.getIsSuccess());
+        LogRecordContext.putVariable("isSuccess", response.getIsSuccess());
         return Result.ofSuccess();
     } catch (Exception e) {
         return Result.ofSysError();
@@ -612,7 +612,7 @@ public class TestUser {
 ```
 @OperationLog(bizId = "'1'", bizType = "'testObjectDiff'", msg = "#_DIFF(#oldObject, #testUser)", extra = "#_DIFF(#oldObject, #testUser)")
 public void testObjectDiff(TestUser testUser) {
-    LogRecordContext.putVariables("oldObject", new TestUser(1, "张三"));
+    LogRecordContext.putVariable("oldObject", new TestUser(1, "张三"));
 }
 ```
 

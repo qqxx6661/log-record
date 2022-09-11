@@ -95,7 +95,7 @@ public class SystemLogAspect {
                     executionTime = stopWatch.getTotalTimeMillis();
                 }
                 // 在LogRecordContext中写入执行后信息
-                LogRecordContext.putVariables(LogRecordContext.CONTEXT_KEY_NAME_RETURN, result);
+                LogRecordContext.putVariable(LogRecordContext.CONTEXT_KEY_NAME_RETURN, result);
                 for (OperationLog annotation : annotations) {
                     if (!annotation.executeBeforeFunc()) {
                         LogDTO logDTO = resolveExpress(annotation, pjp);
@@ -129,7 +129,7 @@ public class SystemLogAspect {
                     executionTime = stopWatch.getTotalTimeMillis();
                 }
                 // 在LogRecordContext中写入执行后信息
-                LogRecordContext.putVariables(LogRecordContext.CONTEXT_KEY_NAME_ERROR_MSG, throwable.getMessage());
+                LogRecordContext.putVariable(LogRecordContext.CONTEXT_KEY_NAME_ERROR_MSG, throwable.getMessage());
                 for (OperationLog annotation : annotations) {
                     if (!annotation.executeBeforeFunc()) {
                         logDtoMap.put(annotation, resolveExpress(annotation, pjp));

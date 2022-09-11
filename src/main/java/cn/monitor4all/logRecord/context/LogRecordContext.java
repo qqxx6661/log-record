@@ -19,10 +19,15 @@ public class LogRecordContext {
         return CONTEXT_THREAD_LOCAL.get() == null ? new StandardEvaluationContext(): CONTEXT_THREAD_LOCAL.get();
     }
 
-    public static void putVariables(String key, Object value) {
+    public static void putVariable(String key, Object value) {
         StandardEvaluationContext context = getContext();
         context.setVariable(key, value);
         CONTEXT_THREAD_LOCAL.set(context);
+    }
+
+    public static Object getVariable(String key) {
+        StandardEvaluationContext context = getContext();
+        return context.lookupVariable(key);
     }
 
     public static void clearContext() {

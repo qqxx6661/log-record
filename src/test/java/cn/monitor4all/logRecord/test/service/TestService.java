@@ -4,7 +4,11 @@ package cn.monitor4all.logRecord.test.service;
 import cn.monitor4all.logRecord.annotation.OperationLog;
 import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.test.bean.TestUser;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.test.context.TestComponent;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 测试服务
@@ -60,7 +64,7 @@ public class TestService {
     @OperationLog(bizId = "'2'", bizType = "'testMsgAndExtraWithRawString'", msg = "'str'", extra = "'str'")
     @OperationLog(bizId = "'3'", bizType = "'testMsgAndExtraWithObject'", msg = "#testUser", extra = "#testUser")
     public void testMsgAndExtra(String newValue, TestUser testUser) {
-        LogRecordContext.putVariables("oldValue", "张三");
+        LogRecordContext.putVariable("oldValue", "张三");
     }
 
     /**
@@ -86,7 +90,7 @@ public class TestService {
     @OperationLog(bizId = "#keyInBiz", bizType = "'testExecuteAfterFunc'")
     @OperationLog(bizId = "#keyInBiz", bizType = "'testExecuteBeforeFunc2'", executeBeforeFunc = true)
     public void testExecuteBeforeFunc() {
-        LogRecordContext.putVariables("keyInBiz", "valueInBiz");
+        LogRecordContext.putVariable("keyInBiz", "valueInBiz");
     }
 
     /**
@@ -94,7 +98,7 @@ public class TestService {
      */
     @OperationLog(bizId = "'1'", bizType = "'testObjectDiff'", msg = "#_DIFF(#oldObject, #testUser)", extra = "#_DIFF(#oldObject, #testUser)")
     public void testObjectDiff(TestUser testUser) {
-        LogRecordContext.putVariables("oldObject", new TestUser(1, "张三"));
+        LogRecordContext.putVariable("oldObject", new TestUser(1, "张三"));
     }
 
     /**
@@ -140,5 +144,25 @@ public class TestService {
     @OperationLog(bizId = "'3'", bizType = "'testEnumWithSpEL2'", tag = "T(cn.monitor4all.logRecord.test.bean.TestEnum).TYPE1.key")
     @OperationLog(bizId = "'4'", bizType = "'testEnumWithSpEL3'", tag = "T(cn.monitor4all.logRecord.test.bean.TestEnum).TYPE1.name")
     public void testEnumAndConstantWithSpEL() {
+    }
+
+    /**
+     * 测试自定义上下文写入和读取
+     */
+    @OperationLog(bizId = "'1'", bizType = "'testLogRecordContext'", msg = "#customKey")
+    public void testLogRecordContext() {
+        LogRecordContext.putVariable("customKey", "customValue");
+        Assertions.assertEquals("customValue", LogRecordContext.getVariable("customKey"));
+    }
+
+    /**
+     * 测试自定义上下文写入和读取Map
+     */
+    @OperationLog(bizId = "'1'", bizType = "'testMapUseInLogRecordContext'", msg = "#customMap")
+    public void testMapUseInLogRecordContext() {
+        Map<String, Object> customMap = new HashMap<>(2);
+        customMap.put("customKey", "customValue");
+        LogRecordContext.putVariable("customMap", customMap);
+        Assertions.assertNotNull(LogRecordContext.getVariable("customMap"));
     }
 }

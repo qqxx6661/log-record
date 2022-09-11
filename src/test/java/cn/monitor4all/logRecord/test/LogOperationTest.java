@@ -55,6 +55,8 @@ public class LogOperationTest {
             testService.testDefaultParamErrorMsg();
         } catch (Exception ignored) {}
         testService.testEnumAndConstantWithSpEL();
+        testService.testLogRecordContext();
+        testService.testMapUseInLogRecordContext();
     }
 
     @TestComponent
@@ -179,6 +181,14 @@ public class LogOperationTest {
             }
             if ("testEnumWithSpEL3".equals(logDTO.getBizType())) {
                 Assertions.assertEquals(logDTO.getTag(), "枚举1");
+            }
+
+            if ("testLogRecordContext".equals(logDTO.getBizType())) {
+                Assertions.assertEquals(logDTO.getMsg(), "customValue");
+            }
+
+            if ("testMapUseInLogRecordContext".equals(logDTO.getBizType())) {
+                Assertions.assertEquals(logDTO.getMsg(), "{\"customKey\":\"customValue\"}");
             }
 
         }
