@@ -10,7 +10,7 @@
 ![](https://img.shields.io/github/issues-pr/qqxx6661/logRecord)
 ![](https://img.shields.io/github/issues-pr-closed/qqxx6661/logRecord)
 
-> 注意：本仓库灵感来源于[美团技术博客](https://tech.meituan.com/2021/09/16/operational-logbook.html) ，若您需要寻找的是美团仓库，可以跳转[这里](https://github.com/mouzt/mzt-biz-log/) 。
+> 注意：本仓库最初创作灵感来源于[美团技术博客](https://tech.meituan.com/2021/09/16/operational-logbook.html) ，若您需要寻找的是文中所提到的代码仓库，可以跳转[这里](https://github.com/mouzt/mzt-biz-log/) 。本仓库从零实现了原文中描述的大部分特性，并吸取生产环境大量实践和用户反馈，随着持续稳定的维护和更新，期望给用户提供更多差异化的功能。
 
 
 通过Java注解优雅的记录操作日志，并支持SpEL表达式，自定义上下文，自定义函数，实体类DIFF等功能，最终日志可由用户自行处理或推送至指定消息队列。
