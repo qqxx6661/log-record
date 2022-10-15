@@ -21,7 +21,7 @@ public class LogRecordProperties {
 
     private String diffMsgFormat = CustomFunctionObjectDiff.DEFAULT_DIFF_MSG_FORMAT;
 
-    private String diffMsgSeparator = " ";
+    private String diffMsgSeparator = CustomFunctionObjectDiff.DEFAULT_DIFF_MSG_SEPARATOR;
 
     @Data
     public static class ThreadPoolProperties {

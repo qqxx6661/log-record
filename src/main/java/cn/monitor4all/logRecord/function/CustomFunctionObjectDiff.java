@@ -1,13 +1,15 @@
 package cn.monitor4all.logRecord.function;
 
 
-import cn.monitor4all.logRecord.annotation.LogRecordDiff;
+import cn.monitor4all.logRecord.annotation.LogRecordDiffField;
+import cn.monitor4all.logRecord.annotation.LogRecordDiffObject;
 import cn.monitor4all.logRecord.annotation.LogRecordFunc;
 import cn.monitor4all.logRecord.bean.DiffDTO;
 import cn.monitor4all.logRecord.bean.DiffFieldDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.context.LogRecordContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,6 +25,7 @@ public class CustomFunctionObjectDiff {
 
     public static final String DEFAULT_DIFF_MSG_FORMAT = "【${_fieldName}】从【${_oldValue}】变成了【${_newValue}】";
     public static final String DEFAULT_DIFF_MSG_SEPARATOR = " ";
+    public static final String DEFAULT_DIFF_NULL_TEXT = " ";
 
     private static String DIFF_MSG_FORMAT;
     private static String DIFF_MSG_SEPARATOR;
@@ -47,47 +50,58 @@ public class CustomFunctionObjectDiff {
             return msg.toString();
         }
 
-        // 对象类名
+        // 类注解获取
         String oldClassName = oldObject.getClass().getName();
         String newClassName = newObject.getClass().getName();
-        LogRecordDiff oldClassLogRecordDiff = oldObject.getClass().getDeclaredAnnotation(LogRecordDiff.class);
-        LogRecordDiff newClassLogRecordDiff = newObject.getClass().getDeclaredAnnotation(LogRecordDiff.class);
-        String oldClassAlias = oldClassLogRecordDiff != null && StringUtils.isNotBlank(oldClassLogRecordDiff.alias()) ? oldClassLogRecordDiff.alias() : null;
-        String newClassAlias = newClassLogRecordDiff != null && StringUtils.isNotBlank(newClassLogRecordDiff.alias()) ? newClassLogRecordDiff.alias() : null;
+        LogRecordDiffObject oldObjectLogRecordDiff = oldObject.getClass().getDeclaredAnnotation(LogRecordDiffObject.class);
+        LogRecordDiffObject newObjectLogRecordDiff = newObject.getClass().getDeclaredAnnotation(LogRecordDiffObject.class);
+
+        // 类全部字段DIFF开关
+        boolean oldClassEnableAllFields = oldObjectLogRecordDiff != null && oldObjectLogRecordDiff.enableAllFields();
+        log.debug("oldClassEnableAllFields [{}]", oldClassEnableAllFields);
+
+        // 类别名处理
+        String oldClassAlias = oldObjectLogRecordDiff != null && StringUtils.isNotBlank(oldObjectLogRecordDiff.alias()) ? oldObjectLogRecordDiff.alias() : null;
+        String newClassAlias = newObjectLogRecordDiff != null && StringUtils.isNotBlank(newObjectLogRecordDiff.alias()) ? newObjectLogRecordDiff.alias() : null;
         log.debug("oldClassName [{}] oldClassAlias [{}] newClassName [{}] newClassAlias [{}]", oldClassName, oldClassAlias, newClassName, newClassAlias);
 
-        // 新旧字段Map
+        // 新旧字段Map和新旧字段别名Map
         Map<String, String> oldFieldAliasMap = new LinkedHashMap<>();
         Map<String, String> newFieldAliasMap = new LinkedHashMap<>();
         Map<String, Object> oldValueMap = new LinkedHashMap<>();
         Map<String, Object> newValueMap = new LinkedHashMap<>();
 
-        // 遍历旧对象全部加LogRecordDiff注解字段
+        // 遍历旧对象
         Field[] fields = oldObject.getClass().getDeclaredFields();
         for (Field oldField : fields) {
             try {
-                LogRecordDiff oldObjectLogRecordDiff = oldField.getDeclaredAnnotation(LogRecordDiff.class);
-                // 若没有LogRecordDiff注解，跳过
-                if (oldObjectLogRecordDiff == null) {
+                LogRecordDiffField oldFieldLogRecordDiff = oldField.getDeclaredAnnotation(LogRecordDiffField.class);
+                // 若没有打开所有对象DIFF开关且没有LogRecordDiff注解则跳过本次循环
+                if (!oldClassEnableAllFields && oldFieldLogRecordDiff == null) {
                     continue;
                 }
                 try {
                     // 在新对象中寻找同名字段，若找不到则跳过本次循环
                     Field newField = newObject.getClass().getDeclaredField(oldField.getName());
-                    LogRecordDiff newObjectLogRecordDiff = newField.getDeclaredAnnotation(LogRecordDiff.class);
-                    String oldFieldAlias = StringUtils.isNotBlank(oldObjectLogRecordDiff.alias()) ? oldObjectLogRecordDiff.alias() : null;
-                    String newFieldAlias = StringUtils.isNotBlank(newObjectLogRecordDiff.alias()) ? newObjectLogRecordDiff.alias() : null;
-                    log.debug("field [{}] has annotation oldField alias [{}] newField alias [{}]", oldField.getName(), oldFieldAlias, newFieldAlias);
+                    LogRecordDiffField newFieldLogRecordDiff = newField.getDeclaredAnnotation(LogRecordDiffField.class);
+                    if (oldFieldLogRecordDiff != null && newFieldLogRecordDiff != null) {
+                        String oldFieldAlias = StringUtils.isNotBlank(oldFieldLogRecordDiff.alias()) ? oldFieldLogRecordDiff.alias() : null;
+                        String newFieldAlias = StringUtils.isNotBlank(newFieldLogRecordDiff.alias()) ? newFieldLogRecordDiff.alias() : null;
+                        oldFieldAliasMap.put(oldField.getName(), oldFieldAlias);
+                        newFieldAliasMap.put(newField.getName(), newFieldAlias);
+                        log.debug("field [{}] has annotation oldField alias [{}] newField alias [{}]", oldField.getName(), oldFieldAlias, newFieldAlias);
+                    }
                     oldField.setAccessible(true);
                     newField.setAccessible(true);
                     Object oldValue = oldField.get(oldObject);
                     Object newValue = newField.get(newObject);
-                    if (!oldValue.equals(newValue)) {
+                    boolean diff = (oldValue == null && newValue != null)
+                            || (oldValue != null && newValue == null)
+                            || (oldValue != null && newValue != null && !oldValue.equals(newValue));
+                    if (diff) {
                         log.debug("field [{}] is different between oldObject [{}] newObject [{}]", oldField.getName(), oldValue, newValue);
                         oldValueMap.put(oldField.getName(), oldValue);
                         newValueMap.put(newField.getName(), newValue);
-                        oldFieldAliasMap.put(oldField.getName(), oldFieldAlias);
-                        newFieldAliasMap.put(newField.getName(), newFieldAlias);
                     }
                 } catch (NoSuchFieldException e) {
                     log.info("no field named [{}] in newObject, skip", oldField.getName());
@@ -97,6 +111,7 @@ public class CustomFunctionObjectDiff {
             }
         }
 
+        // DIFF后组装DiffDTOList和msg
         List<String> diffMsgList = new ArrayList<>();
         log.debug("oldFieldAliasMap [{}]", oldFieldAliasMap);
         log.debug("newFieldAliasMap [{}]", newFieldAliasMap);
@@ -125,8 +140,8 @@ public class CustomFunctionObjectDiff {
             // 默认使用旧对象的字段名或别名
             Map<String, Object> valuesMap = new HashMap<>(3);
             valuesMap.put("_fieldName", StringUtils.isNotBlank(oldFieldAlias) ? oldFieldAlias : fieldName);
-            valuesMap.put("_oldValue", oldValue);
-            valuesMap.put("_newValue", newValue);
+            valuesMap.put("_oldValue", ObjectUtils.isEmpty(oldValue) ? DEFAULT_DIFF_NULL_TEXT : oldValue.toString());
+            valuesMap.put("_newValue", ObjectUtils.isEmpty(newValue) ? DEFAULT_DIFF_NULL_TEXT : newValue.toString());
             StringSubstitutor sub = new StringSubstitutor(valuesMap);
             diffMsgList.add(sub.replace(DIFF_MSG_FORMAT));
         }

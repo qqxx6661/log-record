@@ -3,10 +3,12 @@ package cn.monitor4all.logRecord.test.service;
 
 import cn.monitor4all.logRecord.annotation.OperationLog;
 import cn.monitor4all.logRecord.context.LogRecordContext;
+import cn.monitor4all.logRecord.test.bean.TestComplexUser;
 import cn.monitor4all.logRecord.test.bean.TestUser;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.test.context.TestComponent;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,11 +96,20 @@ public class TestService {
     }
 
     /**
-     * 测试实体类DIFF
+     * 测试实体类DIFF：未开启全部字段
      */
-    @OperationLog(bizId = "'1'", bizType = "'testObjectDiff'", msg = "#_DIFF(#oldObject, #testUser)", extra = "#_DIFF(#oldObject, #testUser)")
+    @OperationLog(bizId = "'1'", bizType = "'testObjectDiff'", msg = "#_DIFF(#oldObject, #testUser)")
     public void testObjectDiff(TestUser testUser) {
         LogRecordContext.putVariable("oldObject", new TestUser(1, "张三"));
+    }
+
+    /**
+     * 测试实体类DIFF：开启全部字段
+     */
+    @OperationLog(bizId = "'1'", bizType = "'testObjectDiffEnableAllFields'", msg = "#_DIFF(#oldObject, #testComplexUser)")
+    public void testObjectDiffEnableAllFields(TestComplexUser testComplexUser) {
+        LogRecordContext.putVariable("oldObject", new TestComplexUser(1, "张三", null,
+                Arrays.asList("小张三", "大张三")));
     }
 
     /**

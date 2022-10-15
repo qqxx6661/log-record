@@ -3,6 +3,7 @@ package cn.monitor4all.logRecord.test;
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordAutoConfiguration;
 import cn.monitor4all.logRecord.service.IOperationLogGetService;
+import cn.monitor4all.logRecord.test.bean.TestComplexUser;
 import cn.monitor4all.logRecord.test.bean.TestUser;
 import cn.monitor4all.logRecord.test.service.OperationLogGetService;
 import cn.monitor4all.logRecord.test.service.TestService;
@@ -16,6 +17,8 @@ import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.Arrays;
 
 /**
  * 单元测试
@@ -48,6 +51,8 @@ public class LogOperationTest {
         testService.testOperatorId("001");
         testService.testExecuteBeforeFunc();
         testService.testObjectDiff(new TestUser(2, "李四"));
+        testService.testObjectDiffEnableAllFields(new TestComplexUser(2, null, 20,
+                Arrays.asList("小李四", "大李四")));
         testService.testCondition(new TestUser(1, "张三"));
         testService.testCustomSuccess(new TestUser(1, "张三"));
         testService.testDefaultParamReturn();
@@ -189,6 +194,17 @@ public class LogOperationTest {
 
             if ("testMapUseInLogRecordContext".equals(logDTO.getBizType())) {
                 Assertions.assertEquals(logDTO.getMsg(), "{\"customKey\":\"customValue\"}");
+            }
+
+            if ("testObjectDiffEnableAllFields".equals(logDTO.getBizType())) {
+                Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【张三】变成了【 】 【age】从【 】变成了【20】 【nickNameList】从【[小张三, 大张三]】变成了【[小李四, 大李四]】");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.bean.TestComplexUser");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息复杂实体");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewFieldAlias(), "用户工号");
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 1);
+                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewValue(), 2);
             }
 
         }

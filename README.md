@@ -461,7 +461,7 @@ testService.testCondition(new TestUser(1, "张三"));
 大部分情况下，操作人ID往往不会在方法参数中传递，更多会是查询集团内BUC信息、查询外部服务、查表等获取。所以开放了SPI，只需要实现接口IOperationLogGetService，便可以统一注入操作人ID。
 
 ```java
-public class OperationLogGetService implements IOperatorIdGetService {
+public class IOperatorIdGetServiceImpl implements IOperatorIdGetService {
 
     @Override
     public String getOperatorId() {
@@ -564,26 +564,46 @@ public Result<Void> createOrder(Request request) {
 
 ### 实体类Diff
 
-支持两个类（相同或者不同类皆可）对象的Diff。
+支持两个对象（相同或者不同的类对象皆可）对象的Diff。
 
-在需要对比的字段上申明@LogRecordDiff(alias = "用户工号")，alias别名为可选字段。
+有如下两个注解：
 
-在类上也可以申明@LogRecordDiff(alias = "用户信息实体")，但这一步不是必须的，只是为了获取类的别名。
+- @LogRecordDiffField：在需要对比的字段上申明@LogRecordDiffField(alias = "用户工号")，alias别名为可选字段。
+- @LogRecordDiffObject：在类上也可以申明@LogRecordDiffObject(alias = "用户信息实体")，alias别名为可选字段，默认类下所有字段会进行DIFF，可通过enableAllFields手动关闭，关闭后等于该注解只用于获取类别名。
+
+类对象使用示例：
 
 ```
-@LogRecordDiff(alias = "用户信息实体")
+@LogRecordDiffObject(alias = "用户信息实体")
 public class TestUser {
-
-    @LogRecordDiff(alias = "用户工号")
     private Integer id;
-
-    @LogRecordDiff
     private String name;
-
 }
 ```
 
-比较后的结果在日志实体中以diffDTO实体呈现。
+或者单独为字段DIFF：
+
+```
+public class TestUser {
+    @LogRecordDiffField(alias = "用户工号")
+    private Integer id;
+    private String name;
+}
+```
+
+**注意：目前DIFF功能实现核心是比较两个对象的equal函数，即`oldValue.equals(newValue)`，所以对于基本类型和基本类型的嵌套，比如`List<String>`，是有较好的支持的。但如果嵌套了复杂对象，比如`List<User>`，则必须重写User类的equals和toString方法，否则DIFF功能无法正常比较出想要的结果日志。**
+
+在@OperationLog注解上，可以通过调用内置实现的自定义函数 _DIFF ，传入两个对象即可拿到Diff结果。
+
+
+```
+@OperationLog(bizId = "'1'", bizType = "'testObjectDiff'", msg = "#_DIFF(#oldObject, #testUser)", extra = "#_DIFF(#oldObject, #testUser)")
+public void testObjectDiff(TestUser testUser) {
+    LogRecordContext.putVariable("oldObject", new TestUser(1, "张三"));
+}
+```
+
+比较完成后的结果在日志实体中以diffDTO实体呈现。
 
 ```
 {
@@ -607,15 +627,6 @@ public class TestUser {
 }
 ```
 
-在@OperationLog注解上，通过调用内置实现的自定义函数 _DIFF ，传入两个对象即可拿到Diff结果。
-
-```
-@OperationLog(bizId = "'1'", bizType = "'testObjectDiff'", msg = "#_DIFF(#oldObject, #testUser)", extra = "#_DIFF(#oldObject, #testUser)")
-public void testObjectDiff(TestUser testUser) {
-    LogRecordContext.putVariable("oldObject", new TestUser(1, "张三"));
-}
-```
-
 调用方法：
 
 ```
@@ -623,7 +634,7 @@ testService.testObjectDiff(new TestUser(2, "李四"));
 ```
 
 
-最终得到的日志消息实体：
+最终得到的日志消息实体logDTO：
 
 ```json
 {
