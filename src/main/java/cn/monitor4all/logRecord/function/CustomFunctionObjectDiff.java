@@ -123,7 +123,6 @@ public class CustomFunctionObjectDiff {
         diffDTO.setNewClassName(newClassName);
         diffDTO.setNewClassAlias(newClassAlias);
         List<DiffFieldDTO> diffFieldDTOList = new ArrayList<>();
-        diffDTO.setDiffFieldDTOList(diffFieldDTOList);
         for (Map.Entry<String, Object> entry: oldValueMap.entrySet()) {
             String fieldName = entry.getKey();
             Object oldValue = entry.getValue();
@@ -145,6 +144,7 @@ public class CustomFunctionObjectDiff {
             StringSubstitutor sub = new StringSubstitutor(valuesMap);
             diffMsgList.add(sub.replace(DIFF_MSG_FORMAT));
         }
+        diffDTO.setDiffFieldDTOList(diffFieldDTOList);
         msg.append(String.join(DIFF_MSG_SEPARATOR, diffMsgList));
         LogRecordContext.addDiffDTO(diffDTO);
         return msg.toString();
