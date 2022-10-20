@@ -12,7 +12,7 @@
 
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-starter</artifactId>
-    <version>1.2.4-SNAPSHOT</version>
+    <version>1.2.4</version>
 
     <dependencies>
 
@@ -109,11 +109,11 @@
 
     <distributionManagement>
         <!--  申明打包到Github私有Maven仓库  -->
-        <repository>
-            <id>github</id>
-            <name>GitHub OWNER Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/qqxx6661/logRecord</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>github</id>-->
+<!--            <name>GitHub OWNER Apache Maven Packages</name>-->
+<!--            <url>https://maven.pkg.github.com/qqxx6661/logRecord</url>-->
+<!--        </repository>-->
 
         <!--  申明打包到Maven公有仓库  -->
         <snapshotRepository>
@@ -184,20 +184,20 @@
                 </executions>
             </plugin>
             <!--  若需要本地执行 mvn install 需要将下方gpg插件注释掉  -->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-gpg-plugin</artifactId>-->
-<!--                <version>1.5</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>sign-artifacts</id>-->
-<!--                        <phase>verify</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>sign</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
