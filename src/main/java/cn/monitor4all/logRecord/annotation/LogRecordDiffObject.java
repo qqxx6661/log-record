@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 标注在类中用于表示该类全部字段需要进行DIFF
+ * 申明该类参与实体类DIFF
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

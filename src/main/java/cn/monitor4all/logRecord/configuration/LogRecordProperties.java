@@ -23,6 +23,17 @@ public class LogRecordProperties {
 
     private String diffMsgSeparator = CustomFunctionObjectDiff.DEFAULT_DIFF_MSG_SEPARATOR;
 
+    private RetryProperties retry = new RetryProperties();
+
+    @Data
+    public static class RetryProperties {
+
+        /**
+         * 日志处理失败重试次数
+         */
+        private int retryTimes = 0;
+    }
+
     @Data
     public static class ThreadPoolProperties {
 

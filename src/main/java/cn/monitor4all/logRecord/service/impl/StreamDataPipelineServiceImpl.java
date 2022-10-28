@@ -4,7 +4,7 @@ import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.configuration.StreamSenderConfiguration;
 import cn.monitor4all.logRecord.constants.LogConstants;
-import cn.monitor4all.logRecord.service.LogService;
+import cn.monitor4all.logRecord.service.DataPipelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @EnableConfigurationProperties({LogRecordProperties.class})
 @ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstants.DataPipeline.STREAM)
-public class StreamLogServiceImpl implements LogService {
+public class StreamDataPipelineServiceImpl implements DataPipelineService {
 
     @Autowired
     private StreamSenderConfiguration.LogRecordChannel channel;

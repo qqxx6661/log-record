@@ -1,6 +1,7 @@
 package cn.monitor4all.logRecord.test.bean;
 
 import cn.monitor4all.logRecord.annotation.LogRecordDiffField;
+import cn.monitor4all.logRecord.annotation.LogRecordDiffIgnoreField;
 import cn.monitor4all.logRecord.annotation.LogRecordDiffObject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,5 +22,8 @@ public class TestComplexUser {
     private Integer age;
 
     private List<String> nickNameList;
+
+    @LogRecordDiffIgnoreField
+    private String job;
 
 }

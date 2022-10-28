@@ -5,7 +5,10 @@ import cn.monitor4all.logRecord.annotation.OperationLog;
 import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.test.bean.TestComplexUser;
 import cn.monitor4all.logRecord.test.bean.TestUser;
-import org.junit.jupiter.api.Assertions;
+import cn.monitor4all.logRecord.test.bean.diff.TestDiffDuty;
+import cn.monitor4all.logRecord.test.bean.diff.TestDiffJob;
+import cn.monitor4all.logRecord.test.bean.diff.TestDiffUserParam;
+import cn.monitor4all.logRecord.test.bean.diff.TestDiffUserVO;
 import org.springframework.boot.test.context.TestComponent;
 
 import java.util.Arrays;
@@ -19,7 +22,7 @@ import java.util.Map;
 public class TestService {
 
     /**
-     * 测试bizId SpEL解析
+     * 测试bizId解析
      */
     @OperationLog(bizId = "#bizId", bizType = "'testBizIdWithSpEL'")
     @OperationLog(bizId = "'2'", bizType = "'testBizIdWithRawString'")
@@ -27,7 +30,7 @@ public class TestService {
     }
 
     /**
-     * 测试tag SpEL解析
+     * 测试tag解析
      */
     @OperationLog(bizId = "'1'", tag = "#tag", bizType = "'testTagWithSpEL'")
     @OperationLog(bizId = "'2'", tag = "'tag2'", bizType = "'testTagWithRawString'")
@@ -35,7 +38,7 @@ public class TestService {
     }
 
     /**
-     * 测试返回值开关
+     * 测试返回值开关recordReturnValue
      */
     @OperationLog(bizId = "'1'", bizType = "'testRecordReturnValueTrue'", recordReturnValue = true)
     @OperationLog(bizId = "'1'", bizType = "'testRecordReturnValueFalse'")
@@ -52,7 +55,7 @@ public class TestService {
     }
 
     /**
-     * 测试exception 返回异常信息
+     * 测试返回异常信息
      */
     @OperationLog(bizId = "'1'", bizType = "'testException'")
     public String testException() {
@@ -60,7 +63,7 @@ public class TestService {
     }
 
     /**
-     * 测试Msg和Extra参数 SpEL解析
+     * 测试msg和extra解析
      */
     @OperationLog(bizId = "'1'", bizType = "'testMsgAndExtraWithSpEL'", msg = "'将旧值' + #oldValue + '更改为新值' + #newValue", extra = "'将旧值' + #oldValue + '更改为新值' + #newValue")
     @OperationLog(bizId = "'2'", bizType = "'testMsgAndExtraWithRawString'", msg = "'str'", extra = "'str'")
@@ -88,28 +91,66 @@ public class TestService {
     /**
      * 测试切面执行方法前方法后配置
      */
-    @OperationLog(bizId = "#keyInBiz", bizType = "'testExecuteBeforeFunc1'", executeBeforeFunc = true)
-    @OperationLog(bizId = "#keyInBiz", bizType = "'testExecuteAfterFunc'")
-    @OperationLog(bizId = "#keyInBiz", bizType = "'testExecuteBeforeFunc2'", executeBeforeFunc = true)
+    @OperationLog(bizId = "'1'", tag = "#key", bizType = "'testExecuteBeforeFunc1'", executeBeforeFunc = true)
+    @OperationLog(bizId = "'2'", tag = "#key", bizType = "'testExecuteAfterFunc'")
+    @OperationLog(bizId = "'3'", tag = "#key", bizType = "'testExecuteBeforeFunc2'", executeBeforeFunc = true)
     public void testExecuteBeforeFunc() {
-        LogRecordContext.putVariable("keyInBiz", "valueInBiz");
+        LogRecordContext.putVariable("key", "value");
     }
 
     /**
-     * 测试实体类DIFF：未开启全部字段
+     * 测试实体类DIFF：使用字段注解LogRecordDiffField
      */
-    @OperationLog(bizId = "'1'", bizType = "'testObjectDiff'", msg = "#_DIFF(#oldObject, #testUser)")
-    public void testObjectDiff(TestUser testUser) {
+    @OperationLog(bizId = "'1'", bizType = "'testLogRecordDiffField'", msg = "#_DIFF(#oldObject, #testUser)")
+    public void testLogRecordDiffField(TestUser testUser) {
         LogRecordContext.putVariable("oldObject", new TestUser(1, "张三"));
     }
 
     /**
-     * 测试实体类DIFF：开启全部字段
+     * 测试实体类DIFF：使用类注解LogRecordDiffObject
      */
-    @OperationLog(bizId = "'1'", bizType = "'testObjectDiffEnableAllFields'", msg = "#_DIFF(#oldObject, #testComplexUser)")
-    public void testObjectDiffEnableAllFields(TestComplexUser testComplexUser) {
+    @OperationLog(bizId = "'1'", bizType = "'testLogRecordDiffObject'", msg = "#_DIFF(#oldObject, #testComplexUser)")
+    public void testLogRecordDiffObject(TestComplexUser testComplexUser) {
         LogRecordContext.putVariable("oldObject", new TestComplexUser(1, "张三", null,
-                Arrays.asList("小张三", "大张三")));
+                Arrays.asList("小张三", "大张三"), "前端"));
+    }
+
+    /**
+     * 测试实体类DIFF：使用类注解LogRecordDiffIgnoreField
+     */
+    @OperationLog(bizId = "'1'", bizType = "'testLogRecordDiffIgnoreField'", msg = "#_DIFF(#oldObject, #testComplexUser)")
+    public void testLogRecordDiffIgnoreField(TestComplexUser testComplexUser) {
+        LogRecordContext.putVariable("oldObject", new TestComplexUser(1, "张三", null,
+                Arrays.asList("小张三", "大张三"), "前端"));
+    }
+
+    /**
+     * 测试实体类DIFF：嵌套非基本类型
+     */
+    @OperationLog(bizId = "'1'", bizType = "'testLogRecordDiffNestedClass'", msg = "#_DIFF(#oldObject, #testDiffUserParam)")
+    public void testLogRecordDiffNestedClass(TestDiffUserParam testDiffUserParam) {
+        TestDiffUserVO testDiffUserVO = new TestDiffUserVO();
+        testDiffUserVO.setId(2);
+        testDiffUserVO.setName("小张三");
+        testDiffUserVO.setAge(2);
+        TestDiffJob testDiffJob = new TestDiffJob();
+        testDiffJob.setJobId(22);
+        testDiffJob.setJobName("222");
+        TestDiffDuty testDiffDuty = new TestDiffDuty();
+        testDiffDuty.setDutyId(222);
+        testDiffDuty.setDutyName("222");
+        testDiffJob.setDutyList(Arrays.asList(testDiffDuty));
+        testDiffUserVO.setJobList(Arrays.asList(testDiffJob));
+        LogRecordContext.putVariable("oldObject", testDiffUserVO);
+    }
+
+    /**
+     * 测试实体类DIFF：使用多个_DIFF
+     */
+    @OperationLog(bizId = "'1'", bizType = "'testMultipleDiff'", msg = "'第一个DIFF：' + #_DIFF(#oldObject1, #testUser) + '第二个DIFF' + #_DIFF(#oldObject2, #testUser)")
+    public void testMultipleDiff(TestUser testUser) {
+        LogRecordContext.putVariable("oldObject1", new TestUser(1, "张三"));
+        LogRecordContext.putVariable("oldObject2", new TestUser(3, "王五"));
     }
 
     /**
@@ -124,9 +165,9 @@ public class TestService {
     /**
      * 测试自定义success
      */
-    @OperationLog(bizId = "'success'", bizType = "'testCustomSuccess1'", success = "#testUser != null")
-    @OperationLog(bizId = "'failure'", bizType = "'testCustomSuccess2'", success = "#testUser == null")
-    @OperationLog(bizId = "''", bizType = "'testCustomSuccess3'")
+    @OperationLog(bizId = "'1'", msg = "'success'", bizType = "'testCustomSuccess1'", success = "#testUser != null")
+    @OperationLog(bizId = "'2'", msg = "'failure'", bizType = "'testCustomSuccess2'", success = "#testUser == null")
+    @OperationLog(bizId = "'3'", msg = "''", bizType = "'testCustomSuccess3'")
     public void testCustomSuccess(TestUser testUser) {
     }
 
@@ -163,7 +204,6 @@ public class TestService {
     @OperationLog(bizId = "'1'", bizType = "'testLogRecordContext'", msg = "#customKey")
     public void testLogRecordContext() {
         LogRecordContext.putVariable("customKey", "customValue");
-        Assertions.assertEquals("customValue", LogRecordContext.getVariable("customKey"));
     }
 
     /**
@@ -174,6 +214,12 @@ public class TestService {
         Map<String, Object> customMap = new HashMap<>(2);
         customMap.put("customKey", "customValue");
         LogRecordContext.putVariable("customMap", customMap);
-        Assertions.assertNotNull(LogRecordContext.getVariable("customMap"));
+    }
+
+    /**
+     * 测试重试次数配置和兜底异常处理
+     */
+    @OperationLog(bizId = "'1'", bizType = "'testRetryTimes'")
+    public void testRetryTimesAndOperationLogGetErrorHandler() {
     }
 }

@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * DIFF实体
+ */
 @Data
 public class DiffDTO {
 

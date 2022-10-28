@@ -3,7 +3,7 @@ package cn.monitor4all.logRecord.service.impl;
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.constants.LogConstants;
-import cn.monitor4all.logRecord.service.LogService;
+import cn.monitor4all.logRecord.service.DataPipelineService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @EnableConfigurationProperties({LogRecordProperties.class})
 @ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstants.DataPipeline.RABBIT_MQ)
-public class RabbitMqLogServiceImpl implements LogService {
+public class RabbitMqDataPipelineServiceImpl implements DataPipelineService {
 
     @Autowired
     private RabbitTemplate rubeExchangeTemplate;

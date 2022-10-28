@@ -2,14 +2,17 @@ package cn.monitor4all.logRecord.function;
 
 
 import cn.monitor4all.logRecord.annotation.LogRecordDiffField;
+import cn.monitor4all.logRecord.annotation.LogRecordDiffIgnoreField;
 import cn.monitor4all.logRecord.annotation.LogRecordDiffObject;
 import cn.monitor4all.logRecord.annotation.LogRecordFunc;
 import cn.monitor4all.logRecord.bean.DiffDTO;
 import cn.monitor4all.logRecord.bean.DiffFieldDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.context.LogRecordContext;
+import cn.monitor4all.logRecord.exception.LogRecordException;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -41,7 +44,7 @@ public class CustomFunctionObjectDiff {
      * @return DIFF日志消息文案
      */
     @LogRecordFunc("_DIFF")
-    public static String objectDiff(Object oldObject, Object newObject) {
+    public static String objectDiff(Object oldObject, Object newObject) throws LogRecordException {
         StringBuilder msg = new StringBuilder();
 
         // 若包含null对象，直接返回
@@ -58,7 +61,8 @@ public class CustomFunctionObjectDiff {
 
         // 类全部字段DIFF开关
         boolean oldClassEnableAllFields = oldObjectLogRecordDiff != null && oldObjectLogRecordDiff.enableAllFields();
-        log.debug("oldClassEnableAllFields [{}]", oldClassEnableAllFields);
+        boolean newClassEnableAllFields = newObjectLogRecordDiff != null && newObjectLogRecordDiff.enableAllFields();
+        log.debug("oldClassEnableAllFields [{}] newClassEnableAllFields [{}]", oldClassEnableAllFields, newClassEnableAllFields);
 
         // 类别名处理
         String oldClassAlias = oldObjectLogRecordDiff != null && StringUtils.isNotBlank(oldObjectLogRecordDiff.alias()) ? oldObjectLogRecordDiff.alias() : null;
@@ -75,30 +79,40 @@ public class CustomFunctionObjectDiff {
         Field[] fields = oldObject.getClass().getDeclaredFields();
         for (Field oldField : fields) {
             try {
-                LogRecordDiffField oldFieldLogRecordDiff = oldField.getDeclaredAnnotation(LogRecordDiffField.class);
-                // 若没有打开所有对象DIFF开关且没有LogRecordDiff注解则跳过本次循环
-                if (!oldClassEnableAllFields && oldFieldLogRecordDiff == null) {
+                LogRecordDiffField oldFieldLogRecordDiffField = oldField.getDeclaredAnnotation(LogRecordDiffField.class);
+                LogRecordDiffIgnoreField oldFieldLogRecordIgnoreField = oldField.getDeclaredAnnotation(LogRecordDiffIgnoreField.class);
+                // 根据老字段判断是否需要进行diff
+                if (!judgeFieldDiffNeeded(oldClassEnableAllFields, oldFieldLogRecordDiffField, oldFieldLogRecordIgnoreField)) {
+                    log.debug("oldField [{}] not need to diff, skip", oldField.getName());
                     continue;
                 }
                 try {
-                    // 在新对象中寻找同名字段，若找不到则跳过本次循环
+                    // 在新字段中寻找同名字段，若找不到则抛出NoSuchFieldException异常跳过本次遍历
                     Field newField = newObject.getClass().getDeclaredField(oldField.getName());
-                    LogRecordDiffField newFieldLogRecordDiff = newField.getDeclaredAnnotation(LogRecordDiffField.class);
-                    if (oldFieldLogRecordDiff != null && newFieldLogRecordDiff != null) {
-                        String oldFieldAlias = StringUtils.isNotBlank(oldFieldLogRecordDiff.alias()) ? oldFieldLogRecordDiff.alias() : null;
-                        String newFieldAlias = StringUtils.isNotBlank(newFieldLogRecordDiff.alias()) ? newFieldLogRecordDiff.alias() : null;
+                    LogRecordDiffField newFieldLogRecordDiffField = newField.getDeclaredAnnotation(LogRecordDiffField.class);
+                    LogRecordDiffIgnoreField newFieldLogRecordDiffIgnoreField = newField.getDeclaredAnnotation(LogRecordDiffIgnoreField.class);
+
+                    // 根据新字段判断是否需要进行diff
+                    if (!judgeFieldDiffNeeded(newClassEnableAllFields, newFieldLogRecordDiffField, newFieldLogRecordDiffIgnoreField)) {
+                        log.debug("newField [{}] not need to diff, skip", newField.getName());
+                        continue;
+                    }
+
+                    // 通过LogRecordDiffField获取字段别名
+                    if (oldFieldLogRecordDiffField != null && newFieldLogRecordDiffField != null) {
+                        String oldFieldAlias = StringUtils.isNotBlank(oldFieldLogRecordDiffField.alias()) ? oldFieldLogRecordDiffField.alias() : null;
+                        String newFieldAlias = StringUtils.isNotBlank(newFieldLogRecordDiffField.alias()) ? newFieldLogRecordDiffField.alias() : null;
                         oldFieldAliasMap.put(oldField.getName(), oldFieldAlias);
                         newFieldAliasMap.put(newField.getName(), newFieldAlias);
                         log.debug("field [{}] has annotation oldField alias [{}] newField alias [{}]", oldField.getName(), oldFieldAlias, newFieldAlias);
                     }
+
+                    // 对比新老字段值
                     oldField.setAccessible(true);
                     newField.setAccessible(true);
                     Object oldValue = oldField.get(oldObject);
                     Object newValue = newField.get(newObject);
-                    boolean diff = (oldValue == null && newValue != null)
-                            || (oldValue != null && newValue == null)
-                            || (oldValue != null && newValue != null && !oldValue.equals(newValue));
-                    if (diff) {
+                    if (!fieldValueEquals(oldValue, newValue)) {
                         log.debug("field [{}] is different between oldObject [{}] newObject [{}]", oldField.getName(), oldValue, newValue);
                         oldValueMap.put(oldField.getName(), oldValue);
                         newValueMap.put(newField.getName(), newValue);
@@ -140,14 +154,95 @@ public class CustomFunctionObjectDiff {
             // 默认使用旧对象的字段名或别名
             Map<String, Object> valuesMap = new HashMap<>(3);
             valuesMap.put("_fieldName", StringUtils.isNotBlank(oldFieldAlias) ? oldFieldAlias : fieldName);
-            valuesMap.put("_oldValue", ObjectUtils.isEmpty(oldValue) ? DEFAULT_DIFF_NULL_TEXT : oldValue.toString());
-            valuesMap.put("_newValue", ObjectUtils.isEmpty(newValue) ? DEFAULT_DIFF_NULL_TEXT : newValue.toString());
+            valuesMap.put("_oldValue", oldValue == null ? DEFAULT_DIFF_NULL_TEXT : oldValue.toString());
+            valuesMap.put("_newValue", newValue == null ? DEFAULT_DIFF_NULL_TEXT : newValue.toString());
             StringSubstitutor sub = new StringSubstitutor(valuesMap);
             diffMsgList.add(sub.replace(DIFF_MSG_FORMAT));
         }
         msg.append(String.join(DIFF_MSG_SEPARATOR, diffMsgList));
         LogRecordContext.addDiffDTO(diffDTO);
         return msg.toString();
+    }
+
+    /**
+     * 判断field是否需要进行DIFF
+     * 规则如下：
+     * 老类开启EnableAllFields并且老字段未开启LogRecordIgnoreField
+     * 或
+     * 老字段开启LogRecordDiffField并且老字段未开启LogRecordIgnoreField
+     *
+     */
+    private static boolean judgeFieldDiffNeeded(boolean classEnableAllFields, LogRecordDiffField fieldLogRecordDiffField,
+                                                LogRecordDiffIgnoreField fieldLogRecordIgnoreField) {
+        return (classEnableAllFields && fieldLogRecordIgnoreField == null)
+                || (fieldLogRecordDiffField != null && fieldLogRecordIgnoreField == null);
+    }
+
+    /**
+     * 判断新旧字段值是否相同
+     */
+    private static boolean fieldValueEquals(Object oldValue, Object newValue) throws LogRecordException {
+        try {
+            // 全为null返回相同
+            if (oldValue == null && newValue == null) {
+                return true;
+            }
+            // 有一个为null返回不相同
+            if (oldValue == null || newValue == null) {
+                return false;
+            }
+            // 全为非null
+            boolean isAllPrimitive = isWrapClassOrPrimitive(oldValue.getClass()) && isWrapClassOrPrimitive(newValue.getClass());
+            boolean isAllNotPrimitive = !isWrapClassOrPrimitive(oldValue.getClass()) && !isWrapClassOrPrimitive(newValue.getClass());
+            // 若为基本类型
+            // 旧值为空并且新值不为空
+            // 或
+            // 旧值不为空且新值为空
+            // 或
+            // 旧值和新值均不为空且equals不相等
+            if (isAllPrimitive) {
+                return oldValue.equals(newValue);
+            }
+
+            // 若为非基本类型：转化为JSONObject或者JSONArray进行比较
+            else if (isAllNotPrimitive) {
+                if (isJsonArray(oldValue) && isJsonArray(newValue)) {
+                    JSONArray oldJsonArray = (JSONArray) JSONArray.toJSON(oldValue);
+                    JSONArray newJsonArray = (JSONArray) JSONArray.toJSON(newValue);
+                    return oldJsonArray.equals(newJsonArray);
+                } else if (!isJsonArray(oldValue.getClass()) && !isJsonArray(newValue.getClass())) {
+                    JSONObject oldJsonObject = (JSONObject) JSONObject.toJSON(oldValue);
+                    JSONObject newJsonObject = (JSONObject) JSONObject.toJSON(newValue);
+                    return oldJsonObject.equals(newJsonObject);
+                }
+                else {
+                    return false;
+                }
+            }
+
+            // 若一个基本类型一个非基本类型返回不相等
+            else {
+                return false;
+            }
+        } catch (Exception e) {
+            throw new LogRecordException("fieldValueEquals error", e);
+        }
+    }
+
+    /**
+     * 是否为基础类型或者其包装类
+     */
+    private static boolean isWrapClassOrPrimitive(Class clz) {
+        return clz.isPrimitive() || clz == Integer.class || clz == Long.class || clz == Short.class
+                || clz == Boolean.class || clz == Byte.class || clz == Float.class || clz == Double.class
+                || clz == String.class;
+    }
+
+    /**
+     * 是否为数组类型（可解析为JSONArray）
+     */
+    private static boolean isJsonArray(Object obj) {
+        return obj.getClass().isArray() || obj instanceof Collection;
     }
 
 }

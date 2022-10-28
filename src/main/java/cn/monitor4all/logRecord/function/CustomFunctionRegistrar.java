@@ -29,26 +29,26 @@ public class CustomFunctionRegistrar implements ApplicationContextAware {
         this.applicationContext = applicationContext;
         Map<String, Object> beanWithAnnotation = applicationContext.getBeansWithAnnotation(LogRecordFunc.class);
         beanWithAnnotation.values()
-            .forEach(
-                component -> {
-                    Method[] methods = component.getClass().getMethods();
-                    LogRecordFunc classLogRecordFunc = component.getClass().getAnnotation(LogRecordFunc.class);
-                    String prefixName = classLogRecordFunc.value();
-                    if (StringUtils.hasText(prefixName)) {
-                        prefixName += "_";
-                    }
-                    if (methods.length > 0) {
-                        for (Method method : methods) {
-                            if (method.isAnnotationPresent(LogRecordFunc.class) && isStaticMethod(method)) {
-                                LogRecordFunc logRecordFunc = method.getAnnotation(LogRecordFunc.class);
-                                String registerName = StringUtils.hasText(logRecordFunc.value()) ? logRecordFunc.value() : method.getName();
-                                functionMap.put(prefixName + registerName, method);
-                                log.info("LogRecord register custom function [{}] as name [{}]", method, prefixName + registerName);
+                .forEach(
+                        component -> {
+                            Method[] methods = component.getClass().getMethods();
+                            LogRecordFunc classLogRecordFunc = component.getClass().getAnnotation(LogRecordFunc.class);
+                            String prefixName = classLogRecordFunc.value();
+                            if (StringUtils.hasText(prefixName)) {
+                                prefixName += "_";
+                            }
+                            if (methods.length > 0) {
+                                for (Method method : methods) {
+                                    if (method.isAnnotationPresent(LogRecordFunc.class) && isStaticMethod(method)) {
+                                        LogRecordFunc logRecordFunc = method.getAnnotation(LogRecordFunc.class);
+                                        String registerName = StringUtils.hasText(logRecordFunc.value()) ? logRecordFunc.value() : method.getName();
+                                        functionMap.put(prefixName + registerName, method);
+                                        log.info("LogRecord register custom function [{}] as name [{}]", method, prefixName + registerName);
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-            );
+                );
     }
 
     public static void register(StandardEvaluationContext context) {

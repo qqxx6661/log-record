@@ -6,6 +6,9 @@ import lombok.Data;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 日志实体
+ */
 @Data
 public class LogDTO {
 
@@ -61,5 +64,6 @@ public class LogDTO {
 	 * 实体DIFF列表
 	 */
 	private List<DiffDTO> diffDTOList;
+
 
 }

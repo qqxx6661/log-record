@@ -7,6 +7,9 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 上下文
+ */
 public class LogRecordContext {
 
     private static final ThreadLocal<StandardEvaluationContext> CONTEXT_THREAD_LOCAL = new NamedThreadLocal<>("ThreadLocal StandardEvaluationContext");

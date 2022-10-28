@@ -2,11 +2,13 @@ package cn.monitor4all.logRecord.aop;
 
 import cn.monitor4all.logRecord.annotation.OperationLog;
 import cn.monitor4all.logRecord.bean.LogDTO;
+import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.function.CustomFunctionRegistrar;
 import cn.monitor4all.logRecord.service.IOperationLogGetService;
 import cn.monitor4all.logRecord.service.IOperatorIdGetService;
-import cn.monitor4all.logRecord.service.LogService;
+import cn.monitor4all.logRecord.service.DataPipelineService;
+import cn.monitor4all.logRecord.service.LogRecordErrorHandlerService;
 import cn.monitor4all.logRecord.thread.LogRecordThreadPool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -35,17 +37,23 @@ import java.util.function.Consumer;
 @Slf4j
 public class SystemLogAspect {
 
+    @Autowired
+    private LogRecordProperties logRecordProperties;
+
     @Autowired(required = false)
     private LogRecordThreadPool logRecordThreadPool;
 
     @Autowired(required = false)
-    private LogService logService;
+    private DataPipelineService dataPipelineService;
 
     @Autowired(required = false)
     private IOperationLogGetService iOperationLogGetService;
 
     @Autowired(required = false)
     private IOperatorIdGetService iOperatorIdGetService;
+
+    @Autowired(required = false)
+    private LogRecordErrorHandlerService logRecordErrorHandlerService;
 
     private final SpelExpressionParser parser = new SpelExpressionParser();
 
@@ -150,24 +158,9 @@ public class SystemLogAspect {
             try {
                 // 提交日志至主线程或线程池
                 Long finalExecutionTime = executionTime;
-                Consumer<LogDTO> createLogFunction = logDTO -> {
-                    try {
-                        // 记录执行时间
-                        logDTO.setExecutionTime(finalExecutionTime);
-                        // 发送日志本地监听
-                        if (iOperationLogGetService != null) {
-                            iOperationLogGetService.createLog(logDTO);
-                        }
-                        // 发送消息管道
-                        if (logService != null) {
-                            logService.createLog(logDTO);
-                        }
-                    } catch (Throwable throwable) {
-                        log.error("OperationLogAspect send logDTO error", throwable);
-                    }
-                };
+                Consumer<LogDTO> createLogFunction = logDTO -> createLog(logDTO, finalExecutionTime);
                 if (logRecordThreadPool != null) {
-                    logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> createLogFunction.accept(logDTO)));
+                    logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().execute(() -> createLogFunction.accept(logDTO)));
                 } else {
                     logDTOList.forEach(createLogFunction);
                 }
@@ -297,5 +290,49 @@ public class SystemLogAspect {
             log.error("OperationLogAspect getMethod error", e);
         }
         return method;
+    }
+
+    private void createLog(LogDTO logDTO, Long finalExecutionTime) {
+        int maxRetryTimes = logRecordProperties.getRetry().getRetryTimes();
+        boolean iOperationLogGetResult = false;
+        boolean dataPipelineServiceResult = false;
+        // 发送日志本地监听
+        if (iOperationLogGetService != null) {
+            for (int retryTimes = 0; retryTimes <= maxRetryTimes; retryTimes++) {
+                try {
+                    logDTO.setExecutionTime(finalExecutionTime);
+                    iOperationLogGetResult = iOperationLogGetService.createLog(logDTO);
+                    if (iOperationLogGetResult) {
+                        break;
+                    }
+                } catch (Throwable throwable) {
+                    log.error("OperationLogAspect send logDTO error", throwable);
+                }
+            }
+        }
+
+        if (!iOperationLogGetResult && iOperationLogGetService != null) {
+            logRecordErrorHandlerService.operationLogGetErrorHandler();
+        }
+
+        // 发送消息管道
+        if (dataPipelineService != null) {
+            for (int retryTimes = 0; retryTimes <= maxRetryTimes; retryTimes++) {
+                try {
+                    logDTO.setExecutionTime(finalExecutionTime);
+                    dataPipelineServiceResult = dataPipelineService.createLog(logDTO);
+                    if (dataPipelineServiceResult) {
+                        break;
+                    }
+                } catch (Throwable throwable) {
+                    log.error("OperationLogAspect send logDTO error", throwable);
+                }
+            }
+        }
+
+        if (!dataPipelineServiceResult && dataPipelineService != null) {
+            logRecordErrorHandlerService.dataPipelineErrorHandler();
+        }
+
     }
 }

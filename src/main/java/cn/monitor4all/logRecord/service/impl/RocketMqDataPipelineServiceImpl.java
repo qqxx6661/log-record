@@ -3,7 +3,7 @@ package cn.monitor4all.logRecord.service.impl;
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.constants.LogConstants;
-import cn.monitor4all.logRecord.service.LogService;
+import cn.monitor4all.logRecord.service.DataPipelineService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @EnableConfigurationProperties({LogRecordProperties.class})
 @ConditionalOnProperty(name = "log-record.data-pipeline", havingValue = LogConstants.DataPipeline.ROCKET_MQ)
-public class RocketMqLogServiceImpl implements LogService {
+public class RocketMqDataPipelineServiceImpl implements DataPipelineService {
 
     @Autowired
     private LogRecordProperties properties;

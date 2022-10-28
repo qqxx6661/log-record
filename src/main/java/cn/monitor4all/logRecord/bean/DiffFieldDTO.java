@@ -2,6 +2,9 @@ package cn.monitor4all.logRecord.bean;
 
 import lombok.Data;
 
+/**
+ * DIFF字段实体
+ */
 @Data
 public class DiffFieldDTO {
 

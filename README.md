@@ -566,10 +566,11 @@ public Result<Void> createOrder(Request request) {
 
 支持两个对象（相同或者不同的类对象皆可）对象的Diff。
 
-有如下两个注解：
+有如下注解：
 
 - @LogRecordDiffField：在需要对比的字段上申明@LogRecordDiffField(alias = "用户工号")，alias别名为可选字段。
 - @LogRecordDiffObject：在类上也可以申明@LogRecordDiffObject(alias = "用户信息实体")，alias别名为可选字段，默认类下所有字段会进行DIFF，可通过enableAllFields手动关闭，关闭后等于该注解只用于获取类别名。
+- @LogRecordDiffIgnoreField：申明该字段不参与实体类DIFF（用于当类拥有@LogRecordDiffObject注解时排除部分字段）
 
 类对象使用示例：
 
@@ -578,10 +579,12 @@ public Result<Void> createOrder(Request request) {
 public class TestUser {
     private Integer id;
     private String name;
+    @LogRecordDiffIgnoreField
+    private String job;
 }
 ```
 
-或者单独为字段DIFF：
+或者单独为类中的字段DIFF：
 
 ```
 public class TestUser {
@@ -590,8 +593,6 @@ public class TestUser {
     private String name;
 }
 ```
-
-**注意：目前DIFF功能实现核心是比较两个对象的equal函数，即`oldValue.equals(newValue)`，所以对于基本类型和基本类型的嵌套，比如`List<String>`，是有较好的支持的。但如果嵌套了复杂对象，比如`List<User>`，则必须重写User类的equals和toString方法，否则DIFF功能无法正常比较出想要的结果日志。**
 
 在@OperationLog注解上，可以通过调用内置实现的自定义函数 _DIFF ，传入两个对象即可拿到Diff结果。
 
@@ -697,6 +698,52 @@ testService.testObjectDiff(new TestUser(2, "李四"));
 ```
 log-record.diff-msg-format=（默认值为【${_fieldName}】从【${_oldValue}】变成了【${_newValue}】）
 log-record.diff-msg-separator=（默认值为" "空格）
+```
+
+还支持同一个注解中多次调用_DIFF, 如下：
+
+```
+/**
+ * 测试实体类DIFF：使用多个_DIFF
+ */
+@OperationLog(bizId = "'1'", bizType = "'testMultipleDiff'", msg = "'第一个DIFF：' + #_DIFF(#oldObject1, #testUser) + '第二个DIFF' + #_DIFF(#oldObject2, #testUser)")
+public void testMultipleDiff(TestUser testUser) {
+    LogRecordContext.putVariable("oldObject1", new TestUser(1, "张三"));
+    LogRecordContext.putVariable("oldObject2", new TestUser(3, "王五"));
+}
+```
+
+**注意：目前DIFF功能支持完全不同的类之间进行DIFF，对于同名的基础类型，进行equals对比，对于同名的非基础类型，则借用fastjson的toJSON能力，转为JSONObject进行对比，本质上是将对象映射为map进行map.equals。**
+
+
+
+
+### 日志处理重试次数及兜底函数配置
+
+无论是本地处理日志，或者发送到消息管道处理日志，都会存在处理异常需要重试的场景。可以通过properties配置：
+
+```
+log-record.retry.retry-times=5  # 默认为0次重试，即日志处理方法只执行1次
+```
+
+配置后框架会重新执行createLog直至达到最大重试次数。
+
+若超过了重试次数，可以通过实现SPI接口 `cn.monitor4all.logRecord.service.LogRecordErrorHandlerService` 来进行兜底逻辑处理，这里将本地日志处理和消息管道兜底处理分开了。
+
+```java
+public class LogRecordErrorHandlerServiceImpl implements LogRecordErrorHandlerService {
+
+
+    @Override
+    public void operationLogGetErrorHandler() {
+        log.error("operation log get service error reached max retryTimes!");
+    }
+
+    @Override
+    public void dataPipelineErrorHandler() {
+        log.error("data pipeline send log error reached max retryTimes!");
+    }
+}
 ```
 
 
