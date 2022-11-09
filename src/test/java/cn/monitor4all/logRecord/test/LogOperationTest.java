@@ -63,6 +63,9 @@ public class LogOperationTest {
         testService.testEnumAndConstantWithSpEL();
         testService.testLogRecordContext();
         testService.testMapUseInLogRecordContext();
+        testService.testSpringBeanFuncNoParam(new TestUser(2, "dsa"));
+        testService.testSpringBeanFuncWithParam(new TestUser(2, "dsa"));
+        testService.testSpringBeanFuncNoReturn(20);
     }
 
     private TestDiffUserParam generateTestDiffUserParam() {
