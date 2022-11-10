@@ -3,6 +3,7 @@ package cn.monitor4all.logRecord.function;
 import cn.monitor4all.logRecord.annotation.LogRecordFunc;
 import javassist.*;
 import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.aop.framework.AopProxy;
@@ -12,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -87,27 +89,45 @@ public class CustomFunctionRegistrar implements ApplicationContextAware {
                 );
     }
 
+    @SneakyThrows
     private List<Method> proxy2static(List<Method> nonStaticMethods, Object delegate, Object originalClass) throws NotFoundException, CannotCompileException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         ClassPool pool = ClassPool.getDefault();
         Class<?> targetClass = originalClass.getClass();
 
-        CtClass clazz = pool.makeClass(targetClass.getName()+"_"+"Statically");
+        // 委派类名称
+        String staticallyClassName = targetClass.getName()+"_"+"Statically";
+        // jvm class 委派类,同名类只能加载一次
+        Class<?> delegateClass = null;
+        // 查看Javassist之前是否加载过，加载过不再重复构建类
+        CtClass ctClass = pool.get(staticallyClassName);
+        if(ctClass == null) {
+            ctClass = constructCtClass(nonStaticMethods, pool, targetClass, staticallyClassName);
+            delegateClass = ctClass.toClass();
+        }else {
+            delegateClass = ctClass.getClass().getClassLoader().loadClass(staticallyClassName);
+        }
+        Object proxy = delegateClass.getConstructor(targetClass).newInstance(delegate);
+        return Arrays.asList(proxy.getClass().getDeclaredMethods());
+    }
 
-        clazz.addInterface(pool.get(Serializable.class.getName()));
+    private CtClass constructCtClass(List<Method> nonStaticMethods, ClassPool pool, Class<?> targetClass, String staticallyClassName) throws NotFoundException, CannotCompileException {
+        CtClass ctClass;
+        ctClass = pool.makeClass(staticallyClassName);
+        ctClass.addInterface(pool.get(Serializable.class.getName()));
 
-        CtField field = new CtField(pool.get(targetClass.getName()), "delegating", clazz);
+        CtField field = new CtField(pool.get(targetClass.getName()), "delegating", ctClass);
         field.setModifiers(javassist.Modifier.STATIC | javassist.Modifier.PROTECTED);
-        clazz.addField(field);
+        ctClass.addField(field);
 
-        CtConstructor cons = new CtConstructor(new CtClass[]{pool.get(targetClass.getName())}, clazz);
+        CtConstructor cons = new CtConstructor(new CtClass[]{pool.get(targetClass.getName())}, ctClass);
         cons.setBody("{delegating = $1;}");
-        clazz.addConstructor(cons);
+        ctClass.addConstructor(cons);
 
-        CtMethod getter = new CtMethod(pool.get(targetClass.getName()), "getDelegating", new CtClass[]{}, clazz);
+        CtMethod getter = new CtMethod(pool.get(targetClass.getName()), "getDelegating", new CtClass[]{}, ctClass);
         getter.setModifiers(javassist.Modifier.PUBLIC);
         getter.setBody("{return delegating;}");
 
-        clazz.addMethod(getter);
+        ctClass.addMethod(getter);
 
         for (Method declaredMethod : nonStaticMethods) {
             int modifier = declaredMethod.getModifiers();
@@ -143,12 +163,10 @@ public class CustomFunctionRegistrar implements ApplicationContextAware {
             builder.append(")").append(";");
             builder.append("}");
 
-            CtMethod method = CtMethod.make(builder.toString(), clazz);
-            clazz.addMethod(method);
+            CtMethod method = CtMethod.make(builder.toString(), ctClass);
+            ctClass.addMethod(method);
         }
-
-        Object proxy = clazz.toClass().getConstructor(targetClass).newInstance(delegate);
-        return Arrays.asList(proxy.getClass().getDeclaredMethods());
+        return ctClass;
     }
 
     private String chooseModifier(int modifier) {
