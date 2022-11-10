@@ -1,6 +1,10 @@
 package cn.monitor4all.logRecord.test;
 
+import cn.monitor4all.logRecord.aop.SystemLogAspect;
+import cn.monitor4all.logRecord.aop.SystemLogThreadWrapper;
+import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordAutoConfiguration;
+import cn.monitor4all.logRecord.function.CustomFunctionRegistrar;
 import cn.monitor4all.logRecord.test.bean.TestComplexUser;
 import cn.monitor4all.logRecord.test.bean.TestUser;
 import cn.monitor4all.logRecord.test.bean.diff.TestDiffDuty;
@@ -8,15 +12,23 @@ import cn.monitor4all.logRecord.test.bean.diff.TestDiffJob;
 import cn.monitor4all.logRecord.test.bean.diff.TestDiffUserParam;
 import cn.monitor4all.logRecord.test.service.OperatorIdGetService;
 import cn.monitor4all.logRecord.test.service.TestService;
+import com.alibaba.ttl.TransmittableThreadLocal;
+import com.alibaba.ttl.TtlRunnable;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.trace.TraceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 /**
  * 单元测试
@@ -34,8 +46,11 @@ public class LogOperationTest {
     @Autowired
     private TestService testService;
 
+    @Autowired
+    private SystemLogAspect systemLogAspect;
+
     @Test
-    public void logRecordFuncTest() {
+    public void logRecordFuncTest() throws NoSuchFieldException, IllegalAccessException {
         testService.testBizId("1");
         testService.testTag("tag1");
         testService.testRecordReturnValue();
@@ -65,6 +80,23 @@ public class LogOperationTest {
         testService.testMapUseInLogRecordContext();
         testService.testSpringBeanFuncNoParam(new TestUser(2, "dsa"));
         testService.testSpringBeanFuncWithParam(new TestUser(2, "dsa"));
+        testService.testSpringBeanFuncNoReturn(20);
+
+        TransmittableThreadLocal<String> parentThreadContext = TransmittableThreadLocal.withInitial(String::new);
+        parentThreadContext.set("xaazdddaq");
+        Field field = SystemLogAspect.class.getDeclaredField("systemLogThreadWrapper");
+        field.setAccessible(true);
+        // 模拟开启线程池后,业务和记录日志线程分离后,ThreadLocal传递情况, skywalking和transmittable原理一致
+        field.set(systemLogAspect, new SystemLogThreadWrapper() {
+            @Override
+            public Runnable createLog(Consumer<LogDTO> consumer, LogDTO logDTO) {
+                return TtlRunnable.get(
+                        () -> {
+                            log.info("children thread {}", parentThreadContext.get());
+                            new SystemLogThreadWrapper(){}.createLog(consumer, logDTO);
+                        });
+            }
+        });
         testService.testSpringBeanFuncNoReturn(20);
     }
 
