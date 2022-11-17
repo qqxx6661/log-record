@@ -222,4 +222,22 @@ public class TestService {
     @OperationLog(bizId = "'1'", bizType = "'testRetryTimes'")
     public void testRetryTimesAndOperationLogGetErrorHandler() {
     }
+
+
+    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanFuncNoParam'", msg = "#_DIFF(#testUser(), #param)")
+    public void testSpringBeanFuncNoParam(TestUser param) {
+
+    }
+
+
+    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanFuncNoParam'", msg = "#_DIFF(#testUserWithParam(#param), #param)", executeBeforeFunc = true)
+    public void testSpringBeanFuncWithParam(TestUser param) {
+
+    }
+
+
+    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanFuncNoReturn'", msg = "#testUserNoReturn(#param)")
+    public void testSpringBeanFuncNoReturn(Integer param) {
+
+    }
 }

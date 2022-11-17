@@ -55,6 +55,9 @@ public class SystemLogAspect {
     @Autowired(required = false)
     private LogRecordErrorHandlerService logRecordErrorHandlerService;
 
+    @Autowired
+    private SystemLogThreadWrapper systemLogThreadWrapper;
+
     private final SpelExpressionParser parser = new SpelExpressionParser();
 
     private final DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
@@ -160,7 +163,7 @@ public class SystemLogAspect {
                 Long finalExecutionTime = executionTime;
                 Consumer<LogDTO> createLogFunction = logDTO -> createLog(logDTO, finalExecutionTime);
                 if (logRecordThreadPool != null) {
-                    logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().execute(() -> createLogFunction.accept(logDTO)));
+                    logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().execute(systemLogThreadWrapper.createLog(createLogFunction, logDTO)));
                 } else {
                     logDTOList.forEach(createLogFunction);
                 }

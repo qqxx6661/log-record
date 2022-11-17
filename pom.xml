@@ -82,6 +82,18 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.28.0-GA</version>
+            <!--            <type>bundle</type>-->
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+            <version>2.12.6</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <licenses>
@@ -121,6 +133,47 @@
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
+
+
+    <profiles>
+        <!-- idea右侧maven页签勾选自己的定制化属性,每个开发者根据本地情况可以配一套 -->
+        <profile>
+            <id>dc.mao</id>
+            <properties>
+                <doc.path>${java.home}/bin/javadoc</doc.path>
+            </properties>
+        </profile>
+
+        <!-- 原pom参数,默认执行 -->
+        <profile>
+            <id>cloud</id>
+            <activation>
+                <!-- 默认激活此profile -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <doc.path>${java.home}/../bin/javadoc</doc.path>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
@@ -172,28 +225,14 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
                 <configuration>
-                    <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
+                    <javadocExecutable>${doc.path}</javadocExecutable>
+                    <source>8</source>
                 </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
                         <goals>
                             <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--  若需要本地执行 mvn install 需要将下方gpg插件注释掉  -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
                         </goals>
                     </execution>
                 </executions>
