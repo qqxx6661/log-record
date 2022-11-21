@@ -5,11 +5,9 @@ import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.function.CustomFunctionRegistrar;
-import cn.monitor4all.logRecord.service.IOperationLogGetService;
-import cn.monitor4all.logRecord.service.IOperatorIdGetService;
-import cn.monitor4all.logRecord.service.DataPipelineService;
-import cn.monitor4all.logRecord.service.LogRecordErrorHandlerService;
+import cn.monitor4all.logRecord.service.*;
 import cn.monitor4all.logRecord.thread.LogRecordThreadPool;
+import cn.monitor4all.logRecord.thread.LogRecordThreadWrapper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +54,7 @@ public class SystemLogAspect {
     private LogRecordErrorHandlerService logRecordErrorHandlerService;
 
     @Autowired
-    private SystemLogThreadWrapper systemLogThreadWrapper;
+    private LogRecordThreadWrapper logRecordThreadWrapper;
 
     private final SpelExpressionParser parser = new SpelExpressionParser();
 
@@ -163,7 +161,7 @@ public class SystemLogAspect {
                 Long finalExecutionTime = executionTime;
                 Consumer<LogDTO> createLogFunction = logDTO -> createLog(logDTO, finalExecutionTime);
                 if (logRecordThreadPool != null) {
-                    logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().execute(systemLogThreadWrapper.createLog(createLogFunction, logDTO)));
+                    logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().execute(logRecordThreadWrapper.createLog(createLogFunction, logDTO)));
                 } else {
                     logDTOList.forEach(createLogFunction);
                 }

@@ -60,11 +60,11 @@ public class OperationLogGetService implements IOperationLogGetService {
             Assertions.assertEquals(logDTO.getExtra(), "{\"id\":1,\"name\":\"name\"}");
         }
 
-        if ("testMethodWithCustomName".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getBizId(), "testMethodWithCustomName");
+        if ("testStaticMethodWithCustomName".equals(logDTO.getBizType())) {
+            Assertions.assertEquals(logDTO.getBizId(), "testStaticMethodWithCustomName");
         }
-        if ("testMethodWithoutCustomName".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getBizId(), "testMethodWithoutCustomName");
+        if ("testStaticMethodWithoutCustomName".equals(logDTO.getBizType())) {
+            Assertions.assertEquals(logDTO.getBizId(), "testStaticMethodWithoutCustomName");
         }
 
         if ("testOperatorIdWithSpEL".equals(logDTO.getBizType())) {
@@ -186,6 +186,22 @@ public class OperationLogGetService implements IOperationLogGetService {
 
         if ("testMapUseInLogRecordContext".equals(logDTO.getBizType())) {
             Assertions.assertEquals(logDTO.getMsg(), "{\"customKey\":\"customValue\"}");
+        }
+
+        if ("testSpringBeanCustomFuncNoParam".equals(logDTO.getBizType())) {
+            Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【asd】变成了【dsa】");
+        }
+
+        if ("testSpringBeanCustomFuncWithParam".equals(logDTO.getBizType())) {
+            Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【3】变成了【2】 【name】从【DSA】变成了【dsa】");
+        }
+
+        if ("testSpringBeanCustomFuncNoReturn".equals(logDTO.getBizType())) {
+            Assertions.assertEquals(logDTO.getMsg(), "null");
+        }
+
+        if ("testLogRecordThreadWrapper".equals(logDTO.getBizType())) {
+            Assertions.assertEquals(logDTO.getExtra(), "extraInfo");
         }
 
         return true;

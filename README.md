@@ -329,6 +329,7 @@ public Response<T> function(Request request) {
 - [重复注解](#重复注解)
 - [消息分发线程池配置](#消息分发线程池配置)
 - [函数返回值记录开关](#函数返回值记录开关)
+- [日志处理线程池前置处理](#日志处理线程池前置处理)
 - [让注解支持IDEA自动补全](#让注解支持IDEA自动补全)
 
 ### SpEL的使用
@@ -494,44 +495,67 @@ public Response<T> function(Request request) {
 
 ### 自定义函数
 
-将@LogRecordFunc注解申明在需要注册到SpEL的自定义函数上。
+将@LogRecordFunc注解申明在需要注册到SpEL的自定义函数上，参与SpEL表达式的运算。
 
 注意，需要在类上也声明@LogRecordFunc，否则无法找到该函数。
 
-@LogRecordFunc可以添加参数value，实现自定义方法别名，若不添加，则默认不需要写前缀
+@LogRecordFunc可以添加参数value，实现自定义方法别名，若不添加，则默认不需要写前缀。
+
+分为静态和非静态方法两种处理方式。
+
+静态自定义方法是SpEL天生支持的，所以写法如下：
 
 ```
-@LogRecordFunc("test")
-public class CustomFunctionService {
+@LogRecordFunc("CustomFunctionStatic")
+public class CustomFunctionStatic {
 
-    @LogRecordFunc("testMethodWithCustomName")
-    public static String testMethodWithCustomName(){
-        return "testMethodWithCustomName";
+    @LogRecordFunc("testStaticMethodWithCustomName")
+    public static String testStaticMethodWithCustomName(){
+        return "testStaticMethodWithCustomName";
     }
 
     @LogRecordFunc
-    public static String testMethodWithoutCustomName(){
-        return "testMethodWithoutCustomName";
+    public static String testStaticMethodWithoutCustomName(){
+        return "testStaticMethodWithoutCustomName";
     }
 
 }
 ```
 
-上述代码中，注册的自定义函数名为`test_testMethodWithCustomName`和`test_testMethodWithoutCustomName`，若类上的注解更改为`@LogRecordFunc("test")`，则注册的自定义函数名为`testMethodWithCustomName`和`testMethodWithoutCustomName`
+上述代码中，注册的自定义函数名为`CustomFunctionStatic_testStaticMethodWithoutCustomName`和`CustomFunctionStatic_testStaticMethodWithoutCustomName`，若类上的注解更改为`@LogRecordFunc("test")`，则注册的自定义函数名为`testStaticMethodWithCustomName`和`testStaticMethodWithoutCustomName`
+
+非静态的自定义方法（比如直接调用Spring的Service）写法如下：
+
+```
+@Service
+@Slf4j
+@LogRecordFunc("CustomFunctionService")
+public class CustomFunctionService {
+
+    @LogRecordFunc
+    public TestUser testUser() {
+        return new TestUser(1, "asd");
+    }
+}
+```
+
+其原理主要是依靠我们框架内部转换，将非静态方法需要包装为静态方法再传给SpEL。原理详见[#PR25](https://github.com/qqxx6661/logRecord/pull/25/)
+
+
 
 注意：所有自定义函数可在应用启动时的日志中找到
 
 ```
-2022-06-09 11:35:18.672  INFO 73757 --- [           main] c.a.i.l.f.CustomFunctionRegistrar        : LogRecord register custom function [public static java.lang.String cn.monitor4all.logRecord.test.service.CustomFunctionService.testMethodWithCustomName()] as name [test_testMethodWithCustomName]
-2022-06-09 11:35:18.672  INFO 73757 --- [           main] c.a.i.l.f.CustomFunctionRegistrar        : LogRecord register custom function [public static java.lang.String cn.monitor4all.logRecord.test.service.CustomFunctionService.testMethodWithoutCustomName()] as name [test_testMethodWithoutCustomName]
+2022-06-09 11:35:18.672  INFO 73757 --- [           main] c.a.i.l.f.CustomFunctionRegistrar        : LogRecord register custom function [public static java.lang.String cn.monitor4all.logRecord.test.service.CustomFunctionStaticService.testStaticMethodWithCustomName()] as name [CustomFunctionStatic_testStaticMethodWithoutCustomName]
+2022-06-09 11:35:18.672  INFO 73757 --- [           main] c.a.i.l.f.CustomFunctionRegistrar        : LogRecord register custom function [public static java.lang.String cn.monitor4all.logRecord.test.service.CustomFunctionStaticService.testStaticMethodWithoutCustomName()] as name [CustomFunctionStatic_testStaticMethodWithoutCustomName]
 2022-06-09 11:35:18.672  INFO 73757 --- [           main] c.a.i.l.f.CustomFunctionRegistrar        : LogRecord register custom function [public static java.lang.String cn.monitor4all.logRecord.function.CustomFunctionObjectDiff.objectDiff(java.lang.Object,java.lang.Object)] as name [_DIFF]
 ```
 
 注解中使用：
 
 ```
-@OperationLog(bizId = "#test_testMethodWithCustomName()", bizType = "'testMethodWithCustomName'")
-@OperationLog(bizId = "#test_testMethodWithoutCustomName()", bizType = "'testMethodWithoutCustomName'")
+@OperationLog(bizId = "#CustomFunctionStatic_testStaticMethodWithCustomName()", bizType = "'testStaticMethodWithCustomName'")
+@OperationLog(bizId = "#CustomFunctionStatic_testStaticMethodWithoutCustomName()", bizType = "'testStaticMethodWithoutCustomName'")
 public void testCustomFunc() {
 }
 ```
@@ -777,6 +801,32 @@ log-record.thread-pool.enabled=true（线程池开关 默认为开启 若关闭�
 ### 函数返回值记录开关
 
 @OperationLog注解提供布尔值recordReturnValue() 用于是否开启记录函数返回值，默认关闭，防止返回值实体过大，造成序列化时性能消耗过多。
+
+
+### 日志处理线程池前置处理
+
+在使用线程池处理包装好的日志之前，很多人有一些特殊逻辑需要插入，比如将traceId放入上下文，这里开放接口在logDTO发送给线程池前允许加入用户自定义逻辑。
+
+使用方式如下，添加SpringBean覆写LogRecordThreadWrapper
+
+````
+@Slf4j
+@Configuration
+public class LogRecordConfig {
+
+    @Bean
+    public LogRecordThreadWrapper logRecordThreadWrapper() {
+        return new LogRecordThreadWrapper() {
+            @Override
+            public Runnable createLog(Consumer<LogDTO> consumer, LogDTO logDTO) {
+                log.info("Before send createLog task to LogRecordThreadPool. Current thread [{}]", Thread.currentThread().getName());
+                return LogRecordThreadWrapper.super.createLog(consumer, logDTO);
+            }
+        };
+    }
+
+}
+````
 
 ### 让注解支持IDEA自动补全
 

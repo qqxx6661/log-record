@@ -1,6 +1,6 @@
 package cn.monitor4all.logRecord.configuration;
 
-import cn.monitor4all.logRecord.aop.SystemLogThreadWrapper;
+import cn.monitor4all.logRecord.thread.LogRecordThreadWrapper;
 import cn.monitor4all.logRecord.function.CustomFunctionRegistrar;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
-public class CustomFunctionConfiguration {
+public class LogRecordConfiguration {
 
     @Bean
     public CustomFunctionRegistrar registrar() {
@@ -19,7 +19,7 @@ public class CustomFunctionConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SystemLogThreadWrapper createLogConsumer() {
-        return new SystemLogThreadWrapper(){};
+    public LogRecordThreadWrapper createLogConsumer() {
+        return new LogRecordThreadWrapper(){};
     }
 }

@@ -73,10 +73,10 @@ public class TestService {
     }
 
     /**
-     * 测试自定义函数
+     * 测试自定义函数：静态方法
      */
-    @OperationLog(bizId = "#test_testMethodWithCustomName()", bizType = "'testMethodWithCustomName'")
-    @OperationLog(bizId = "#test_testMethodWithoutCustomName()", bizType = "'testMethodWithoutCustomName'")
+    @OperationLog(bizId = "#CustomFunctionStatic_testStaticMethodWithCustomName()", bizType = "'testStaticMethodWithCustomName'")
+    @OperationLog(bizId = "#CustomFunctionStatic_testStaticMethodWithoutCustomName()", bizType = "'testStaticMethodWithoutCustomName'")
     public void testCustomFunc() {
     }
 
@@ -224,20 +224,21 @@ public class TestService {
     }
 
 
-    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanFuncNoParam'", msg = "#_DIFF(#testUser(), #param)")
-    public void testSpringBeanFuncNoParam(TestUser param) {
-
+    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanCustomFuncNoParam'", msg = "#_DIFF(#CustomFunctionService_testUser(), #param)")
+    public void testSpringBeanCustomFuncNoParam(TestUser param) {
     }
 
 
-    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanFuncNoParam'", msg = "#_DIFF(#testUserWithParam(#param), #param)", executeBeforeFunc = true)
-    public void testSpringBeanFuncWithParam(TestUser param) {
-
+    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanCustomFuncWithParam'", msg = "#_DIFF(#CustomFunctionService_testUserWithParam(#param), #param)", executeBeforeFunc = true)
+    public void testSpringBeanCustomFuncWithParam(TestUser param) {
     }
 
 
-    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanFuncNoReturn'", msg = "#testUserNoReturn(#param)")
-    public void testSpringBeanFuncNoReturn(Integer param) {
+    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanCustomFuncNoReturn'", msg = "#CustomFunctionService_testUserNoReturn(#param)")
+    public void testSpringBeanCustomFuncNoReturn(Integer param) {
+    }
 
+    @OperationLog(bizId = "'1'", bizType = "'testLogRecordThreadWrapper'")
+    public void testLogRecordThreadWrapper() {
     }
 }

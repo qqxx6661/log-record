@@ -12,7 +12,7 @@
 
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-starter</artifactId>
-    <version>1.3.1</version>
+    <version>1.4.0-SNAPSHOT</version>
 
     <dependencies>
 
@@ -86,13 +86,6 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.28.0-GA</version>
-            <!--            <type>bundle</type>-->
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>transmittable-thread-local</artifactId>
-            <version>2.12.6</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -136,17 +129,17 @@
 
 
     <profiles>
-        <!-- idea右侧maven页签勾选自己的定制化属性,每个开发者根据本地情况可以配一套 -->
         <profile>
-            <id>dc.mao</id>
+            <id>user</id>
             <properties>
-                <doc.path>${java.home}/bin/javadoc</doc.path>
+                <!-- 可自行更改 -->
+                <doc.path>${java.home}/../bin/javadoc</doc.path>
             </properties>
         </profile>
 
         <!-- 原pom参数,默认执行 -->
         <profile>
-            <id>cloud</id>
+            <id>admin</id>
             <activation>
                 <!-- 默认激活此profile -->
                 <activeByDefault>true</activeByDefault>
