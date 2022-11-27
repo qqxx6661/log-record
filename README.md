@@ -1,13 +1,13 @@
 # log-record
 
-![](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter)
-![](https://img.shields.io/codecov/c/github/qqxx6661/logRecord)
-![](https://img.shields.io/github/license/qqxx6661/logRecord)
-![](https://img.shields.io/github/stars/qqxx6661/logRecord?style=social)  
-![](https://img.shields.io/github/issues/qqxx6661/logRecord)
-![](https://img.shields.io/github/issues-closed/qqxx6661/logRecord)
-![](https://img.shields.io/github/issues-pr/qqxx6661/logRecord)
-![](https://img.shields.io/github/issues-pr-closed/qqxx6661/logRecord)
+[![](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+[![](https://img.shields.io/codecov/c/github/qqxx6661/log-record?logo=codecov&logoColor=white)](https://codecov.io/gh/qqxx6661/log-record/branch/master)
+[![](https://img.shields.io/github/license/qqxx6661/log-record?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![](https://img.shields.io/github/stars/qqxx6661/log-record?style=social)](https://github.com/qqxx6661/log-record/stargazers)  
+[![](https://img.shields.io/github/issues/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues)
+[![](https://img.shields.io/github/issues-closed/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues?q=is%3Aissue+is%3Aclosed)
+[![](https://img.shields.io/github/issues-pr/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls)
+[![](https://img.shields.io/github/issues-pr-closed/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls?q=is%3Apr+is%3Aclosed)
 
 > 注意：本仓库最初创作灵感来源于[美团技术博客](https://tech.meituan.com/2021/09/16/operational-logbook.html) ，若您需要寻找的是文中所提到的代码仓库，可以跳转[这里](https://github.com/mouzt/mzt-biz-log/) 。本仓库从零实现了原文中描述的大部分特性，并吸取生产环境大量实践和用户反馈，随着持续稳定的维护和更新，期望给用户提供更多差异化的功能。
 
@@ -534,7 +534,7 @@ public class CustomFunctionService {
 }
 ```
 
-其原理主要是依靠我们框架内部转换，将非静态方法需要包装为静态方法再传给`SpEL`。原理详见[#PR25](https://github.com/qqxx6661/logRecord/pull/25/)
+其原理主要是依靠我们框架内部转换，将非静态方法需要包装为静态方法再传给`SpEL`。原理详见[#PR25](https://github.com/qqxx6661/log-record/pull/25)
 
 注意：所有自定义函数可在应用启动时的日志中找到
 
@@ -853,7 +853,7 @@ https://github.com/qqxx6661/systemLog
 
 ## Release Note
 
-[Release](https://github.com/qqxx6661/logRecord/releases)
+[Release](https://github.com/qqxx6661/log-record/releases)
 
 ## 配套教程文章
 
