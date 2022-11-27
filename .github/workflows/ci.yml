@@ -1,0 +1,32 @@
+name: CI
+
+# workflow_dispatch:
+#   Allows you to run this workflow manually from the Actions tab
+#   https://github.com/marketplace/actions/workflow-dispatch
+on: [ push, pull_request, workflow_dispatch ]
+
+jobs:
+  code_coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          distribution: zulu
+      - name: Cache mvn dependencies
+        uses: actions/cache@v3
+        env:
+          cache-name: mvn-deps
+        with:
+          path: ~/.m2
+          key: ${{ env.cache-name }}-${{ hashFiles('pom.xml') }}
+          restore-keys: ${{ env.cache-name }}-
+      - name: Test with Maven
+        run: mvn -V --no-transfer-progress test
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./target/site/jacoco/jacoco.xml
+          flags: unittests
