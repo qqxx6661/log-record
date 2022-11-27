@@ -28,7 +28,7 @@
 只需一句注解，日志轻松记录，不侵入业务逻辑：
 
 ```java
-@OperationLog(bizType = "'addressChange'", bizId = "#request.orderId", msg = "'用户' + #queryUserName(#request.userId) + '修改了订单的跟进人：从' + #oldAddress + '修改到' + #queryOldAddress(#request.orderId)")
+@OperationLog(bizType = "'followerChange'", bizId = "#request.orderId", msg = "'用户' + #queryUserName(#request.userId) + '修改了订单的跟进人：从' + #queryOldFollower(#request.orderId) + '修改到' + #request.newFollower")
 public Response<T> function(Request request) {
   // 业务执行逻辑
 }
@@ -56,7 +56,7 @@ LogUtil.log(orderNo, String.format(tempalte, "张三", "李四", "王五"),  "�
 这个方式显然不够优雅，让我们试试使用注解：
 
 ```java
-@OperationLog(bizType = "'addressChange'", bizId = "'20211102001'", msg = "'用户 张三 修改了订单的跟进人：从 李四 修改到 王五'")
+@OperationLog(bizType = "'followerChange'", bizId = "'20211102001'", msg = "'用户 张三 修改了订单的跟进人：从 李四 修改到 王五'")
 public Response<T> function(Request request) {
   // 业务执行逻辑
 }
@@ -69,10 +69,10 @@ public Response<T> function(Request request) {
 `Spring`的 [`SpEL`表达式（`Spring Expression Language`）](https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html) 可以帮助我们，通过引入`SpEL`表达式，我们可以获取函数的入参。这样我们就可以对上面的注解进行修改：
 
 - 订单ID：`#request.orderId`
-- 新地址"王五"：`#request.newAddress`
+- 新地址"王五"：`#request.newFollower`
 
 ```java
-@OperationLog(bizType = "'addressChange'", bizId = "#request.orderId", msg = "'用户 张三 修改了订单的跟进人：从 李四 修改到' + #request.newAddress")
+@OperationLog(bizType = "'followerChange'", bizId = "#request.orderId", msg = "'用户 张三 修改了订单的跟进人：从 李四 修改到' + #request.newFollower")
 public Response<T> function(Request request) {
   // 业务执行逻辑
 }
@@ -80,18 +80,18 @@ public Response<T> function(Request request) {
 
 如此一来，订单ID和地址的新值就可以通过解析入参动态获取了。
 
-问题还没有结束，通常我们的用户信息（`user`），以及老的跟进人（`oldAddress`），是需要在方法中查询后才能获取，**入参里一般不会包含这些数据。**
+问题还没有结束，通常我们的用户信息（`user`），以及老的跟进人（`oldFollower`），是需要在方法中查询后才能获取，**入参里一般不会包含这些数据。**
 
 解决方案也不是没有，我们创建一个可以保存上下文的`LogRecordContext`变量，**让用户手动传递代码中计算出来的值，再交给`SpEL`解析** ，代码如下
 
 ```java
-@OperationLog(bizType = "'addressChange'", bizId = "#request.orderId", msg = "'用户' + #userName + '修改了订单的跟进人：从' + #oldAddress + '修改到' + #request.newAddress")
+@OperationLog(bizType = "'followerChange'", bizId = "#request.orderId", msg = "'用户' + #userName + '修改了订单的跟进人：从' + #oldFollower + '修改到' + #request.newFollower")
 public Response<T> function(Request request) {
   // 业务执行逻辑
   ...
   // 手动传递日志上下文：用户信息 地址旧值
   LogRecordContext.putVariable("userName", queryUserName(request.getUserId()));
-  LogRecordContext.putVariable("oldAddress", queryOldAddress(request.getOrderId()));
+  LogRecordContext.putVariable("oldFollower", queryOldFollower(request.getOrderId()));
 }
 ```
 
@@ -101,12 +101,12 @@ public Response<T> function(Request request) {
 
 **但是对于有“强迫症”的同学，这样的实现还是不够优雅，我们可以用`SpEL`支持的自定义函数，解决这个问题。**
 
-`SpEL`支持在表达式中传入用户自定义函数，我们将`queryUserName`和`queryOldAddress`这两个函数提前放入`SpEL`的解析器中，`SpEL`在解析表达式时，会执行对应函数。
+`SpEL`支持在表达式中传入用户自定义函数，我们将`queryUserName`和`queryOldFollower`这两个函数提前放入`SpEL`的解析器中，`SpEL`在解析表达式时，会执行对应函数。
 
 最终，我们的注解变成了这样，并且最终记录了日志：
 
 ```java
-@OperationLog(bizType = "'addressChange'", bizId = "#request.orderId", msg = "'用户' + #queryUserName(#request.userId) + '修改了订单的跟进人：从' + #oldAddress + '修改到' + #queryOldAddress(#request.orderId)")
+@OperationLog(bizType = "'followerChange'", bizId = "#request.orderId", msg = "'用户' + #queryUserName(#request.userId) + '修改了订单的跟进人：从' + #queryOldFollower(#request.orderId) + '修改到' + #request.newFollower")
 public Response<T> function(Request request) {
   // 业务执行逻辑
 }
@@ -305,7 +305,7 @@ spring.cloud.stream.rocketmq.binder.enable-msg-trace=false
 **第三步：** 在需要记录系统操作的方法上，添加注解
 
 ```java
-@OperationLog(bizType = "'addressChange'", bizId = "#request.orderId", msg = "'用户 张三 修改了订单的跟进人：从 李四 修改到' + #request.newAddress")
+@OperationLog(bizType = "'followerChange'", bizId = "#request.orderId", msg = "'用户 张三 修改了订单的跟进人：从 李四 修改到' + #request.newFollower")
 public Response<T> function(Request request) {
   // 业务执行逻辑
 }
@@ -478,13 +478,13 @@ public class IOperatorIdGetServiceImpl implements IOperatorIdGetService {
 直接引入类`LogRecordContext`，放入键值对。
 
 ```java
-@OperationLog(bizType = "'addressChange'", bizId = "#request.orderId", msg = "'用户' + #userName + '修改了订单的跟进人：从' + #oldAddress + '修改到' + #request.newAddress")
+@OperationLog(bizType = "'followerChange'", bizId = "#request.orderId", msg = "'用户' + #userName + '修改了订单的跟进人：从' + #oldFollower + '修改到' + #request.newFollower")
 public Response<T> function(Request request) {
   // 业务执行逻辑
   ...
   // 手动传递日志上下文：用户信息 地址旧值
   LogRecordContext.putVariable("userName", queryUserName(request.getUserId()));
-  LogRecordContext.putVariable("oldAddress", queryOldAddress(request.getOrderId()));
+  LogRecordContext.putVariable("oldFollower", queryOldFollower(request.getOrderId()));
 }
 ```
 
