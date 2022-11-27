@@ -107,9 +107,9 @@
 
     <scm>
         <tag>master</tag>
-        <url>git@github.com:qqxx6661/logRecord.git</url>
-        <connection>git@github.com:qqxx6661/logRecord.git</connection>
-        <developerConnection>git@github.com:qqxx6661/logRecord.git</developerConnection>
+        <url>git@github.com:qqxx6661/log-record.git</url>
+        <connection>git@github.com:qqxx6661/log-record.git</connection>
+        <developerConnection>git@github.com:qqxx6661/log-record.git</developerConnection>
     </scm>
 
     <distributionManagement>
@@ -117,7 +117,7 @@
 <!--        <repository>-->
 <!--            <id>github</id>-->
 <!--            <name>GitHub OWNER Apache Maven Packages</name>-->
-<!--            <url>https://maven.pkg.github.com/qqxx6661/logRecord</url>-->
+<!--            <url>https://maven.pkg.github.com/qqxx6661/log-record</url>-->
 <!--        </repository>-->
 
         <!--  申明打包到Maven公有仓库  -->
