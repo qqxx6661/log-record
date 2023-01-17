@@ -251,6 +251,7 @@ List<diffDTO>: 实体类对象Diff数据，包括变更的字段名，字段值�
 若只需要在同一应用内处理日志信息，只需要实现接口`IOperationLogGetService`，便可对日志进行处理。
 
 ```java
+@Component
 public class CustomFuncTestOperationLogGetService implements IOperationLogGetService {
     @Override
     public void createLog(LogDTO logDTO) {
@@ -328,6 +329,7 @@ public Response<T> function(Request request) {
 - [消息分发线程池配置](#消息分发线程池配置)
 - [函数返回值记录开关](#函数返回值记录开关)
 - [日志处理线程池前置处理](#日志处理线程池前置处理)
+- [操作日志数据表结构推荐](#操作日志数据表结构推荐)
 - [让注解支持`IDEA`自动补全](#让注解支持IDEA自动补全)
 
 ### SpEL的使用
@@ -462,6 +464,7 @@ testService.testCondition(new TestUser(1, "张三"));
 大部分情况下，操作人ID往往不会在方法参数中传递，更多会是查询集团内`BUC`信息、查询外部服务、查表等获取。所以开放了`SPI`，只需要实现接口`IOperationLogGetService`，便可以统一注入操作人ID。
 
 ```java
+@Component
 public class IOperatorIdGetServiceImpl implements IOperatorIdGetService {
 
     @Override
@@ -748,6 +751,7 @@ log-record.retry.retry-times=5  # 默认为0次重试，即日志处理方法只
 若超过了重试次数，可以通过实现`SPI`接口 `cn.monitor4all.logRecord.service.LogRecordErrorHandlerService` 来进行兜底逻辑处理，这里将本地日志处理和消息管道兜底处理分开了。
 
 ```java
+@Component
 public class LogRecordErrorHandlerServiceImpl implements LogRecordErrorHandlerService {
 
     @Override
@@ -815,6 +819,32 @@ public class LogRecordConfig {
 
 }
 ````
+
+### 操作日志数据表结构推荐
+
+以MySQL表为例：
+
+```
+CREATE TABLE `operation_log` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `biz_id` varchar(128) NOT NULL COMMENT '业务ID',
+  `biz_type` varchar(64) DEFAULT NULL COMMENT '业务类型',
+  `tag` varchar(64) DEFAULT NULL COMMENT '标签',
+  `operation_date` datetime DEFAULT NULL COMMENT '操作执行时间',
+  `msg` varchar(512) COMMENT '操作内容',
+  `operation_status` tinyint(4) DEFAULT NULL COMMENT '操作结果状态',
+  `operation_time` int(11) DEFAULT NULL COMMENT '操作耗时',
+  `content_return` varchar(512) COMMENT '方法返回内容',
+  `content_exception` varchar(512) COMMENT '方法异常内容',
+  `operator_id` varchar(32) DEFAULT NULL COMMENT '操作人ID',
+  `operator_name` varchar(32) DEFAULT NULL COMMENT '操作人姓名',
+  PRIMARY KEY (`id`),
+  KEY `idx_biz_id` (`biz_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
+
+```
 
 ### 让注解支持`IDEA`自动补全
 

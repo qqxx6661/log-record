@@ -223,6 +223,20 @@ public class TestService {
     public void testRetryTimesAndOperationLogGetErrorHandler() {
     }
 
+    /**
+     * 测试msg解析SpEL表达式为null
+     */
+    @OperationLog(bizId = "'1'", msg = "#nullKey", bizType = "'testMsgWithSpELNull'")
+    public void testMsgWithSpELNull() {
+    }
+
+    /**
+     * 测试extra解析SpEL表达式为null
+     */
+    @OperationLog(bizId = "'1'", msg = "#nullKey", bizType = "'testExtraWithSpELNull'")
+    public void testExtraWithSpELNull() {
+    }
+
 
     @OperationLog(bizId = "'1'", bizType = "'testSpringBeanCustomFuncNoParam'", msg = "#_DIFF(#CustomFunctionService_testUser(), #param)")
     public void testSpringBeanCustomFuncNoParam(TestUser param) {

@@ -63,6 +63,8 @@ public class LogOperationTest {
         testService.testEnumAndConstantWithSpEL();
         testService.testLogRecordContext();
         testService.testMapUseInLogRecordContext();
+        testService.testMsgWithSpELNull();
+        testService.testExtraWithSpELNull();
         testService.testSpringBeanCustomFuncNoParam(new TestUser(2, "dsa"));
         testService.testSpringBeanCustomFuncWithParam(new TestUser(2, "dsa"));
         testService.testSpringBeanCustomFuncNoReturn(20);

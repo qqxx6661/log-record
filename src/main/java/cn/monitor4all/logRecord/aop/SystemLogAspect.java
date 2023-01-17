@@ -5,7 +5,10 @@ import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.function.CustomFunctionRegistrar;
-import cn.monitor4all.logRecord.service.*;
+import cn.monitor4all.logRecord.service.DataPipelineService;
+import cn.monitor4all.logRecord.service.IOperationLogGetService;
+import cn.monitor4all.logRecord.service.IOperatorIdGetService;
+import cn.monitor4all.logRecord.service.LogRecordErrorHandlerService;
 import cn.monitor4all.logRecord.thread.LogRecordThreadPool;
 import cn.monitor4all.logRecord.thread.LogRecordThreadWrapper;
 import com.alibaba.fastjson.JSON;
@@ -27,7 +30,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @Aspect
@@ -120,7 +128,7 @@ public class SystemLogAspect {
                     if (logDTO.getSuccess() == null) {
                         logDTO.setSuccess(true);
                     }
-                    if (annotation.recordReturnValue()) {
+                    if (annotation.recordReturnValue() && result != null) {
                         logDTO.setReturnStr(JSON.toJSONString(result));
                     }
                 });
@@ -184,12 +192,12 @@ public class SystemLogAspect {
         String operatorIdSpel = annotation.operatorId();
         String conditionSpel = annotation.condition();
         String successSpel = annotation.success();
-        String bizId = bizIdSpel;
-        String bizType = bizTypeSpel;
-        String tag = tagSpel;
-        String msg = msgSpel;
-        String extra = extraSpel;
-        String operatorId = operatorIdSpel;
+        String bizId = null;
+        String bizType = null;
+        String tag = null;
+        String msg = null;
+        String extra = null;
+        String operatorId = null;
         Boolean functionExecuteSuccess = null;
         try {
             Object[] arguments = joinPoint.getArgs();
@@ -236,18 +244,22 @@ public class SystemLogAspect {
                 tag = tagExpression.getValue(context, String.class);
             }
 
-            // msg 处理：SpEL解析 必须符合表达式 若为实体则JSON序列化实体
+            // msg 处理：SpEL解析 必须符合表达式 若为实体则JSON序列化实体 若为空则返回null
             if (StringUtils.isNotBlank(msgSpel)) {
                 Expression msgExpression = parser.parseExpression(msgSpel);
                 Object msgObj = msgExpression.getValue(context, Object.class);
-                msg = msgObj instanceof String ? (String) msgObj : JSON.toJSONString(msgObj, SerializerFeature.WriteMapNullValue);
+                if (msgObj != null) {
+                    msg = msgObj instanceof String ? (String) msgObj : JSON.toJSONString(msgObj, SerializerFeature.WriteMapNullValue);
+                }
             }
 
-            // extra 处理：SpEL解析 必须符合表达式 若为实体则JSON序列化实体
+            // extra 处理：SpEL解析 必须符合表达式 若为实体则JSON序列化实体 若为空则返回null
             if (StringUtils.isNotBlank(extraSpel)) {
                 Expression extraExpression = parser.parseExpression(extraSpel);
                 Object extraObj = extraExpression.getValue(context, Object.class);
-                extra = extraObj instanceof String ? (String) extraObj : JSON.toJSONString(extraObj, SerializerFeature.WriteMapNullValue);
+                if (extraObj != null) {
+                    extra = extraObj instanceof String ? (String) extraObj : JSON.toJSONString(extraObj, SerializerFeature.WriteMapNullValue);
+                }
             }
 
             // operatorId 处理：优先级 注解传入 > 自定义接口实现
@@ -312,7 +324,7 @@ public class SystemLogAspect {
             }
         }
 
-        if (!iOperationLogGetResult && iOperationLogGetService != null) {
+        if (!iOperationLogGetResult && iOperationLogGetService != null && logRecordErrorHandlerService != null) {
             logRecordErrorHandlerService.operationLogGetErrorHandler();
         }
 
@@ -331,7 +343,7 @@ public class SystemLogAspect {
             }
         }
 
-        if (!dataPipelineServiceResult && dataPipelineService != null) {
+        if (!dataPipelineServiceResult && dataPipelineService != null && logRecordErrorHandlerService != null) {
             logRecordErrorHandlerService.dataPipelineErrorHandler();
         }
 

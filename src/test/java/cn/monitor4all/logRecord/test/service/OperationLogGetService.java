@@ -188,6 +188,14 @@ public class OperationLogGetService implements IOperationLogGetService {
             Assertions.assertEquals(logDTO.getMsg(), "{\"customKey\":\"customValue\"}");
         }
 
+        if ("testMsgWithSpELNull".equals(logDTO.getBizType())) {
+            Assertions.assertNull(logDTO.getMsg());
+        }
+
+        if ("testExtraWithSpELNull".equals(logDTO.getBizType())) {
+            Assertions.assertNull(logDTO.getExtra());
+        }
+
         if ("testSpringBeanCustomFuncNoParam".equals(logDTO.getBizType())) {
             Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【asd】变成了【dsa】");
         }
@@ -197,7 +205,7 @@ public class OperationLogGetService implements IOperationLogGetService {
         }
 
         if ("testSpringBeanCustomFuncNoReturn".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "null");
+            Assertions.assertNull(logDTO.getMsg());
         }
 
         if ("testLogRecordThreadWrapper".equals(logDTO.getBizType())) {
