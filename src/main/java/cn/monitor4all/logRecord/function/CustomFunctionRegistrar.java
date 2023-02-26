@@ -92,6 +92,8 @@ public class CustomFunctionRegistrar implements ApplicationContextAware {
     @SneakyThrows
     private List<Method> proxy2static(List<Method> nonStaticMethods, Object delegate, Object originalClass) throws NotFoundException, CannotCompileException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         ClassPool pool = ClassPool.getDefault();
+        ClassClassPath classPath = new ClassClassPath(this.getClass());
+        pool.insertClassPath(classPath);
         Class<?> targetClass = originalClass.getClass();
 
         // 委派类名称
