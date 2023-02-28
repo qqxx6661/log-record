@@ -4,8 +4,10 @@ import cn.monitor4all.logRecord.aop.SystemLogAspect;
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordAutoConfiguration;
 import cn.monitor4all.logRecord.test.service.TestService;
+import cn.monitor4all.logRecord.test.utils.TestHelper;
 import cn.monitor4all.logRecord.thread.LogRecordThreadWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +28,7 @@ import java.util.function.Consumer;
         TestService.class,})
 @PropertySource("classpath:testNormal.properties")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class LogOperationThreadTest {
+public class OperationLogThreadTest {
 
     @Autowired
     private TestService testService;
@@ -35,8 +37,9 @@ public class LogOperationThreadTest {
     private SystemLogAspect systemLogAspect;
 
     @Test
-    public void logRecordFuncTest() throws NoSuchFieldException, IllegalAccessException {
-        // FIXME 这里用注入的方式修改LogRecordThreadWrapper，目的是防止用Bean注入的方式其他测试类也被新的Wrapper包装，不是很优雅，需要重构
+    public void testLogRecordThreadWrapper() throws NoSuchFieldException, IllegalAccessException {
+
+        // FIXME 这里用反射的方式注入了新的LogRecordThreadWrapper，目的是防止用Bean注入的方式其他测试类也被新的Wrapper包装，不是很优雅，需要重构
         Field field = SystemLogAspect.class.getDeclaredField("logRecordThreadWrapper");
         field.setAccessible(true);
         field.set(systemLogAspect, new LogRecordThreadWrapper() {
@@ -47,7 +50,13 @@ public class LogOperationThreadTest {
                 return LogRecordThreadWrapper.super.createLog(consumer, logDTO);
             }
         });
-        // FIXME 主线程结束太快可能会导致线程池打印logDTO消失，需要进行调试
+
+
+        TestHelper.addLock("testLogRecordThreadWrapper");
         testService.testLogRecordThreadWrapper();
+        TestHelper.await("testLogRecordThreadWrapper");
+        LogDTO logDTO = TestHelper.getLogDTO("testLogRecordThreadWrapper");
+
+        Assertions.assertEquals(logDTO.getExtra(), "extraInfo");
     }
 }

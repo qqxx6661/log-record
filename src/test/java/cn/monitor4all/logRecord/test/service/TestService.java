@@ -21,112 +21,120 @@ import java.util.Map;
 @TestComponent
 public class TestService {
 
-    /**
-     * 测试bizId解析
-     */
     @OperationLog(bizId = "#bizId", bizType = "'testBizIdWithSpEL'")
+    public void testBizIdWithSpEL(String bizId) {
+    }
+
     @OperationLog(bizId = "'2'", bizType = "'testBizIdWithRawString'")
-    public void testBizId(String bizId) {
+    public void testBizIdWithRawString() {
     }
 
-    /**
-     * 测试tag解析
-     */
     @OperationLog(bizId = "'1'", tag = "#tag", bizType = "'testTagWithSpEL'")
-    @OperationLog(bizId = "'2'", tag = "'tag2'", bizType = "'testTagWithRawString'")
-    public void testTag(String tag) {
+    public void testTagWithSpEL(String tag) {
     }
 
-    /**
-     * 测试返回值开关recordReturnValue
-     */
-    @OperationLog(bizId = "'1'", bizType = "'testRecordReturnValueTrue'", recordReturnValue = true)
-    @OperationLog(bizId = "'1'", bizType = "'testRecordReturnValueFalse'")
-    public String testRecordReturnValue() {
-        return "returnStr";
+    @OperationLog(bizId = "'1'", tag = "'tag2'", bizType = "'testTagWithRawString'")
+    public void testTagWithRawString() {
     }
 
-    /**
-     * 测试返回值JSON化
-     */
-    @OperationLog(bizId = "'1'", bizType = "'testReturnObject'", recordReturnValue = true)
-    public TestUser testReturnObject() {
-        return new TestUser(1, "张三");
-    }
-
-    /**
-     * 测试返回异常信息
-     */
-    @OperationLog(bizId = "'1'", bizType = "'testException'")
-    public String testException() {
-        throw new RuntimeException("testException");
-    }
-
-    /**
-     * 测试msg和extra解析
-     */
-    @OperationLog(bizId = "'1'", bizType = "'testMsgAndExtraWithSpEL'", msg = "'将旧值' + #oldValue + '更改为新值' + #newValue", extra = "'将旧值' + #oldValue + '更改为新值' + #newValue")
-    @OperationLog(bizId = "'2'", bizType = "'testMsgAndExtraWithRawString'", msg = "'str'", extra = "'str'")
-    @OperationLog(bizId = "'3'", bizType = "'testMsgAndExtraWithObject'", msg = "#testUser", extra = "#testUser")
-    public void testMsgAndExtra(String newValue, TestUser testUser) {
+    @OperationLog(bizId = "'1'", bizType = "'testMsgWithSpEL'", msg = "'将旧值' + #oldValue + '更改为新值' + #newValue", extra = "'将旧值' + #oldValue + '更改为新值' + #newValue")
+    public void testMsgWithSpEL(String newValue, TestUser testUser) {
         LogRecordContext.putVariable("oldValue", "张三");
     }
 
-    /**
-     * 测试自定义函数：静态方法
-     */
+    @OperationLog(bizId = "'1'", msg = "#nullKey", bizType = "'testMsgWithSpELNull'")
+    public void testMsgWithSpELNull() {
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testMsgWithRawString'", msg = "'str'", extra = "'str'")
+    public void testMsgWithRawString() {
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testMsgWithObject'", msg = "#testUser", extra = "#testUser")
+    public void testMsgWithObject(TestUser testUser) {
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testExtraWithSpEL'", msg = "'将旧值' + #oldValue + '更改为新值' + #newValue", extra = "'将旧值' + #oldValue + '更改为新值' + #newValue")
+    public void testExtraWithSpEL(String newValue, TestUser testUser) {
+        LogRecordContext.putVariable("oldValue", "张三");
+    }
+
+    @OperationLog(bizId = "'1'", msg = "#nullKey", bizType = "'testExtraWithSpELNull'")
+    public void testExtraWithSpELNull() {
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testExtraWithRawString'", msg = "'str'", extra = "'str'")
+    public void testExtraWithRawString() {
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testExtraWithObject'", msg = "#testUser", extra = "#testUser")
+    public void testExtraWithObject(TestUser testUser) {
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testRecordReturnValueTrue'", recordReturnValue = true)
+    public String testRecordReturnValueTrue() {
+        return "returnStr";
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testRecordReturnValueFalse'")
+    public String testRecordReturnValueFalse() {
+        return "returnStr";
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testReturnObjectToJson'", recordReturnValue = true)
+    public TestUser testReturnObjectToJson() {
+        return new TestUser(1, "张三");
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testMethodThrowException'")
+    public String testMethodThrowException() {
+        throw new RuntimeException("testMethodThrowException");
+    }
+
     @OperationLog(bizId = "#CustomFunctionStatic_testStaticMethodWithCustomName()", bizType = "'testStaticMethodWithCustomName'")
+    public void testStaticMethodWithCustomName() {
+    }
+
     @OperationLog(bizId = "#CustomFunctionStatic_testStaticMethodWithoutCustomName()", bizType = "'testStaticMethodWithoutCustomName'")
-    public void testCustomFunc() {
+    public void testStaticMethodWithoutCustomName() {
     }
 
-    /**
-     * 测试operationId SpEL解析或者SPI接口获取
-     */
     @OperationLog(bizId = "'1'", bizType = "'testOperatorIdWithSpEL'", operatorId = "#operatorId")
-    @OperationLog(bizId = "'2'", bizType = "'testOperatorIdWithCustomOperatorIdGetService'")
-    public void testOperatorId(String operatorId) {
+    public void testOperatorIdWithSpEL(String operatorId) {
     }
 
-    /**
-     * 测试切面执行方法前方法后配置
-     */
-    @OperationLog(bizId = "'1'", tag = "#key", bizType = "'testExecuteBeforeFunc1'", executeBeforeFunc = true)
-    @OperationLog(bizId = "'2'", tag = "#key", bizType = "'testExecuteAfterFunc'")
-    @OperationLog(bizId = "'3'", tag = "#key", bizType = "'testExecuteBeforeFunc2'", executeBeforeFunc = true)
+    @OperationLog(bizId = "'1'", bizType = "'testOperatorIdWithCustomOperatorIdGetService'")
+    public void testOperatorIdWithCustomOperatorIdGetService() {
+    }
+
+
+    @OperationLog(bizId = "'1'", tag = "#key", bizType = "'testExecuteBeforeFunc'", executeBeforeFunc = true)
     public void testExecuteBeforeFunc() {
         LogRecordContext.putVariable("key", "value");
     }
 
-    /**
-     * 测试实体类DIFF：使用字段注解LogRecordDiffField
-     */
+    @OperationLog(bizId = "'1'", tag = "#key", bizType = "'testExecuteAfterFunc'")
+    public void testExecuteAfterFunc() {
+        LogRecordContext.putVariable("key", "value");
+    }
+
     @OperationLog(bizId = "'1'", bizType = "'testLogRecordDiffField'", msg = "#_DIFF(#oldObject, #testUser)")
     public void testLogRecordDiffField(TestUser testUser) {
         LogRecordContext.putVariable("oldObject", new TestUser(1, "张三"));
     }
 
-    /**
-     * 测试实体类DIFF：使用类注解LogRecordDiffObject
-     */
     @OperationLog(bizId = "'1'", bizType = "'testLogRecordDiffObject'", msg = "#_DIFF(#oldObject, #testComplexUser)")
     public void testLogRecordDiffObject(TestComplexUser testComplexUser) {
         LogRecordContext.putVariable("oldObject", new TestComplexUser(1, "张三", null,
                 Arrays.asList("小张三", "大张三"), "前端"));
     }
 
-    /**
-     * 测试实体类DIFF：使用类注解LogRecordDiffIgnoreField
-     */
     @OperationLog(bizId = "'1'", bizType = "'testLogRecordDiffIgnoreField'", msg = "#_DIFF(#oldObject, #testComplexUser)")
     public void testLogRecordDiffIgnoreField(TestComplexUser testComplexUser) {
         LogRecordContext.putVariable("oldObject", new TestComplexUser(1, "张三", null,
                 Arrays.asList("小张三", "大张三"), "前端"));
     }
 
-    /**
-     * 测试实体类DIFF：嵌套非基本类型
-     */
     @OperationLog(bizId = "'1'", bizType = "'testLogRecordDiffNestedClass'", msg = "#_DIFF(#oldObject, #testDiffUserParam)")
     public void testLogRecordDiffNestedClass(TestDiffUserParam testDiffUserParam) {
         TestDiffUserVO testDiffUserVO = new TestDiffUserVO();
@@ -144,71 +152,61 @@ public class TestService {
         LogRecordContext.putVariable("oldObject", testDiffUserVO);
     }
 
-    /**
-     * 测试实体类DIFF：使用多个_DIFF
-     */
     @OperationLog(bizId = "'1'", bizType = "'testMultipleDiff'", msg = "'第一个DIFF：' + #_DIFF(#oldObject1, #testUser) + '第二个DIFF' + #_DIFF(#oldObject2, #testUser)")
     public void testMultipleDiff(TestUser testUser) {
         LogRecordContext.putVariable("oldObject1", new TestUser(1, "张三"));
         LogRecordContext.putVariable("oldObject2", new TestUser(3, "王五"));
     }
 
-    /**
-     * 测试condition条件注解
-     */
-    @OperationLog(bizId = "'1'", bizType = "'testCondition1'", condition = "#testUser != null")
-    @OperationLog(bizId = "'2'", bizType = "'testCondition2'", condition = "#testUser.id == 1")
-    @OperationLog(bizId = "'3'", bizType = "'testCondition3'", condition = "#testUser.id == 2")
-    public void testCondition(TestUser testUser) {
+
+    @OperationLog(bizId = "'1'", bizType = "'testConditionTrue'", condition = "#testUser != null")
+    public void testConditionTrue(TestUser testUser) {
     }
 
-    /**
-     * 测试自定义success
-     */
-    @OperationLog(bizId = "'1'", msg = "'success'", bizType = "'testCustomSuccess1'", success = "#testUser != null")
-    @OperationLog(bizId = "'2'", msg = "'failure'", bizType = "'testCustomSuccess2'", success = "#testUser == null")
-    @OperationLog(bizId = "'3'", msg = "''", bizType = "'testCustomSuccess3'")
-    public void testCustomSuccess(TestUser testUser) {
+
+    @OperationLog(bizId = "'1'", bizType = "'testConditionFalse'", condition = "#testUser.id == 1")
+    public void testConditionFalse(TestUser testUser) {
     }
 
-    /**
-     * 测试通过SpEL获取默认自定义字段
-     */
-    @OperationLog(bizId = "'1'", bizType = "'testDefaultParamErrorMsg'", msg = "#_errorMsg")
-    public TestUser testDefaultParamErrorMsg() {
-        throw new RuntimeException("exception");
-
+    @OperationLog(bizId = "'1'", bizType = "'testCustomSuccessTrue'", success = "#testUser != null")
+    public void testCustomSuccessTrue(TestUser testUser) {
     }
 
-    /**
-     * 测试通过SpEL获取默认自定义字段
-     */
+    @OperationLog(bizId = "'1'", bizType = "'testCustomSuccessFalse'", success = "#testUser == null")
+    public void testCustomSuccessFalse(TestUser testUser) {
+    }
+
     @OperationLog(bizId = "'1'", bizType = "'testDefaultParamReturn'", msg = "#_return")
     public TestUser testDefaultParamReturn() {
         return new TestUser(1, "张三");
     }
 
-    /**
-     * 测试SpEL解析枚举类和常量类
-     */
-    @OperationLog(bizId = "'1'", bizType = "'testConstantWithSpEL'", tag = "T(cn.monitor4all.logRecord.test.bean.TestConstant).TYPE1")
-    @OperationLog(bizId = "'2'", bizType = "'testEnumWithSpEL1'", tag = "T(cn.monitor4all.logRecord.test.bean.TestEnum).TYPE1")
-    @OperationLog(bizId = "'3'", bizType = "'testEnumWithSpEL2'", tag = "T(cn.monitor4all.logRecord.test.bean.TestEnum).TYPE1.key")
-    @OperationLog(bizId = "'4'", bizType = "'testEnumWithSpEL3'", tag = "T(cn.monitor4all.logRecord.test.bean.TestEnum).TYPE1.name")
-    public void testEnumAndConstantWithSpEL() {
+    @OperationLog(bizId = "'1'", bizType = "'testDefaultParamErrorMsg'", msg = "#_errorMsg")
+    public TestUser testDefaultParamErrorMsg() {
+        throw new RuntimeException("testDefaultParamErrorMsg");
     }
 
-    /**
-     * 测试自定义上下文写入和读取
-     */
+    @OperationLog(bizId = "'1'", bizType = "'testConstantWithSpEL'", tag = "T(cn.monitor4all.logRecord.test.bean.TestConstant).TYPE1")
+    public void testConstantWithSpEL() {
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testEnumWithSpEL1'", tag = "T(cn.monitor4all.logRecord.test.bean.TestEnum).TYPE1")
+    public void testEnumWithSpEL1() {
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testEnumWithSpEL2'", tag = "T(cn.monitor4all.logRecord.test.bean.TestEnum).TYPE1.key")
+    public void testEnumWithSpEL2() {
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testEnumWithSpEL3'", tag = "T(cn.monitor4all.logRecord.test.bean.TestEnum).TYPE1.name")
+    public void testEnumWithSpEL3() {
+    }
+
     @OperationLog(bizId = "'1'", bizType = "'testLogRecordContext'", msg = "#customKey")
     public void testLogRecordContext() {
         LogRecordContext.putVariable("customKey", "customValue");
     }
 
-    /**
-     * 测试自定义上下文写入和读取Map
-     */
     @OperationLog(bizId = "'1'", bizType = "'testMapUseInLogRecordContext'", msg = "#customMap")
     public void testMapUseInLogRecordContext() {
         Map<String, Object> customMap = new HashMap<>(2);
@@ -216,43 +214,25 @@ public class TestService {
         LogRecordContext.putVariable("customMap", customMap);
     }
 
-    /**
-     * 测试重试次数配置和兜底异常处理
-     */
-    @OperationLog(bizId = "'1'", bizType = "'testRetryTimes'")
+    @OperationLog(bizId = "'1'", bizType = "'testRetryTimesAndOperationLogGetErrorHandler'")
     public void testRetryTimesAndOperationLogGetErrorHandler() {
     }
 
-    /**
-     * 测试msg解析SpEL表达式为null
-     */
-    @OperationLog(bizId = "'1'", msg = "#nullKey", bizType = "'testMsgWithSpELNull'")
-    public void testMsgWithSpELNull() {
-    }
-
-    /**
-     * 测试extra解析SpEL表达式为null
-     */
-    @OperationLog(bizId = "'1'", msg = "#nullKey", bizType = "'testExtraWithSpELNull'")
-    public void testExtraWithSpELNull() {
-    }
-
-
-    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanCustomFuncNoParam'", msg = "#_DIFF(#CustomFunctionService_testUser(), #param)")
-    public void testSpringBeanCustomFuncNoParam(TestUser param) {
-    }
-
-
-    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanCustomFuncWithParam'", msg = "#_DIFF(#CustomFunctionService_testUserWithParam(#param), #param)", executeBeforeFunc = true)
-    public void testSpringBeanCustomFuncWithParam(TestUser param) {
-    }
-
-
-    @OperationLog(bizId = "'1'", bizType = "'testSpringBeanCustomFuncNoReturn'", msg = "#CustomFunctionService_testUserNoReturn(#param)")
-    public void testSpringBeanCustomFuncNoReturn(Integer param) {
-    }
+    // extra test
 
     @OperationLog(bizId = "'1'", bizType = "'testLogRecordThreadWrapper'")
     public void testLogRecordThreadWrapper() {
+    }
+
+    @OperationLog(bizId = "1", bizType = "'testMethodWithNoParam'", msg = "#CustomFunctionService_testMethodWithNoParam()")
+    public void testMethodWithNoParam() {
+    }
+
+    @OperationLog(bizId = "1", bizType = "'testMethodWithParam'", msg = "#CustomFunctionService_testMethodWithParam(#testUser)")
+    public void testMethodWithParam(TestUser testUser) {
+    }
+
+    @OperationLog(bizId = "1", bizType = "'testMethodWithNoReturn'", msg = "#CustomFunctionService_testMethodWithNoReturn(#testUser)")
+    public void testMethodWithNoReturn(TestUser testUser) {
     }
 }
