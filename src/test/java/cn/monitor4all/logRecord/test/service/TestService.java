@@ -202,8 +202,8 @@ public class TestService {
     public void testEnumWithSpEL3() {
     }
 
-    @OperationLog(bizId = "'1'", bizType = "'testLogRecordContext'", msg = "#customKey")
-    public void testLogRecordContext() {
+    @OperationLog(bizId = "'1'", bizType = "'testSpELInLogRecordContext'", msg = "#customKey")
+    public void testSpELInLogRecordContext() {
         LogRecordContext.putVariable("customKey", "customValue");
     }
 
@@ -214,11 +214,17 @@ public class TestService {
         LogRecordContext.putVariable("customMap", customMap);
     }
 
+
+    @OperationLog(bizId = "'1'", bizType = "'testLogRecordContextTransmittableThreadLocal'")
+    public void testLogRecordContextTransmittableThreadLocal() {
+        LogRecordContext.putVariable("customKey", "customValue");
+    }
+
     @OperationLog(bizId = "'1'", bizType = "'testRetryTimesAndOperationLogGetErrorHandler'")
     public void testRetryTimesAndOperationLogGetErrorHandler() {
     }
 
-    // extra test
+    // Non-static custom function test
 
     @OperationLog(bizId = "1", bizType = "'testMethodWithNoParam'", msg = "#CustomFunctionService_testMethodWithNoParam()")
     public void testMethodWithNoParam() {

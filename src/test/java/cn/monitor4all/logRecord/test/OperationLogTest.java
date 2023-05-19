@@ -453,11 +453,21 @@ public class OperationLogTest {
     }
 
     @Test
-    public void testLogRecordContext() {
-        TestHelper.addLock("testLogRecordContext");
-        testService.testLogRecordContext();
-        TestHelper.await("testLogRecordContext");
-        LogDTO logDTO = TestHelper.getLogDTO("testLogRecordContext");
+    public void testSpELInLogRecordContext() {
+        TestHelper.addLock("testSpELInLogRecordContext");
+        testService.testSpELInLogRecordContext();
+        TestHelper.await("testSpELInLogRecordContext");
+        LogDTO logDTO = TestHelper.getLogDTO("testSpELInLogRecordContext");
+
+        Assertions.assertEquals(logDTO.getMsg(), "customValue");
+    }
+
+    @Test
+    public void testLogRecordContextTransmittableThreadLocal() {
+        TestHelper.addLock("testLogRecordContextTransmittableThreadLocal");
+        testService.testLogRecordContextTransmittableThreadLocal();
+        TestHelper.await("testLogRecordContextTransmittableThreadLocal");
+        LogDTO logDTO = TestHelper.getLogDTO("testLogRecordContextTransmittableThreadLocal");
 
         Assertions.assertEquals(logDTO.getMsg(), "customValue");
     }
@@ -472,7 +482,7 @@ public class OperationLogTest {
         Assertions.assertEquals(logDTO.getMsg(), "{\"customKey\":\"customValue\"}");
     }
 
-    // extra test
+    // Non-static custom function test
 
     @Test
     public void testMethodWithNoParam() {

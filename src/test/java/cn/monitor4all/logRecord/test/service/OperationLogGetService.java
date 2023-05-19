@@ -1,6 +1,7 @@
 package cn.monitor4all.logRecord.test.service;
 
 import cn.monitor4all.logRecord.bean.LogDTO;
+import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.service.IOperationLogGetService;
 import cn.monitor4all.logRecord.test.utils.TestHelper;
 import com.alibaba.fastjson.JSON;
@@ -202,9 +203,9 @@ public class OperationLogGetService implements IOperationLogGetService {
             TestHelper.releaseLock("testEnumWithSpEL3");
         }
 
-        if ("testLogRecordContext".equals(logDTO.getBizType())) {
-            TestHelper.putLogDTO("testLogRecordContext", logDTO);
-            TestHelper.releaseLock("testLogRecordContext");
+        if ("testSpELInLogRecordContext".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testSpELInLogRecordContext", logDTO);
+            TestHelper.releaseLock("testSpELInLogRecordContext");
         }
 
         if ("testMapUseInLogRecordContext".equals(logDTO.getBizType())) {
@@ -212,7 +213,14 @@ public class OperationLogGetService implements IOperationLogGetService {
             TestHelper.releaseLock("testMapUseInLogRecordContext");
         }
 
-        // extra test
+        if ("testLogRecordContextTransmittableThreadLocal".equals(logDTO.getBizType())) {
+            // 在createLog中操作LogRecordContext
+            logDTO.setMsg(LogRecordContext.getVariable("customKey").toString());
+            TestHelper.putLogDTO("testLogRecordContextTransmittableThreadLocal", logDTO);
+            TestHelper.releaseLock("testLogRecordContextTransmittableThreadLocal");
+        }
+
+        // Non-static custom function test
 
         if ("testMethodWithNoParam".equals(logDTO.getBizType())) {
             TestHelper.putLogDTO("testMethodWithNoParam", logDTO);
