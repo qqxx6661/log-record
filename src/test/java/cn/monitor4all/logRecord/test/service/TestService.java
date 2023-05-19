@@ -220,10 +220,6 @@ public class TestService {
 
     // extra test
 
-    @OperationLog(bizId = "'1'", bizType = "'testLogRecordThreadWrapper'")
-    public void testLogRecordThreadWrapper() {
-    }
-
     @OperationLog(bizId = "1", bizType = "'testMethodWithNoParam'", msg = "#CustomFunctionService_testMethodWithNoParam()")
     public void testMethodWithNoParam() {
     }

@@ -214,11 +214,6 @@ public class OperationLogGetService implements IOperationLogGetService {
 
         // extra test
 
-        if ("testLogRecordThreadWrapper".equals(logDTO.getBizType())) {
-            TestHelper.putLogDTO("testLogRecordThreadWrapper", logDTO);
-            TestHelper.releaseLock("testLogRecordThreadWrapper");
-        }
-
         if ("testMethodWithNoParam".equals(logDTO.getBizType())) {
             TestHelper.putLogDTO("testMethodWithNoParam", logDTO);
             TestHelper.releaseLock("testMethodWithNoParam");

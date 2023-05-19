@@ -492,6 +492,8 @@ public Response<T> function(Request request) {
 }
 ```
 
+LogRecordContext内部使用TransmittableThreadLocal，在线程池中也可以读取到主线程的ThreadLocal。
+
 ### 自定义函数
 
 将`@LogRecordFunc`注解申明在需要注册到`SpEL`的自定义函数上，参与`SpEL`表达式的运算。
@@ -789,36 +791,11 @@ log-record.thread-pool.pool-size=4（线程池核心线程大小 默认为4）
 log-record.thread-pool.enabled=true（线程池开关 默认为开启 若关闭则使用主线程进行消息处理发送）
 ```
 
-关闭使用线程池后，所有发送由主线程执行，带来的副作用是大量日志并发发送，会降低主线程处理效率，带来的好处是`LogRecordContext`可以在处理`logDTO`方法时继续使用（因为`LogRecordContext`在主线程）。
+关闭使用线程池后，所有发送由主线程执行，带来的副作用是大量日志并发发送，会降低主线程处理效率。
 
 ### 函数返回值记录开关
 
 `@OperationLog`注解提供布尔值`recordReturnValue()`用于是否开启记录函数返回值，默认关闭，防止返回值实体过大，造成序列化时性能消耗过多。
-
-### 日志处理线程池前置处理
-
-在使用线程池处理包装好的日志之前，很多人有一些特殊逻辑需要插入，比如将`traceId`放入上下文，这里开放接口在`logDTO`发送给线程池前允许加入用户自定义逻辑。
-
-使用方式如下，添加`SpringBean`覆写`LogRecordThreadWrapper`
-
-```java
-@Slf4j
-@Configuration
-public class LogRecordConfig {
-
-    @Bean
-    public LogRecordThreadWrapper logRecordThreadWrapper() {
-        return new LogRecordThreadWrapper() {
-            @Override
-            public Runnable createLog(Consumer<LogDTO> consumer, LogDTO logDTO) {
-                log.info("Before send createLog task to LogRecordThreadPool. Current thread [{}]", Thread.currentThread().getName());
-                return LogRecordThreadWrapper.super.createLog(consumer, logDTO);
-            }
-        };
-    }
-
-}
-````
 
 ### 操作日志数据表结构推荐
 

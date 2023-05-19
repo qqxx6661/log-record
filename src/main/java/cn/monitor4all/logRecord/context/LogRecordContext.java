@@ -1,7 +1,7 @@
 package cn.monitor4all.logRecord.context;
 
 import cn.monitor4all.logRecord.bean.DiffDTO;
-import org.springframework.core.NamedThreadLocal;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class LogRecordContext {
 
-    private static final ThreadLocal<StandardEvaluationContext> CONTEXT_THREAD_LOCAL = new NamedThreadLocal<>("ThreadLocal StandardEvaluationContext");
+    private static final TransmittableThreadLocal<StandardEvaluationContext> CONTEXT_THREAD_LOCAL = new TransmittableThreadLocal<>();
 
     public static final String CONTEXT_KEY_NAME_RETURN = "_return";
 
@@ -38,7 +38,7 @@ public class LogRecordContext {
     }
 
 
-    private static final ThreadLocal<List<DiffDTO>> DIFF_DTO_LIST_THREAD_LOCAL = new NamedThreadLocal<>("ThreadLocal DiffDTOList");
+    private static final TransmittableThreadLocal<List<DiffDTO>> DIFF_DTO_LIST_THREAD_LOCAL = new TransmittableThreadLocal<>();
 
     public static List<DiffDTO> getDiffDTOList() {
         return DIFF_DTO_LIST_THREAD_LOCAL.get() == null ? new ArrayList<>() : DIFF_DTO_LIST_THREAD_LOCAL.get();

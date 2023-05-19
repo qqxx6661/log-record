@@ -10,9 +10,9 @@ import cn.monitor4all.logRecord.service.IOperationLogGetService;
 import cn.monitor4all.logRecord.service.IOperatorIdGetService;
 import cn.monitor4all.logRecord.service.LogRecordErrorHandlerService;
 import cn.monitor4all.logRecord.thread.LogRecordThreadPool;
-import cn.monitor4all.logRecord.thread.LogRecordThreadWrapper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.ttl.TtlRunnable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -60,9 +60,6 @@ public class SystemLogAspect {
 
     @Autowired(required = false)
     private LogRecordErrorHandlerService logRecordErrorHandlerService;
-
-    @Autowired
-    private LogRecordThreadWrapper logRecordThreadWrapper;
 
     private final SpelExpressionParser parser = new SpelExpressionParser();
 
@@ -169,7 +166,11 @@ public class SystemLogAspect {
                 Long finalExecutionTime = executionTime;
                 Consumer<LogDTO> createLogFunction = logDTO -> createLog(logDTO, finalExecutionTime);
                 if (logRecordThreadPool != null) {
-                    logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().execute(logRecordThreadWrapper.createLog(createLogFunction, logDTO)));
+                    logDTOList.forEach(logDTO -> {
+                        Runnable task = () -> createLogFunction.accept(logDTO);
+                        Runnable ttlRunnable = TtlRunnable.get(task);
+                        logRecordThreadPool.getLogRecordPoolExecutor().execute(ttlRunnable);
+                    });
                 } else {
                     logDTOList.forEach(createLogFunction);
                 }
