@@ -22,13 +22,16 @@ import org.springframework.test.context.ContextConfiguration;
         TestService.class,})
 @PropertySource("classpath:testException.properties")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class LogOperationErrorTest {
+public class OperationLogGetServiceExceptionTest {
 
     @Autowired
     private TestService testService;
 
+    /**
+     * 测试：操作日志记录切面异常后重试逻辑和兜底逻辑
+     */
     @Test
-    public void logRecordFuncTest() {
+    public void testRetryTimesAndOperationLogGetErrorHandler() {
         testService.testRetryTimesAndOperationLogGetErrorHandler();
     }
 

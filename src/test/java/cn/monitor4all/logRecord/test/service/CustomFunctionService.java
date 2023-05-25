@@ -14,23 +14,21 @@ import java.util.Locale;
 public class CustomFunctionService {
 
     @LogRecordFunc
-    public TestUser testUser() {
-        return new TestUser(1, "asd");
+    public String testMethodWithNoParam() {
+        return "testMethodWithNoParam";
     }
 
     /**
      * 这里SPEL不支持方法重载
      * 参数和返回为相同对象则_DIFF无法比较出差异
-     * @param testUser
-     * @return
      */
-    @LogRecordFunc(value = "testUserWithParam")
-    public TestUser testUser(TestUser testUser) {
-        return new TestUser(3, testUser.getName().toUpperCase(Locale.ROOT));
+    @LogRecordFunc(value = "testMethodWithParam")
+    public TestUser testMethodWithParam(TestUser testUser) {
+        return testUser;
     }
 
 
-    @LogRecordFunc(value = "testUserNoReturn")
-    public void testUser(Integer id) {
+    @LogRecordFunc(value = "testMethodWithNoReturn")
+    public void testMethodWithNoReturn(TestUser testUser) {
     }
 }

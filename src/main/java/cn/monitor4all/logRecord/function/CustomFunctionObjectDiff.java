@@ -211,9 +211,14 @@ public class CustomFunctionObjectDiff {
                     JSONArray newJsonArray = (JSONArray) JSONArray.toJSON(newValue);
                     return oldJsonArray.equals(newJsonArray);
                 } else if (!isJsonArray(oldValue.getClass()) && !isJsonArray(newValue.getClass())) {
-                    JSONObject oldJsonObject = (JSONObject) JSONObject.toJSON(oldValue);
-                    JSONObject newJsonObject = (JSONObject) JSONObject.toJSON(newValue);
-                    return oldJsonObject.equals(newJsonObject);
+//                    // 尝试转化为JSONObject进行比较，若强转失败则使用equals，依赖于类的equals实现
+                    try {
+                        JSONObject oldJsonObject = (JSONObject) JSONObject.toJSON(oldValue);
+                        JSONObject newJsonObject = (JSONObject) JSONObject.toJSON(newValue);
+                        return oldJsonObject.equals(newJsonObject);
+                    } catch (ClassCastException e) {
+                        return oldValue.equals(newValue);
+                    }
                 }
                 else {
                     return false;

@@ -1,10 +1,11 @@
 package cn.monitor4all.logRecord.test.service;
 
 import cn.monitor4all.logRecord.bean.LogDTO;
+import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.service.IOperationLogGetService;
+import cn.monitor4all.logRecord.test.utils.TestHelper;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.test.context.TestComponent;
 
@@ -18,198 +19,222 @@ public class OperationLogGetService implements IOperationLogGetService {
         log.info("logDTO: [{}]", JSON.toJSONString(logDTO));
 
         if ("testBizIdWithSpEL".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getBizId(), "1");
+            TestHelper.putLogDTO("testBizIdWithSpEL", logDTO);
+            TestHelper.releaseLock("testBizIdWithSpEL");
         }
+
         if ("testBizIdWithRawString".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getBizId(), "2");
+            TestHelper.putLogDTO("testBizIdWithRawString", logDTO);
+            TestHelper.releaseLock("testBizIdWithRawString");
         }
 
         if ("testTagWithSpEL".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getTag(), "tag1");
+            TestHelper.putLogDTO("testTagWithSpEL", logDTO);
+            TestHelper.releaseLock("testTagWithSpEL");
         }
+
         if ("testTagWithRawString".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getTag(), "tag2");
+            TestHelper.putLogDTO("testTagWithRawString", logDTO);
+            TestHelper.releaseLock("testTagWithRawString");
         }
 
-        if ("testRecordReturnValueTrue".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getReturnStr(), "\"returnStr\"");
-        }
-
-        if ("testRecordReturnValueFalse".equals(logDTO.getBizType())) {
-            Assertions.assertNull(logDTO.getReturnStr());
-        }
-
-        if ("testReturnObject".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getReturnStr(), "{\"id\":1,\"name\":\"张三\"}");
-        }
-
-        if ("testException".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getException(), "testException");
-        }
-
-        if ("testMsgAndExtraWithSpEL".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "将旧值张三更改为新值李四");
-            Assertions.assertEquals(logDTO.getExtra(), "将旧值张三更改为新值李四");
-        }
-        if ("testMsgAndExtraWithRawString".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "str");
-            Assertions.assertEquals(logDTO.getExtra(), "str");
-        }
-        if ("testMsgAndExtraWithObject".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "{\"id\":1,\"name\":\"name\"}");
-            Assertions.assertEquals(logDTO.getExtra(), "{\"id\":1,\"name\":\"name\"}");
-        }
-
-        if ("testStaticMethodWithCustomName".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getBizId(), "testStaticMethodWithCustomName");
-        }
-        if ("testStaticMethodWithoutCustomName".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getBizId(), "testStaticMethodWithoutCustomName");
-        }
-
-        if ("testOperatorIdWithSpEL".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getOperatorId(), "001");
-        }
-        if ("testOperatorIdWithCustomOperatorIdGetService".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getOperatorId(), "操作人");
-        }
-
-        if ("testExecuteBeforeFunc1".equals(logDTO.getBizType())) {
-            Assertions.assertNull(logDTO.getTag());
-        }
-        if ("testExecuteAfterFunc".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getTag(), "value");
-        }
-        if ("testExecuteBeforeFunc2".equals(logDTO.getBizType())) {
-            Assertions.assertNull(logDTO.getTag());
-        }
-
-        if ("testLogRecordDiffField".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.bean.TestUser");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息实体");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewFieldAlias(), "用户工号");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 1);
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewValue(), 2);
-        }
-
-        if ("testLogRecordDiffObject".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【张三】变成了【 】 【age】从【 】变成了【20】 【nickNameList】从【[小张三, 大张三]】变成了【[小李四, 大李四]】");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.bean.TestComplexUser");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息复杂实体");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewFieldAlias(), "用户工号");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 1);
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewValue(), 2);
-        }
-
-        if ("testLogRecordDiffIgnoreField".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【张三】变成了【 】 【age】从【 】变成了【20】 【nickNameList】从【[小张三, 大张三]】变成了【[小李四, 大李四]】");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.bean.TestComplexUser");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息复杂实体");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewFieldAlias(), "用户工号");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 1);
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewValue(), 2);
-        }
-
-        if ("testLogRecordDiffNestedClass".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "【id】从【2】变成了【3】 【name】从【小张三】变成了【小李四】" +
-                    " 【jobList】从【[TestDiffJob(jobId=22, jobName=222, dutyList=[TestDiffDuty(dutyId=222, dutyName=222)])]】" +
-                    "变成了【[TestDiffJob(jobId=22, jobName=222, dutyList=[TestDiffDuty(dutyId=333, dutyName=222)])]】");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.bean.diff.TestDiffUserVO");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息嵌套展示实体");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getNewClassName(), "cn.monitor4all.logRecord.test.bean.diff.TestDiffUserParam");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getNewClassAlias(), "用户信息嵌套入参实体");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 2);
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewValue(), 3);
-        }
-
-        if ("testMultipleDiff".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "第一个DIFF：【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】第二个DIFF【用户工号】从【3】变成了【2】 【name】从【王五】变成了【李四】");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.bean.TestUser");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息实体");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewFieldAlias(), "用户工号");
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 1);
-            Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewValue(), 2);
-        }
-
-        if ("testCondition1".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getBizId(), "1");
-        }
-        if ("testCondition2".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getBizId(), "2");
-        }
-
-        if ("testCustomSuccess1".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getSuccess(), true);
-        }
-        if ("testCustomSuccess2".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getSuccess(), false);
-        }
-        if ("testCustomSuccess3".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getSuccess(), true);
-        }
-
-        if ("testDefaultParamReturn".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getSuccess(), true);
-            Assertions.assertEquals(logDTO.getMsg(), "{\"id\":1,\"name\":\"张三\"}");
-        }
-        if ("testDefaultParamErrorMsg".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getSuccess(), false);
-            Assertions.assertEquals(logDTO.getMsg(), "exception");
-        }
-
-        if ("testConstantWithSpEL".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getTag(), "type1");
-        }
-        if ("testEnumWithSpEL1".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getTag(), "TYPE1");
-        }
-        if ("testEnumWithSpEL2".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getTag(), "type1");
-        }
-        if ("testEnumWithSpEL3".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getTag(), "枚举1");
-        }
-
-        if ("testLogRecordContext".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "customValue");
-        }
-
-        if ("testMapUseInLogRecordContext".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "{\"customKey\":\"customValue\"}");
+        if ("testMsgWithSpEL".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testMsgWithSpEL", logDTO);
+            TestHelper.releaseLock("testMsgWithSpEL");
         }
 
         if ("testMsgWithSpELNull".equals(logDTO.getBizType())) {
-            Assertions.assertNull(logDTO.getMsg());
+            TestHelper.putLogDTO("testMsgWithSpELNull", logDTO);
+            TestHelper.releaseLock("testMsgWithSpELNull");
+        }
+
+        if ("testMsgWithRawString".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testMsgWithRawString", logDTO);
+            TestHelper.releaseLock("testMsgWithRawString");
+        }
+
+        if ("testMsgWithObject".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testMsgWithObject", logDTO);
+            TestHelper.releaseLock("testMsgWithObject");
+        }
+
+        if ("testExtraWithSpEL".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testExtraWithSpEL", logDTO);
+            TestHelper.releaseLock("testExtraWithSpEL");
         }
 
         if ("testExtraWithSpELNull".equals(logDTO.getBizType())) {
-            Assertions.assertNull(logDTO.getExtra());
+            TestHelper.putLogDTO("testExtraWithSpELNull", logDTO);
+            TestHelper.releaseLock("testExtraWithSpELNull");
         }
 
-        if ("testSpringBeanCustomFuncNoParam".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【asd】变成了【dsa】");
+        if ("testExtraWithRawString".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testExtraWithRawString", logDTO);
+            TestHelper.releaseLock("testExtraWithRawString");
+        }
+        if ("testExtraWithObject".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testExtraWithObject", logDTO);
+            TestHelper.releaseLock("testExtraWithObject");
         }
 
-        if ("testSpringBeanCustomFuncWithParam".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【3】变成了【2】 【name】从【DSA】变成了【dsa】");
+        if ("testRecordReturnValueTrue".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testRecordReturnValueTrue", logDTO);
+            TestHelper.releaseLock("testRecordReturnValueTrue");
         }
 
-        if ("testSpringBeanCustomFuncNoReturn".equals(logDTO.getBizType())) {
-            Assertions.assertNull(logDTO.getMsg());
+        if ("testRecordReturnValueFalse".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testRecordReturnValueFalse", logDTO);
+            TestHelper.releaseLock("testRecordReturnValueFalse");
         }
 
-        if ("testLogRecordThreadWrapper".equals(logDTO.getBizType())) {
-            Assertions.assertEquals(logDTO.getExtra(), "extraInfo");
+        if ("testReturnObjectToJson".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testReturnObjectToJson", logDTO);
+            TestHelper.releaseLock("testReturnObjectToJson");
+
+        }
+
+        if ("testMethodThrowException".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testMethodThrowException", logDTO);
+            TestHelper.releaseLock("testMethodThrowException");
+        }
+
+        if ("testStaticMethodWithCustomName".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testStaticMethodWithCustomName", logDTO);
+            TestHelper.releaseLock("testStaticMethodWithCustomName");
+        }
+
+        if ("testStaticMethodWithoutCustomName".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testStaticMethodWithoutCustomName", logDTO);
+            TestHelper.releaseLock("testStaticMethodWithoutCustomName");
+        }
+
+        if ("testOperatorIdWithSpEL".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testOperatorIdWithSpEL", logDTO);
+            TestHelper.releaseLock("testOperatorIdWithSpEL");
+        }
+
+        if ("testOperatorIdWithCustomOperatorIdGetService".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testOperatorIdWithCustomOperatorIdGetService", logDTO);
+            TestHelper.releaseLock("testOperatorIdWithCustomOperatorIdGetService");
+        }
+
+        if ("testExecuteBeforeFunc".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testExecuteBeforeFunc", logDTO);
+            TestHelper.releaseLock("testExecuteBeforeFunc");
+        }
+
+        if ("testExecuteAfterFunc".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testExecuteAfterFunc", logDTO);
+            TestHelper.releaseLock("testExecuteAfterFunc");
+        }
+
+        if ("testLogRecordDiffField".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testLogRecordDiffField", logDTO);
+            TestHelper.releaseLock("testLogRecordDiffField");
+        }
+
+        if ("testLogRecordDiffObject".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testLogRecordDiffObject", logDTO);
+            TestHelper.releaseLock("testLogRecordDiffObject");
+        }
+
+        if ("testLogRecordDiffIgnoreField".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testLogRecordDiffIgnoreField", logDTO);
+            TestHelper.releaseLock("testLogRecordDiffIgnoreField");
+        }
+
+        if ("testLogRecordDiffNestedClass".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testLogRecordDiffNestedClass", logDTO);
+            TestHelper.releaseLock("testLogRecordDiffNestedClass");
+        }
+
+        if ("testMultipleDiff".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testMultipleDiff", logDTO);
+            TestHelper.releaseLock("testMultipleDiff");
+        }
+
+        if ("testConditionTrue".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testConditionTrue", logDTO);
+            TestHelper.releaseLock("testConditionTrue");
+        }
+
+        if ("testConditionFalse".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testConditionFalse", logDTO);
+            TestHelper.releaseLock("testConditionFalse");
+        }
+
+        if ("testCustomSuccessTrue".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testCustomSuccessTrue", logDTO);
+            TestHelper.releaseLock("testCustomSuccessTrue");
+        }
+
+        if ("testCustomSuccessFalse".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testCustomSuccessFalse", logDTO);
+            TestHelper.releaseLock("testCustomSuccessFalse");
+        }
+
+        if ("testDefaultParamReturn".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testDefaultParamReturn", logDTO);
+            TestHelper.releaseLock("testDefaultParamReturn");
+        }
+
+        if ("testDefaultParamErrorMsg".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testDefaultParamErrorMsg", logDTO);
+            TestHelper.releaseLock("testDefaultParamErrorMsg");
+        }
+
+        if ("testConstantWithSpEL".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testConstantWithSpEL", logDTO);
+            TestHelper.releaseLock("testConstantWithSpEL");
+        }
+
+        if ("testEnumWithSpEL1".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testEnumWithSpEL1", logDTO);
+            TestHelper.releaseLock("testEnumWithSpEL1");
+        }
+
+        if ("testEnumWithSpEL2".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testEnumWithSpEL2", logDTO);
+            TestHelper.releaseLock("testEnumWithSpEL2");
+        }
+
+        if ("testEnumWithSpEL3".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testEnumWithSpEL3", logDTO);
+            TestHelper.releaseLock("testEnumWithSpEL3");
+        }
+
+        if ("testSpELInLogRecordContext".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testSpELInLogRecordContext", logDTO);
+            TestHelper.releaseLock("testSpELInLogRecordContext");
+        }
+
+        if ("testMapUseInLogRecordContext".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testMapUseInLogRecordContext", logDTO);
+            TestHelper.releaseLock("testMapUseInLogRecordContext");
+        }
+
+        if ("testLogRecordContextTransmittableThreadLocal".equals(logDTO.getBizType())) {
+            // 在createLog中操作LogRecordContext
+            logDTO.setMsg(LogRecordContext.getVariable("customKey").toString());
+            TestHelper.putLogDTO("testLogRecordContextTransmittableThreadLocal", logDTO);
+            TestHelper.releaseLock("testLogRecordContextTransmittableThreadLocal");
+        }
+
+        // Non-static custom function test
+
+        if ("testMethodWithNoParam".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testMethodWithNoParam", logDTO);
+            TestHelper.releaseLock("testMethodWithNoParam");
+        }
+
+        if ("testMethodWithParam".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testMethodWithParam", logDTO);
+            TestHelper.releaseLock("testMethodWithParam");
+        }
+
+        if ("testMethodWithNoReturn".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testMethodWithNoReturn", logDTO);
+            TestHelper.releaseLock("testMethodWithNoReturn");
         }
 
         return true;

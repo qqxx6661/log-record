@@ -10,9 +10,9 @@ import cn.monitor4all.logRecord.service.IOperationLogGetService;
 import cn.monitor4all.logRecord.service.IOperatorIdGetService;
 import cn.monitor4all.logRecord.service.LogRecordErrorHandlerService;
 import cn.monitor4all.logRecord.thread.LogRecordThreadPool;
-import cn.monitor4all.logRecord.thread.LogRecordThreadWrapper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.ttl.TtlRunnable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -60,9 +60,6 @@ public class SystemLogAspect {
 
     @Autowired(required = false)
     private LogRecordErrorHandlerService logRecordErrorHandlerService;
-
-    @Autowired
-    private LogRecordThreadWrapper logRecordThreadWrapper;
 
     private final SpelExpressionParser parser = new SpelExpressionParser();
 
@@ -169,7 +166,11 @@ public class SystemLogAspect {
                 Long finalExecutionTime = executionTime;
                 Consumer<LogDTO> createLogFunction = logDTO -> createLog(logDTO, finalExecutionTime);
                 if (logRecordThreadPool != null) {
-                    logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().execute(logRecordThreadWrapper.createLog(createLogFunction, logDTO)));
+                    logDTOList.forEach(logDTO -> {
+                        Runnable task = () -> createLogFunction.accept(logDTO);
+                        Runnable ttlRunnable = TtlRunnable.get(task);
+                        logRecordThreadPool.getLogRecordPoolExecutor().execute(ttlRunnable);
+                    });
                 } else {
                     logDTOList.forEach(createLogFunction);
                 }
@@ -205,6 +206,7 @@ public class SystemLogAspect {
             String[] params = discoverer.getParameterNames(method);
             StandardEvaluationContext context = LogRecordContext.getContext();
             CustomFunctionRegistrar.register(context);
+
             if (params != null) {
                 for (int len = 0; len < params.length; len++) {
                     context.setVariable(params[len], arguments[len]);
@@ -213,63 +215,48 @@ public class SystemLogAspect {
 
             // condition 处理：SpEL解析 必须符合表达式
             if (StringUtils.isNotBlank(conditionSpel)) {
-                Expression conditionExpression = parser.parseExpression(conditionSpel);
-                boolean passed = Boolean.TRUE.equals(conditionExpression.getValue(context, Boolean.class));
-                if (!passed) {
+                boolean conditionPassed = parseParamToBoolean(conditionSpel, context);
+                if (!conditionPassed) {
                     return null;
                 }
             }
 
             // success 处理：SpEL解析 必须符合表达式
             if (StringUtils.isNotBlank(successSpel)) {
-                Expression successExpression = parser.parseExpression(successSpel);
-                functionExecuteSuccess = Boolean.TRUE.equals(successExpression.getValue(context, Boolean.class));
+                functionExecuteSuccess = parseParamToBoolean(successSpel, context);
             }
 
             // bizId 处理：SpEL解析 必须符合表达式
             if (StringUtils.isNotBlank(bizIdSpel)) {
-                Expression bizIdExpression = parser.parseExpression(bizIdSpel);
-                bizId = bizIdExpression.getValue(context, String.class);
+                bizId = parseParamToString(bizIdSpel, context);
             }
 
             // bizType 处理：SpEL解析 必须符合表达式
             if (StringUtils.isNotBlank(bizTypeSpel)) {
-                Expression bizTypeExpression = parser.parseExpression(bizTypeSpel);
-                bizType = bizTypeExpression.getValue(context, String.class);
+                bizType = parseParamToString(bizTypeSpel, context);
             }
 
             // tag 处理：SpEL解析 必须符合表达式
             if (StringUtils.isNotBlank(tagSpel)) {
-                Expression tagExpression = parser.parseExpression(tagSpel);
-                tag = tagExpression.getValue(context, String.class);
+                tag = parseParamToString(tagSpel, context);
             }
 
             // msg 处理：SpEL解析 必须符合表达式 若为实体则JSON序列化实体 若为空则返回null
             if (StringUtils.isNotBlank(msgSpel)) {
-                Expression msgExpression = parser.parseExpression(msgSpel);
-                Object msgObj = msgExpression.getValue(context, Object.class);
-                if (msgObj != null) {
-                    msg = msgObj instanceof String ? (String) msgObj : JSON.toJSONString(msgObj, SerializerFeature.WriteMapNullValue);
-                }
+                msg = parseParamToStringOrJson(msgSpel, context);
             }
 
             // extra 处理：SpEL解析 必须符合表达式 若为实体则JSON序列化实体 若为空则返回null
             if (StringUtils.isNotBlank(extraSpel)) {
-                Expression extraExpression = parser.parseExpression(extraSpel);
-                Object extraObj = extraExpression.getValue(context, Object.class);
-                if (extraObj != null) {
-                    extra = extraObj instanceof String ? (String) extraObj : JSON.toJSONString(extraObj, SerializerFeature.WriteMapNullValue);
-                }
+                extra = parseParamToStringOrJson(extraSpel, context);
             }
 
             // operatorId 处理：优先级 注解传入 > 自定义接口实现
-            // 必须符合表达式
             if (iOperatorIdGetService != null) {
                 operatorId = iOperatorIdGetService.getOperatorId();
             }
             if (StringUtils.isNotBlank(operatorIdSpel)) {
-                Expression operatorIdExpression = parser.parseExpression(operatorIdSpel);
-                operatorId = operatorIdExpression.getValue(context, String.class);
+                operatorId = parseParamToString(operatorIdSpel, context);
             }
 
             logDTO = new LogDTO();
@@ -292,6 +279,25 @@ public class SystemLogAspect {
         return logDTO;
     }
 
+    private boolean parseParamToBoolean(String spel, StandardEvaluationContext context) {
+        Expression conditionExpression = parser.parseExpression(spel);
+        return Boolean.TRUE.equals(conditionExpression.getValue(context, Boolean.class));
+    }
+
+    private String parseParamToString(String spel, StandardEvaluationContext context) {
+        Expression bizIdExpression = parser.parseExpression(spel);
+        return bizIdExpression.getValue(context, String.class);
+    }
+
+    private String parseParamToStringOrJson(String spel, StandardEvaluationContext context) {
+        Expression msgExpression = parser.parseExpression(spel);
+        Object obj = msgExpression.getValue(context, Object.class);
+        if (obj != null) {
+            return obj instanceof String ? (String) obj : JSON.toJSONString(obj, SerializerFeature.WriteMapNullValue);
+        }
+        return null;
+    }
+
     private Method getMethod(JoinPoint joinPoint) {
         Method method = null;
         try {
@@ -307,9 +313,9 @@ public class SystemLogAspect {
 
     private void createLog(LogDTO logDTO, Long finalExecutionTime) {
         int maxRetryTimes = logRecordProperties.getRetry().getRetryTimes();
-        boolean iOperationLogGetResult = false;
-        boolean dataPipelineServiceResult = false;
+
         // 发送日志本地监听
+        boolean iOperationLogGetResult = false;
         if (iOperationLogGetService != null) {
             for (int retryTimes = 0; retryTimes <= maxRetryTimes; retryTimes++) {
                 try {
@@ -329,6 +335,7 @@ public class SystemLogAspect {
         }
 
         // 发送消息管道
+        boolean dataPipelineServiceResult = false;
         if (dataPipelineService != null) {
             for (int retryTimes = 0; retryTimes <= maxRetryTimes; retryTimes++) {
                 try {
