@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.TestComponent;
 @Slf4j
 @TestComponent
 @ConditionalOnProperty(name = "test.config", havingValue = "normal")
-public class OperationLogGetService implements IOperationLogGetService {
+public class OperationLogNormalService implements IOperationLogGetService {
 
     @Override
     public boolean createLog(LogDTO logDTO) {

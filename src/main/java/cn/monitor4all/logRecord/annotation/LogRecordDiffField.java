@@ -17,4 +17,9 @@ public @interface LogRecordDiffField {
      * 字段的别名：不填则默认字段名
      */
     String alias() default "";
+
+    /**
+     * 字段是否在DIFF中忽略：默认不忽略
+     */
+    boolean ignored() default false;
 }

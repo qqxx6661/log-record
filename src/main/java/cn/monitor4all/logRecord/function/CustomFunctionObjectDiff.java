@@ -2,7 +2,6 @@ package cn.monitor4all.logRecord.function;
 
 
 import cn.monitor4all.logRecord.annotation.LogRecordDiffField;
-import cn.monitor4all.logRecord.annotation.LogRecordDiffIgnoreField;
 import cn.monitor4all.logRecord.annotation.LogRecordDiffObject;
 import cn.monitor4all.logRecord.annotation.LogRecordFunc;
 import cn.monitor4all.logRecord.bean.DiffDTO;
@@ -33,10 +32,16 @@ public class CustomFunctionObjectDiff {
     private static String DIFF_MSG_FORMAT;
     private static String DIFF_MSG_SEPARATOR;
 
+    private static boolean diffIgnoreOldObjectNullValue;
+    private static boolean diffIgnoreNewObjectNullValue;
+
     public CustomFunctionObjectDiff(LogRecordProperties logRecordProperties){
         DIFF_MSG_FORMAT = logRecordProperties.getDiffMsgFormat().equals(DEFAULT_DIFF_MSG_FORMAT) ? DEFAULT_DIFF_MSG_FORMAT : new String(logRecordProperties.getDiffMsgFormat().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
         DIFF_MSG_SEPARATOR = logRecordProperties.getDiffMsgSeparator().equals(DEFAULT_DIFF_MSG_SEPARATOR) ? DEFAULT_DIFF_MSG_SEPARATOR : new String(logRecordProperties.getDiffMsgSeparator().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        diffIgnoreOldObjectNullValue = logRecordProperties.getDiffIgnoreOldObjectNullValue();
+        diffIgnoreNewObjectNullValue = logRecordProperties.getDiffIgnoreNewObjectNullValue();
         log.info("CustomFunctionObjectDiff init diffMsgFormat [{}] diffMsgSeparator [{}]", DIFF_MSG_FORMAT, DIFF_MSG_SEPARATOR);
+        log.info("CustomFunctionObjectDiff init diffIgnoreOldObjectNullValue [{}] diffIgnoreNewObjectNullValue [{}]", diffIgnoreOldObjectNullValue, diffIgnoreNewObjectNullValue);
     }
 
     /**
@@ -79,10 +84,13 @@ public class CustomFunctionObjectDiff {
         Field[] fields = oldObject.getClass().getDeclaredFields();
         for (Field oldField : fields) {
             try {
+                // 获取老字段值
+                oldField.setAccessible(true);
+                Object oldValue = oldField.get(oldObject);
+
                 LogRecordDiffField oldFieldLogRecordDiffField = oldField.getDeclaredAnnotation(LogRecordDiffField.class);
-                LogRecordDiffIgnoreField oldFieldLogRecordIgnoreField = oldField.getDeclaredAnnotation(LogRecordDiffIgnoreField.class);
                 // 根据老字段判断是否需要进行diff
-                if (!judgeFieldDiffNeeded(oldClassEnableAllFields, oldFieldLogRecordDiffField, oldFieldLogRecordIgnoreField)) {
+                if (!judgeFieldDiffNeeded(oldValue, false, oldClassEnableAllFields, oldFieldLogRecordDiffField)) {
                     log.debug("oldField [{}] not need to diff, skip", oldField.getName());
                     continue;
                 }
@@ -90,10 +98,11 @@ public class CustomFunctionObjectDiff {
                     // 在新字段中寻找同名字段，若找不到则抛出NoSuchFieldException异常跳过本次遍历
                     Field newField = newObject.getClass().getDeclaredField(oldField.getName());
                     LogRecordDiffField newFieldLogRecordDiffField = newField.getDeclaredAnnotation(LogRecordDiffField.class);
-                    LogRecordDiffIgnoreField newFieldLogRecordDiffIgnoreField = newField.getDeclaredAnnotation(LogRecordDiffIgnoreField.class);
-
+                    // 获取新字段值
+                    newField.setAccessible(true);
+                    Object newValue = newField.get(newObject);
                     // 根据新字段判断是否需要进行diff
-                    if (!judgeFieldDiffNeeded(newClassEnableAllFields, newFieldLogRecordDiffField, newFieldLogRecordDiffIgnoreField)) {
+                    if (!judgeFieldDiffNeeded(newValue, true, newClassEnableAllFields, newFieldLogRecordDiffField)) {
                         log.debug("newField [{}] not need to diff, skip", newField.getName());
                         continue;
                     }
@@ -108,10 +117,6 @@ public class CustomFunctionObjectDiff {
                     }
 
                     // 对比新老字段值
-                    oldField.setAccessible(true);
-                    newField.setAccessible(true);
-                    Object oldValue = oldField.get(oldObject);
-                    Object newValue = newField.get(newObject);
                     if (!fieldValueEquals(oldValue, newValue)) {
                         log.debug("field [{}] is different between oldObject [{}] newObject [{}]", oldField.getName(), oldValue, newValue);
                         oldValueMap.put(oldField.getName(), oldValue);
@@ -167,15 +172,15 @@ public class CustomFunctionObjectDiff {
     /**
      * 判断field是否需要进行DIFF
      * 规则如下：
-     * 老类开启EnableAllFields并且老字段未开启LogRecordIgnoreField
-     * 或
-     * 老字段开启LogRecordDiffField并且老字段未开启LogRecordIgnoreField
+     * 1. 类开启EnableAllFields并且字段未开启ignored 或 字段开启LogRecordDiffField并且字段未开启ignored
+     * 2. 全局配置忽略值为null的字段
      *
      */
-    private static boolean judgeFieldDiffNeeded(boolean classEnableAllFields, LogRecordDiffField fieldLogRecordDiffField,
-                                                LogRecordDiffIgnoreField fieldLogRecordIgnoreField) {
-        return (classEnableAllFields && fieldLogRecordIgnoreField == null)
-                || (fieldLogRecordDiffField != null && fieldLogRecordIgnoreField == null);
+    private static boolean judgeFieldDiffNeeded(Object objectValue, boolean isNewObject, boolean classEnableAllFields, LogRecordDiffField fieldLogRecordDiffField) {
+        boolean annotationChecker1 = classEnableAllFields && (fieldLogRecordDiffField == null || !fieldLogRecordDiffField.ignored());
+        boolean annotationChecker2 = fieldLogRecordDiffField != null && !fieldLogRecordDiffField.ignored();
+        boolean ignoreNullValue = objectValue == null && ((isNewObject && diffIgnoreNewObjectNullValue) || (!isNewObject && diffIgnoreOldObjectNullValue));
+        return (annotationChecker1 || annotationChecker2) && !ignoreNullValue;
     }
 
     /**

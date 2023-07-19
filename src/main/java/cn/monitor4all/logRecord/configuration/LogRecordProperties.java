@@ -25,6 +25,10 @@ public class LogRecordProperties {
 
     private RetryProperties retry = new RetryProperties();
 
+    private Boolean diffIgnoreOldObjectNullValue = false;
+
+    private Boolean diffIgnoreNewObjectNullValue = false;
+
     @Data
     public static class RetryProperties {
 

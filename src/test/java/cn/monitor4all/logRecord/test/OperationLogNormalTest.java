@@ -32,7 +32,7 @@ import java.util.Arrays;
         TestService.class,})
 @PropertySource("classpath:testNormal.properties")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class OperationLogTest {
+public class OperationLogNormalTest {
 
     @Autowired
     private TestService testService;

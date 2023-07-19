@@ -135,6 +135,12 @@ public class TestService {
                 Arrays.asList("小张三", "大张三"), "前端"));
     }
 
+    @OperationLog(bizId = "'1'", bizType = "'testLogRecordDiffIgnoreNewObjectNullValue'", msg = "#_DIFF(#oldObject, #testComplexUser)")
+    public void testLogRecordDiffIgnoreNewObjectNullValue(TestComplexUser testComplexUser) {
+        LogRecordContext.putVariable("oldObject", new TestComplexUser(1, "张三", null,
+                Arrays.asList("小张三", "大张三"), "前端"));
+    }
+
     @OperationLog(bizId = "'1'", bizType = "'testLogRecordDiffNestedClass'", msg = "#_DIFF(#oldObject, #testDiffUserParam)")
     public void testLogRecordDiffNestedClass(TestDiffUserParam testDiffUserParam) {
         TestDiffUserVO testDiffUserVO = new TestDiffUserVO();
