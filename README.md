@@ -592,9 +592,8 @@ public Result<Void> createOrder(Request request) {
 
 有如下注解：
 
-- `@LogRecordDiffField`：在需要对比的字段上申明`@LogRecordDiffField(alias = "用户工号")`，`alias`别名为可选字段。
-- `@LogRecordDiffObject`：在类上也可以申明`@LogRecordDiffObject(alias = "用户信息实体")`，`alias`别名为可选字段，默认类下所有字段会进行`DIFF`，可通过`enableAllFields`手动关闭，关闭后等于该注解只用于获取类别名。
-- `@LogRecordDiffIgnoreField`：申明该字段不参与实体类`DIFF`（用于当类拥有`@LogRecordDiffObject`注解时排除部分字段）
+- `@LogRecordDiffField`：在字段上申明`@LogRecordDiffField(alias = "用户工号", ignored = true)`，`alias`别名为可选字段。 `ignored`为可选字段，默认为`false`，若为`true`，则该字段不参与`DIFF`。
+- `@LogRecordDiffObject`：在类上允许可以申明`@LogRecordDiffObject(alias = "用户信息实体")`，`alias`别名为可选字段，默认类下所有字段会进行`DIFF`，可通过`enableAllFields`手动关闭，关闭后等于该注解只用于获取类别名。
 
 类对象使用示例：
 
@@ -603,7 +602,6 @@ public Result<Void> createOrder(Request request) {
 public class TestUser {
     private Integer id;
     private String name;
-    @LogRecordDiffIgnoreField
     private String job;
 }
 ```
@@ -614,6 +612,7 @@ public class TestUser {
 public class TestUser {
     @LogRecordDiffField(alias = "用户工号")
     private Integer id;
+    @LogRecordDiffField(alias = "用户工号", ignored = true)
     private String name;
 }
 ```
@@ -717,6 +716,13 @@ testService.testObjectDiff(new TestUser(2, "李四"));
 }
 ```
 
+可以通过`Spring`配置，忽略对比的新旧对象中值为null的字段，形如：
+
+```properties
+log-record.diffIgnoreNewObjectNullValue=true # 忽略新对象中null值字段，默认为false
+log-record.diffIgnoreOldObjectNullValue=true # 忽略旧对象中null值字段，默认为false
+```
+
 此外，可以通过`Spring`配置自定义`DIFF`的标准输出格式，形如：
 
 ```properties
@@ -809,7 +815,8 @@ CREATE TABLE `operation_log` (
   `biz_type` varchar(64) DEFAULT NULL COMMENT '业务类型',
   `tag` varchar(64) DEFAULT NULL COMMENT '标签',
   `operation_date` datetime DEFAULT NULL COMMENT '操作执行时间',
-  `msg` varchar(512) COMMENT '操作内容',
+  `msg` varchar(512) DEFAULT NULL COMMENT '操作内容',
+  `extra` varchar(512) DEFAULT NULL COMMENT '附加信息',
   `operation_status` tinyint(4) DEFAULT NULL COMMENT '操作结果状态',
   `operation_time` int(11) DEFAULT NULL COMMENT '操作耗时',
   `content_return` varchar(512) COMMENT '方法返回内容',

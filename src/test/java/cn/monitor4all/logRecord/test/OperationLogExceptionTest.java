@@ -22,7 +22,7 @@ import org.springframework.test.context.ContextConfiguration;
         TestService.class,})
 @PropertySource("classpath:testException.properties")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class OperationLogGetServiceExceptionTest {
+public class OperationLogExceptionTest {
 
     @Autowired
     private TestService testService;

@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.TestComponent;
 @Slf4j
 @TestComponent
 @ConditionalOnProperty(name = "test.config", havingValue = "exception")
-public class OperationLogGetExceptionService implements IOperationLogGetService {
+public class OperationLogExceptionService implements IOperationLogGetService {
 
     @Override
     public boolean createLog(LogDTO logDTO) throws Exception {
