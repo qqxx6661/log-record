@@ -719,8 +719,8 @@ testService.testObjectDiff(new TestUser(2, "李四"));
 可以通过`Spring`配置，忽略对比的新旧对象中值为null的字段，形如：
 
 ```properties
-log-record.diffIgnoreNewObjectNullValue=true # 忽略新对象中null值字段，默认为false
-log-record.diffIgnoreOldObjectNullValue=true # 忽略旧对象中null值字段，默认为false
+log-record.diff-ignore-new-object-null-value=true # 忽略新对象中null值字段，默认为false
+log-record.diff-ignore-old-object-null-value=true # 忽略旧对象中null值字段，默认为false
 ```
 
 此外，可以通过`Spring`配置自定义`DIFF`的标准输出格式，形如：
