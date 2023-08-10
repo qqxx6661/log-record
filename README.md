@@ -254,7 +254,7 @@ List<diffDTO>: 实体类对象Diff数据，包括变更的字段名，字段值�
 @Component
 public class CustomFuncTestOperationLogGetService implements IOperationLogGetService {
     @Override
-    public void createLog(LogDTO logDTO) {
+    public boolean createLog(LogDTO logDTO) {
         log.info("logDTO: [{}]", JSON.toJSONString(logDTO));
     }
 }
