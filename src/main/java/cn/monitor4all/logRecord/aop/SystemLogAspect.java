@@ -28,7 +28,10 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
@@ -80,6 +83,16 @@ public class SystemLogAspect {
             annotations = method.getAnnotationsByType(OperationLog.class);
         } catch (Throwable throwable) {
             return pjp.proceed();
+        }
+
+        // 在LogRecordContext中写入request信息
+        try {
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            assert requestAttributes != null;
+            HttpServletRequest request = requestAttributes.getRequest();
+            LogRecordContext.putVariable(LogRecordContext.CONTEXT_KEY_NAME_REQUEST,request);
+        } catch (Throwable throwableBeforeFunc) {
+            log.error("OperationLogAspect doAround before function, error:", throwableBeforeFunc);
         }
 
         // 日志切面逻辑

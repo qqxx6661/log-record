@@ -18,6 +18,8 @@ public class LogRecordContext {
 
     public static final String CONTEXT_KEY_NAME_ERROR_MSG = "_errorMsg";
 
+    public static final String CONTEXT_KEY_NAME_REQUEST = "_request";
+
     public static StandardEvaluationContext getContext() {
         return CONTEXT_THREAD_LOCAL.get() == null ? new StandardEvaluationContext(): CONTEXT_THREAD_LOCAL.get();
     }
