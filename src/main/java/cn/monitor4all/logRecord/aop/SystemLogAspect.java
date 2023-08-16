@@ -5,10 +5,7 @@ import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.function.CustomFunctionRegistrar;
-import cn.monitor4all.logRecord.service.DataPipelineService;
-import cn.monitor4all.logRecord.service.IOperationLogGetService;
-import cn.monitor4all.logRecord.service.IOperatorIdGetService;
-import cn.monitor4all.logRecord.service.LogRecordErrorHandlerService;
+import cn.monitor4all.logRecord.service.*;
 import cn.monitor4all.logRecord.thread.LogRecordThreadPool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -28,6 +25,8 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -60,6 +59,9 @@ public class SystemLogAspect {
 
     @Autowired(required = false)
     private LogRecordErrorHandlerService logRecordErrorHandlerService;
+
+    @Autowired(required = false)
+    private IOperatorService iOperatorService;
 
     private final SpelExpressionParser parser = new SpelExpressionParser();
 
@@ -270,6 +272,14 @@ public class SystemLogAspect {
             logDTO.setOperatorId(operatorId);
             logDTO.setSuccess(functionExecuteSuccess);
             logDTO.setDiffDTOList(LogRecordContext.getDiffDTOList());
+
+            // 对请求属性进行操作
+            if (iOperatorService != null) {
+                ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                if (servletRequestAttributes != null) {
+                    iOperatorService.operatorServletRequestAttributes(servletRequestAttributes, logDTO);
+                }
+            }
         } catch (Exception e) {
             log.error("OperationLogAspect resolveExpress error", e);
         } finally {
