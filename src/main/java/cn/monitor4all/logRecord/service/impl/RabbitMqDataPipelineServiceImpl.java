@@ -26,8 +26,8 @@ public class RabbitMqDataPipelineServiceImpl implements DataPipelineService {
 
     @Override
     public boolean createLog(LogDTO logDTO) {
-        log.info("LogRecord RabbitMq ready to send routingKey [{}] LogDTO [{}]", properties.getRabbitMqProperties().getRoutingKey(), logDTO);
-        rubeExchangeTemplate.convertAndSend(properties.getRabbitMqProperties().getRoutingKey(), JSON.toJSONString(logDTO));
+        log.info("LogRecord RabbitMq ready to send routingKey [{}] LogDTO [{}]", properties.getRabbitMq().getRoutingKey(), logDTO);
+        rubeExchangeTemplate.convertAndSend(properties.getRabbitMq().getRoutingKey(), JSON.toJSONString(logDTO));
         return true;
     }
 }

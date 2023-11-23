@@ -9,9 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "log-record")
 public class LogRecordProperties {
 
-    private RabbitMqProperties rabbitMqProperties;
+    private RabbitMqProperties rabbitMq;
 
-    private RocketMqProperties rocketMqProperties;
+    private RocketMqProperties rocketMq;
 
     private StreamProperties stream;
 

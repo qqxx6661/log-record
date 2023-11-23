@@ -37,13 +37,13 @@ public class RabbitMqSenderConfiguration {
 
     @PostConstruct
     public void rabbitMqConfig() {
-        this.rabbitHost = properties.getRabbitMqProperties().getHost();
-        this.rabbitPort = properties.getRabbitMqProperties().getPort();
-        this.queue = properties.getRabbitMqProperties().getQueueName();
-        this.routingKey = properties.getRabbitMqProperties().getRoutingKey();
-        this.exchange= properties.getRabbitMqProperties().getExchangeName();
-        this.username= properties.getRabbitMqProperties().getUsername();
-        this.password= properties.getRabbitMqProperties().getPassword();
+        this.rabbitHost = properties.getRabbitMq().getHost();
+        this.rabbitPort = properties.getRabbitMq().getPort();
+        this.queue = properties.getRabbitMq().getQueueName();
+        this.routingKey = properties.getRabbitMq().getRoutingKey();
+        this.exchange= properties.getRabbitMq().getExchangeName();
+        this.username= properties.getRabbitMq().getUsername();
+        this.password= properties.getRabbitMq().getPassword();
         log.info("LogRecord RabbitMqSenderConfiguration host [{}] port [{}] exchange [{}] queue [{}] routingKey [{}]",
                 rabbitHost, rabbitPort, exchange, queue, routingKey);
     }

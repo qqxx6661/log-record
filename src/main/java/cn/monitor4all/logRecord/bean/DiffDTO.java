@@ -33,5 +33,5 @@ public class DiffDTO {
     /**
      * 字段Diff列表
      */
-    private List<DiffFieldDTO> diffFieldDTOList;
+    private List<DiffFieldDTO> diffFieldList;
 }

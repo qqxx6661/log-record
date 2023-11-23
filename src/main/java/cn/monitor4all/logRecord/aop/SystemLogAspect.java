@@ -269,7 +269,7 @@ public class SystemLogAspect {
             logDTO.setExtra(extra);
             logDTO.setOperatorId(operatorId);
             logDTO.setSuccess(functionExecuteSuccess);
-            logDTO.setDiffDTOList(LogRecordContext.getDiffDTOList());
+            logDTO.setDiffList(LogRecordContext.getDiffDTOList());
         } catch (Exception e) {
             log.error("OperationLogAspect resolveExpress error", e);
         } finally {

@@ -141,8 +141,8 @@ public class CustomFunctionObjectDiff {
         diffDTO.setOldClassAlias(oldClassAlias);
         diffDTO.setNewClassName(newClassName);
         diffDTO.setNewClassAlias(newClassAlias);
-        List<DiffFieldDTO> diffFieldDTOList = new ArrayList<>();
-        diffDTO.setDiffFieldDTOList(diffFieldDTOList);
+        List<DiffFieldDTO> diffFieldList = new ArrayList<>();
+        diffDTO.setDiffFieldList(diffFieldList);
         for (Map.Entry<String, Object> entry: oldValueMap.entrySet()) {
             String fieldName = entry.getKey();
             Object oldValue = entry.getValue();
@@ -155,7 +155,7 @@ public class CustomFunctionObjectDiff {
             diffFieldDTO.setNewFieldAlias(newFieldAlias);
             diffFieldDTO.setOldValue(oldValue);
             diffFieldDTO.setNewValue(newValue);
-            diffFieldDTOList.add(diffFieldDTO);
+            diffFieldList.add(diffFieldDTO);
             // 默认使用旧对象的字段名或别名
             Map<String, Object> valuesMap = new HashMap<>(3);
             valuesMap.put("_fieldName", StringUtils.isNotBlank(oldFieldAlias) ? oldFieldAlias : fieldName);

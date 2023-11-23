@@ -41,12 +41,12 @@ public class LogRecordDiffIgnoreNullValueTest {
         LogDTO logDTO = TestHelper.getLogDTO("testLogRecordDiffIgnoreNewObjectNullValue");
 
         Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【nickNameList】从【[小张三, 大张三]】变成了【[小李四, 大李四]】");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.bean.TestComplexUser");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息复杂实体");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewFieldAlias(), "用户工号");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 1);
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewValue(), 2);
+        Assertions.assertEquals(logDTO.getDiffList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.bean.TestComplexUser");
+        Assertions.assertEquals(logDTO.getDiffList().get(0).getOldClassAlias(), "用户信息复杂实体");
+        Assertions.assertEquals(logDTO.getDiffList().get(0).getDiffFieldList().get(0).getFieldName(), "id");
+        Assertions.assertEquals(logDTO.getDiffList().get(0).getDiffFieldList().get(0).getOldFieldAlias(), "用户工号");
+        Assertions.assertEquals(logDTO.getDiffList().get(0).getDiffFieldList().get(0).getNewFieldAlias(), "用户工号");
+        Assertions.assertEquals(logDTO.getDiffList().get(0).getDiffFieldList().get(0).getOldValue(), 1);
+        Assertions.assertEquals(logDTO.getDiffList().get(0).getDiffFieldList().get(0).getNewValue(), 2);
     }
 }

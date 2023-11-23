@@ -32,12 +32,12 @@ public class RocketMqSenderConfiguration {
 
     @PostConstruct
     public void rabbitMqConfig() {
-        this.namesrvAddr = properties.getRocketMqProperties().getNamesrvAddr();
-        this.groupName = properties.getRocketMqProperties().getGroupName();
-        this.maxMessageSize = properties.getRocketMqProperties().getMaxMessageSize();
-        this.sendMsgTimeout = properties.getRocketMqProperties().getSendMsgTimeout();
-        this.retryTimesWhenSendFailed = properties.getRocketMqProperties().getRetryTimesWhenSendFailed();
-        this.topic = properties.getRocketMqProperties().getTopic();
+        this.namesrvAddr = properties.getRocketMq().getNamesrvAddr();
+        this.groupName = properties.getRocketMq().getGroupName();
+        this.maxMessageSize = properties.getRocketMq().getMaxMessageSize();
+        this.sendMsgTimeout = properties.getRocketMq().getSendMsgTimeout();
+        this.retryTimesWhenSendFailed = properties.getRocketMq().getRetryTimesWhenSendFailed();
+        this.topic = properties.getRocketMq().getTopic();
         log.info("LogRecord RocketMqSenderConfiguration namesrvAddr [{}] groupName [{}] maxMessageSize [{}] sendMsgTimeout [{}] retryTimesWhenSendFailed [{}] topic [{}]",
                 namesrvAddr, groupName, maxMessageSize, sendMsgTimeout, retryTimesWhenSendFailed, topic);
     }

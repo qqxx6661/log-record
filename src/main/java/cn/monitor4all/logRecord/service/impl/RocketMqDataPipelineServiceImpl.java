@@ -30,7 +30,7 @@ public class RocketMqDataPipelineServiceImpl implements DataPipelineService {
     @Override
     public boolean createLog(LogDTO logDTO) {
         try {
-            Message msg = new Message(properties.getRocketMqProperties().getTopic(), properties.getRocketMqProperties().getTag(), (JSON.toJSONString(logDTO)).getBytes(RemotingHelper.DEFAULT_CHARSET));
+            Message msg = new Message(properties.getRocketMq().getTopic(), properties.getRocketMq().getTag(), (JSON.toJSONString(logDTO)).getBytes(RemotingHelper.DEFAULT_CHARSET));
             SendResult sendResult = defaultMqProducer.send(msg);
             log.info("LogRecord RocketMq send LogDTO [{}] sendResult: [{}]", logDTO, sendResult);
             return true;

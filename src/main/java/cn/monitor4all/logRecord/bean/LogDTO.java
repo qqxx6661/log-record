@@ -63,7 +63,7 @@ public class LogDTO {
 	/**
 	 * 实体DIFF列表
 	 */
-	private List<DiffDTO> diffDTOList;
+	private List<DiffDTO> diffList;
 
 
 }
