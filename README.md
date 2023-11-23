@@ -177,9 +177,9 @@ List<diffDTO>: 实体类对象Diff数据，包括变更的字段名，字段值�
   "success":true,
   "exception":null,
   "tag":"operation",
-  "diffDTOList":[
+  "diffList":[
     {
-      "diffFieldDTOList":[
+      "diffFieldList":[
         {
           "fieldName":"id",
           "newFieldAlias":"用户工号",
@@ -198,7 +198,7 @@ List<diffDTO>: 实体类对象Diff数据，包括变更的字段名，字段值�
       "oldClassName":"cn.monitor4all.logRecord.test.bean.TestUser"
     },
     {
-      "diffFieldDTOList":[
+      "diffFieldList":[
         {
           "fieldName":"id",
           "newFieldAlias":"用户工号",
@@ -268,13 +268,13 @@ public class CustomFuncTestOperationLogGetService implements IOperationLogGetSer
 
 ```properties
 log-record.data-pipeline=rabbitMq
-log-record.rabbit-mq-properties.host=localhost
-log-record.rabbit-mq-properties.port=5672
-log-record.rabbit-mq-properties.username=admin
-log-record.rabbit-mq-properties.password=xxxxxx
-log-record.rabbit-mq-properties.queue-name=logRecord
-log-record.rabbit-mq-properties.routing-key=
-log-record.rabbit-mq-properties.exchange-name=logRecord
+log-record.rabbit-mq.host=localhost
+log-record.rabbit-mq.port=5672
+log-record.rabbit-mq.username=admin
+log-record.rabbit-mq.password=xxxxxx
+log-record.rabbit-mq.queue-name=logRecord
+log-record.rabbit-mq.routing-key=
+log-record.rabbit-mq.exchange-name=logRecord
 ```
 
 **3. `RocketMQ`**
@@ -283,10 +283,10 @@ log-record.rabbit-mq-properties.exchange-name=logRecord
 
 ```properties
 log-record.data-pipeline=rocketMq
-log-record.rocket-mq-properties.topic=logRecord
-log-record.rocket-mq-properties.tag=
-log-record.rocket-mq-properties.group-name=logRecord
-log-record.rocket-mq-properties.namesrv-addr=localhost:9876
+log-record.rocket-mq.topic=logRecord
+log-record.rocket-mq.tag=
+log-record.rocket-mq.group-name=logRecord
+log-record.rocket-mq.namesrv-addr=localhost:9876
 ```
 
 **4. `Stream`**
