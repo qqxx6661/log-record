@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class LogRecordConfiguration {
 
     @Bean
-    public CustomFunctionRegistrar registrar() {
+    public CustomFunctionRegistrar logrRecordRegistrar() {
         return new CustomFunctionRegistrar();
     }
 
