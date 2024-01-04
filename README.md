@@ -10,12 +10,21 @@
 [![](https://img.shields.io/github/issues-pr/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls)
 [![](https://img.shields.io/github/issues-pr-closed/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls?q=is%3Apr+is%3Aclosed)
 
-> 注意：本仓库最初创作灵感来源于[美团技术博客](https://tech.meituan.com/2021/09/16/operational-logbook.html) ，若您需要寻找的是文中所提到的代码仓库，可以跳转[这里](https://github.com/mouzt/mzt-biz-log/) 。本仓库从零实现了原文中描述的大部分特性，并吸取生产环境大量实践和用户反馈，随着持续稳定的维护和更新，期望给用户提供更多差异化的功能。
+> 注意：本仓库最初灵感来源于[美团技术博客](https://tech.meituan.com/2021/09/16/operational-logbook.html) ，若您需要寻找的是原文中作者的代码仓库，可以跳转[这里](https://github.com/mouzt/mzt-biz-log/) 。本仓库从零实现了原文中描述的大部分特性，并吸取大量生产环境实践和内外网用户反馈，随着持续稳定的维护和更新，期望给用户提供更多差异化的功能。
 
-通过`Java`注解优雅的记录操作日志，并支持`SpEL`表达式，自定义上下文，自定义函数，实体类`DIFF`等功能，最终日志可由用户自行处理或推送至指定消息队列。
+通过`Java`注解优雅的记录操作日志，并支持`SpEL`表达式，自定义上下文，自定义函数，实体类`DIFF`等功能，最终日志可由用户自行采集并处理，或推送至预配置的消息队列。
 
-采用`SpringBoot Starter`的方式，只需一个依赖。
+采用`SpringBoot Starter`的方式，只需一个依赖，一句注解，日志轻松记录，不侵入业务逻辑：
 
+```java
+@OperationLog(bizType = "'followerChange'", bizId = "#request.orderId", msg = "'用户' + #queryUserName(#request.userId) + '修改了订单的跟进人：从' + #queryOldFollower(#request.orderId) + '修改到' + #request.newFollower")
+public Response<T> function(Request request) {
+  // 业务执行逻辑
+}
+```
+
+
+SpringBoot1&SpringBoot2(JDK8+)请引用：
 ```xml
 <dependency>
     <groupId>cn.monitor4all</groupId>
@@ -24,16 +33,18 @@
 </dependency>
 ```
 
-最新版本号请查阅[`Maven`公共仓库](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+SpringBoot3(JDK17+)请引用：
 
-只需一句注解，日志轻松记录，不侵入业务逻辑：
-
-```java
-@OperationLog(bizType = "'followerChange'", bizId = "#request.orderId", msg = "'用户' + #queryUserName(#request.userId) + '修改了订单的跟进人：从' + #queryOldFollower(#request.orderId) + '修改到' + #request.newFollower")
-public Response<T> function(Request request) {
-  // 业务执行逻辑
-}
+```xml
+<dependency>
+    <groupId>cn.monitor4all</groupId>
+    <artifactId>log-record-springboot3-starter</artifactId>
+    <version>{最新版本号}</version>
+</dependency>
 ```
+
+> 最新版本号请查阅[`Maven`公共仓库](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+
 
 ## 项目背景
 
@@ -121,13 +132,6 @@ public Response<T> function(Request request) {
 
 本库帮助你通过注解优雅地记录项目中的操作日志，对业务代码无侵入。
 
-此外，你可以方便地将所有日志推送到下列数据管道：
-
-1. 本地处理
-2. 发送至`RabbitMQ`
-3. 发送至`RocketMQ`
-4. 发送至`SpringCloud Stream`
-
 本项目特点：
 
 - 快速接入：使用`Spring Boot Starter`实现，用户直接在`pom.xml`引入依赖即可使用
@@ -141,9 +145,11 @@ public Response<T> function(Request request) {
 - 指定日志数据管道：自定义操作日志处理逻辑（写数据库，`TLog`等..）
 - 支持重复注解：同一个方法上可以写多个操作日志注解
 - 支持自动重试和兜底处理：支持配置重试次数和处理失败兜底逻辑`SPI`
-- 支持控制切面执行时机（方法执行前后），支持自定义执行成功判断逻辑，等等....等你来发掘
+- 支持控制切面执行时机（方法执行前后）
+- 支持自定义执行成功判断
+- 更多特性等你来发掘...
 
-**日志实体内包含：**
+**日志实体(LogDTO)内包含：**
 
 ```
 logId：生成的UUID
@@ -226,6 +232,7 @@ List<diffDTO>: 实体类对象Diff数据，包括变更的字段名，字段值�
 
 **第一步：** `SpringBoot`项目中引入依赖
 
+SpringBoot1&SpringBoot2(JDK8+)请引用：
 ```xml
 <dependency>
     <groupId>cn.monitor4all</groupId>
@@ -234,19 +241,32 @@ List<diffDTO>: 实体类对象Diff数据，包括变更的字段名，字段值�
 </dependency>
 ```
 
-**推荐使用 >= 1.5.0版本**
+SpringBoot3(JDK17+)请引用：
+
+```xml
+<dependency>
+    <groupId>cn.monitor4all</groupId>
+    <artifactId>log-record-springboot3-starter</artifactId>
+    <version>{最新版本号}</version>
+</dependency>
+```
 
 
-**第二步：** 添加数据源配置
+> 最新版本号请查阅[`Maven`公共仓库](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+> 
+> 推荐使用 >= 1.6.0版本
 
-支持推送日志数据至：
 
-1. 本地直接处理消息
-2. `RabbitMQ`
-3. `RocketMQ`
-4. `SpringCloud Stream`
+**第二步：** 配置日志处理方式
 
-**1. 本地直接处理消息**
+支持处理方式：
+
+1. **自定义采集处理**
+2. 直接发送至`RabbitMQ`
+3. 直接发送至`RocketMQ`
+4. 直接发送至`SpringCloud Stream`
+
+**1. 自定义采集处理**
 
 若只需要在同一应用内处理日志信息，只需要实现接口`IOperationLogGetService`，便可对日志进行处理。
 
@@ -262,9 +282,9 @@ public class CustomFuncTestOperationLogGetService implements IOperationLogGetSer
 
 
 
-**2. `RabbitMQ`**
+**2. 直接发送至`RabbitMQ`**
 
-配置好`RabbitMQ`的发送者
+配置`RabbitMQ`参数
 
 ```properties
 log-record.data-pipeline=rabbitMq
@@ -277,9 +297,9 @@ log-record.rabbit-mq-properties.routing-key=
 log-record.rabbit-mq-properties.exchange-name=logRecord
 ```
 
-**3. `RocketMQ`**
+**3. 直接发送至`RocketMQ`**
 
-配置好`RocketMQ`的发送者
+配置`RocketMQ`参数
 
 ```properties
 log-record.data-pipeline=rocketMq
@@ -289,9 +309,9 @@ log-record.rocket-mq-properties.group-name=logRecord
 log-record.rocket-mq-properties.namesrv-addr=localhost:9876
 ```
 
-**4. `Stream`**
+**4. 直接发送至`SpringCloud Stream`**
 
-配置好`stream`
+配置`SpringCloud Stream`参数
 
 ```properties
 log-record.data-pipeline=stream
@@ -501,9 +521,9 @@ LogRecordContext内部使用TransmittableThreadLocal，在线程池中也可以�
 
 `@LogRecordFunc`可以添加参数`value`，实现自定义方法别名，若不添加，则默认不需要写前缀。
 
-分为静态和非静态方法两种处理方式。
+静态自定义方法：
 
-静态自定义方法是`SpEL`天生支持的，所以写法如下：
+`SpEL`天生支持，写法如下：
 
 ```java
 @LogRecordFunc("CustomFunctionStatic")
@@ -524,22 +544,13 @@ public class CustomFunctionStatic {
 
 上述代码中，注册的自定义函数名为`CustomFunctionStatic_testStaticMethodWithoutCustomName`和`CustomFunctionStatic_testStaticMethodWithoutCustomName`，若类上的注解更改为`@LogRecordFunc("test")`，则注册的自定义函数名为`testStaticMethodWithCustomName`和`testStaticMethodWithoutCustomName`
 
-非静态的自定义方法（比如直接调用`Spring`的`Service`）写法如下：
+非静态自定义方法：
 
-```java
-@Service
-@Slf4j
-@LogRecordFunc("CustomFunctionService")
-public class CustomFunctionService {
+~~原理主要是依靠我们框架内部转换，将非静态方法需要包装为静态方法再传给`SpEL`。原理详见[#PR25](https://github.com/qqxx6661/log-record/pull/25)~~
 
-    @LogRecordFunc
-    public TestUser testUser() {
-        return new TestUser(1, "asd");
-    }
-}
-```
+在1.6.0版本之前，部分版本(1.5.x)支持非静态自定义函数，但由于其大量使用反射，写法较为Hack，兼容性不佳（在JDk11+后反射限制更加严格），在1.6.0+ 版本后删除，仅支持静态方法。
 
-其原理主要是依靠我们框架内部转换，将非静态方法需要包装为静态方法再传给`SpEL`。原理详见[#PR25](https://github.com/qqxx6661/log-record/pull/25)
+
 
 注意：所有自定义函数可在应用启动时的日志中找到
 
@@ -835,6 +846,31 @@ CREATE TABLE `operation_log` (
 
 ![](pic/IDEA_SpEL.png)
 
+## SpringBoot3(JDK17+)版本与SpringBoot1&SpringBoot2(JDK8+)版本使用差异
+
+本框架尽可能在不同SpringBoot版本下提供统一的功能和特性，但由于JDk兼容等问题，在使用上仍有一些差异。
+
+在这里列举需要本框架使用者注意的差异：
+
+### SpringBoot3无法获取函数入参
+
+由于JDK11+以上收紧了对反射的使用，导致SpringBoot3无法获取函数入参，所以在SpringBoot3版本下，无法使用参数名获取函数入参。
+
+例如在SpringBoot1&SpringBoot2中可以这样做：
+
+```java
+@OperationLog(bizId = "#bizId", bizType = "'testBizIdWithSpEL'")
+public void testBizIdWithSpEL(String bizId) {
+}
+```
+
+但是SpringBoot3中，只能使用`p0`、`p1`等参数名获取函数入参（参数的绝对位置下标），如下：
+
+```java
+@OperationLog(bizId = "#p0", bizType = "'testBizIdWithSpEL'")
+public void testBizIdWithSpEL(String bizId) {
+}
+```
 
 ## 应用场景
 
@@ -842,7 +878,7 @@ CREATE TABLE `operation_log` (
 
 ### 操作日志
 
-如最上面一张`CRM`系统的图描述的那样，在用户进行了编辑操作后，拿到用户操作的数据，执行日志写入。
+`CRM`系统，在用户进行了编辑操作后，拿到用户操作的数据，执行日志写入。
 
 ### 系统日志
 
@@ -852,16 +888,11 @@ CREATE TABLE `operation_log` (
 
 应用之间通过关键操作的日志消息，互相通知。
 
-### 跨应用数据聚合
-
-在多个应用中，如果需要做行为相同的业务逻辑，完全可以在各个系统中通过该库将数据发送到同一个消息队列中，再进行统一处理。
-
-
 ## 附录：Demo
 
-最后，肯定有小伙伴希望有一个完整的使用Demo，这就奉上！
+当你觉得用法不熟悉，可以查看单元测试用例，里面有最为详细且最全的使用示例。
 
-完整客户端Demo项目:
+另外提供完整SpringBoot2&3 Demo项目:
 
 https://github.com/qqxx6661/systemLog
 
@@ -869,15 +900,23 @@ https://github.com/qqxx6661/systemLog
 
 [Release](https://github.com/qqxx6661/log-record/releases)
 
-## 配套教程文章
+## 附录
+
+### 编译注意
+
+由于拆分了父子模块，在不同JDK下，请重新编译log-record-core，再编译对应版本的log-record-starter，否则会导致编译失败（单元测试异常）。
+
+### 配套教程文章
 
 - 如何使用注解优雅的记录操作日志  
   https://mp.weixin.qq.com/s/q2qmffH8t-ou2apOa6BiPQ
 - 如何提交自己的项目到Maven公共仓库  
   https://mp.weixin.qq.com/s/B9LA6be_cPAKACbZot_Nrg
 
-## 关注我
+### 关注我
 
 公众号：后端技术漫谈
 
 全网博客名：蛮三刀酱
+
+如果觉得该项目对你有用，请点个star，谢谢！
