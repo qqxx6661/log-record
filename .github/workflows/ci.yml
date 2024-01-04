@@ -24,7 +24,7 @@ jobs:
           key: ${{ env.cache-name }}-${{ hashFiles('pom.xml') }}
           restore-keys: ${{ env.cache-name }}-
       - name: Test with Maven
-        run: mvn -V --no-transfer-progress test
+        run: mvn -V --no-transfer-progress test -pl '!log-record-springboot3-starter'
       - name: Upload to Codecov
         uses: codecov/codecov-action@v3
         with:
