@@ -6,7 +6,7 @@
     <parent>
         <groupId>cn.monitor4all</groupId>
         <artifactId>log-record</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.6.0</version>
     </parent>
 
     <artifactId>log-record-springboot3-starter</artifactId>
@@ -73,20 +73,20 @@
         <developerConnection>git@github.com:qqxx6661/log-record.git</developerConnection>
     </scm>
 
-    <!--    <distributionManagement>-->
-    <!--  申明打包到Github私有Maven仓库  -->
-    <!--        <repository>-->
-    <!--            <id>github</id>-->
-    <!--            <name>GitHub OWNER Apache Maven Packages</name>-->
-    <!--            <url>https://maven.pkg.github.com/qqxx6661/log-record</url>-->
-    <!--        </repository>-->
+    <distributionManagement>
+        <!--  申明打包到Github私有Maven仓库  -->
+<!--        <repository>-->
+<!--            <id>github</id>-->
+<!--            <name>GitHub OWNER Apache Maven Packages</name>-->
+<!--            <url>https://maven.pkg.github.com/qqxx6661/log-record</url>-->
+<!--        </repository>-->
 
-    <!--  申明打包到Maven公有仓库  -->
-    <!--        <snapshotRepository>-->
-    <!--            <id>ossrh</id>-->
-    <!--            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>-->
-    <!--        </snapshotRepository>-->
-    <!--    </distributionManagement>-->
+        <!--  申明打包到Maven公有仓库  -->
+<!--        <snapshotRepository>-->
+<!--            <id>ossrh</id>-->
+<!--            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>-->
+<!--        </snapshotRepository>-->
+    </distributionManagement>
 
 
     <profiles>
@@ -94,7 +94,7 @@
             <id>user</id>
             <properties>
                 <!-- 可自行更改 -->
-                <doc.path>${java.home}/bin/javadoc</doc.path>
+                <doc.path>${java.home}/../bin/javadoc</doc.path>
             </properties>
         </profile>
 
@@ -158,7 +158,7 @@
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
+                <version>1.6.13</version>
                 <extensions>true</extensions>
                 <configuration>
                     <serverId>ossrh</serverId>
