@@ -43,7 +43,7 @@ SpringBoot3(JDK17+)请引用：
 </dependency>
 ```
 
-> 最新版本号请查阅[`Maven`公共仓库](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+> 最新版本号请查阅[`Maven`公共仓库](https://mvnrepository.com/artifact/cn.monitor4all/log-record-starter)
 
 
 ## 项目背景
@@ -905,6 +905,10 @@ https://github.com/qqxx6661/systemLog
 ### 编译注意
 
 由于拆分了父子模块，在不同JDK下，请重新编译log-record-core，再编译对应版本的log-record-starter，否则会导致编译失败（单元测试异常）。
+
+### 发布版本注意
+
+请将log-record-core, log-record-starter, log-record-springboot3-starter都编译打包发布到Maven公共仓库。
 
 ### 配套教程文章
 
