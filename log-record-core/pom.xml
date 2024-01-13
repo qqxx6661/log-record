@@ -3,13 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>cn.monitor4all</groupId>
-        <artifactId>log-record</artifactId>
-        <version>1.6.0</version>
-    </parent>
 
+    <name>${project.groupId}:${project.artifactId}</name>
+    <url>https://monitor4all.cn</url>
+    <description>A log record framework for Java</description>
+
+    <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-core</artifactId>
+    <version>1.6.1</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -129,11 +130,11 @@
 
     <distributionManagement>
         <!--  申明打包到Github私有Maven仓库  -->
-<!--        <repository>-->
-<!--            <id>github</id>-->
-<!--            <name>GitHub OWNER Apache Maven Packages</name>-->
-<!--            <url>https://maven.pkg.github.com/qqxx6661/log-record</url>-->
-<!--        </repository>-->
+        <repository>
+            <id>github</id>
+            <name>GitHub OWNER Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/qqxx6661/log-record</url>
+        </repository>
 
         <!--  申明打包到Maven公有仓库  -->
         <snapshotRepository>
@@ -160,7 +161,10 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <doc.path>${java.home}/../bin/javadoc</doc.path>
+                <!-- JDK1.8 -->
+<!--                <doc.path>${java.home}/../bin/javadoc</doc.path>-->
+                <!-- JDK17 -->
+                <doc.path>${java.home}/bin/javadoc</doc.path>
             </properties>
             <build>
                 <plugins>

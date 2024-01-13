@@ -254,7 +254,7 @@ SpringBoot3(JDK17+)请引用：
 
 > 最新版本号请查阅[`Maven`公共仓库](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
 > 
-> 推荐使用 >= 1.6.0版本
+> 推荐使用 >= 1.6.x版本
 
 
 **第二步：** 配置日志处理方式
@@ -548,7 +548,7 @@ public class CustomFunctionStatic {
 
 ~~原理主要是依靠我们框架内部转换，将非静态方法需要包装为静态方法再传给`SpEL`。原理详见[#PR25](https://github.com/qqxx6661/log-record/pull/25)~~
 
-在1.6.0版本之前，部分版本(1.5.x)支持非静态自定义函数，但由于其大量使用反射，写法较为Hack，兼容性不佳（在JDk11+后反射限制更加严格），在1.6.0+ 版本后删除，仅支持静态方法。
+在1.6.x版本之前，部分版本(1.5.x)支持非静态自定义函数，但由于其大量使用反射，写法较为Hack，兼容性不佳（在JDk11+后反射限制更加严格），在1.6.x+ 版本后删除，仅支持静态方法。
 
 
 

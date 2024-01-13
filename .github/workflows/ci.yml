@@ -15,6 +15,8 @@ jobs:
         with:
           java-version: 8
           distribution: zulu
+      - name: Change to log-record-start directory
+        run: cd log-record-start
       - name: Cache mvn dependencies
         uses: actions/cache@v3
         env:
@@ -24,7 +26,7 @@ jobs:
           key: ${{ env.cache-name }}-${{ hashFiles('pom.xml') }}
           restore-keys: ${{ env.cache-name }}-
       - name: Test with Maven
-        run: mvn -V --no-transfer-progress test -pl '!log-record-springboot3-starter'
+        run: mvn -V --no-transfer-progress test
       - name: Upload to Codecov
         uses: codecov/codecov-action@v3
         with:
