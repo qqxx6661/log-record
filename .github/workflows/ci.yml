@@ -16,19 +16,17 @@ jobs:
           java-version: 8
           distribution: zulu
       - name: Cache mvn dependencies
-        working-directory: log-record-starter
         uses: actions/cache@v3
         env:
           cache-name: mvn-deps
         with:
           path: ~/.m2
-          key: ${{ env.cache-name }}-${{ hashFiles('pom.xml') }}
+          key: ${{ env.cache-name }}-${{ hashFiles('./log-record-starter/pom.xml') }}
           restore-keys: ${{ env.cache-name }}-
       - name: Test with Maven
-        working-directory: log-record-starter
+        working-directory: ./log-record-starter
         run: mvn -V --no-transfer-progress test
       - name: Upload to Codecov
-        working-directory: log-record-starter
         uses: codecov/codecov-action@v3
         with:
           file: ./target/site/jacoco/jacoco.xml
