@@ -16,7 +16,7 @@ jobs:
           java-version: 8
           distribution: zulu
       - name: Change to log-record-start directory
-        run: cd log-record-start
+        run: cd log-record-starter
       - name: Cache mvn dependencies
         uses: actions/cache@v3
         env:
