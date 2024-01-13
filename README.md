@@ -43,7 +43,7 @@ SpringBoot3(JDK17+)请引用：
 </dependency>
 ```
 
-> 最新版本号请查阅[`Maven`公共仓库](https://mvnrepository.com/artifact/cn.monitor4all/log-record-starter)
+> 最新版本号请查阅[`Maven`公共仓库](https://mvnrepository.com/artifact/cn.monitor4all/log-record-starter)，目前推荐版本1.6.1
 
 
 ## 项目背景
