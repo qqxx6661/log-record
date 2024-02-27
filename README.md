@@ -276,6 +276,7 @@ public class CustomFuncTestOperationLogGetService implements IOperationLogGetSer
     @Override
     public boolean createLog(LogDTO logDTO) {
         log.info("logDTO: [{}]", JSON.toJSONString(logDTO));
+        return true;
     }
 }
 ```
