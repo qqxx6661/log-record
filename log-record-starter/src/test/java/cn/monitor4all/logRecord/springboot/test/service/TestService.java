@@ -5,10 +5,11 @@ import cn.monitor4all.logRecord.annotation.OperationLog;
 import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.springboot.test.bean.TestComplexUser;
 import cn.monitor4all.logRecord.springboot.test.bean.TestUser;
-import cn.monitor4all.logRecord.springboot.test.bean.diff.TestDiffDuty;
-import cn.monitor4all.logRecord.springboot.test.bean.diff.TestDiffJob;
-import cn.monitor4all.logRecord.springboot.test.bean.diff.TestDiffUserParam;
-import cn.monitor4all.logRecord.springboot.test.bean.diff.TestDiffUserVO;
+import cn.monitor4all.logRecord.springboot.test.bean.diff.extend.TestDiffChildClass;
+import cn.monitor4all.logRecord.springboot.test.bean.diff.nested.TestDiffDuty;
+import cn.monitor4all.logRecord.springboot.test.bean.diff.nested.TestDiffJob;
+import cn.monitor4all.logRecord.springboot.test.bean.diff.nested.TestDiffUserParam;
+import cn.monitor4all.logRecord.springboot.test.bean.diff.nested.TestDiffUserVO;
 import org.springframework.boot.test.context.TestComponent;
 
 import java.util.Arrays;
@@ -162,6 +163,14 @@ public class TestService {
     public void testMultipleDiff(TestUser testUser) {
         LogRecordContext.putVariable("oldObject1", new TestUser(1, "张三"));
         LogRecordContext.putVariable("oldObject2", new TestUser(3, "王五"));
+    }
+
+    @OperationLog(bizId = "'1'", bizType = "'testExtendClassDiff'", msg = "#_DIFF(#oldObject, #testDiffChildClass)")
+    public void testExtendClassDiff(TestDiffChildClass testDiffChildClass) {
+        TestDiffChildClass oldObject = new TestDiffChildClass();
+        oldObject.setParamFromParent("oldObject parentParam");
+        oldObject.setParamFromChild("oldObject childParam");
+        LogRecordContext.putVariable("oldObject", oldObject);
     }
 
 

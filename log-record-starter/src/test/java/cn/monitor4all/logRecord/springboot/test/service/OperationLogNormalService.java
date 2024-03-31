@@ -153,6 +153,11 @@ public class OperationLogNormalService implements IOperationLogGetService {
             TestHelper.releaseLock("testMultipleDiff");
         }
 
+        if ("testExtendClassDiff".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testExtendClassDiff", logDTO);
+            TestHelper.releaseLock("testExtendClassDiff");
+        }
+
         if ("testConditionTrue".equals(logDTO.getBizType())) {
             TestHelper.putLogDTO("testConditionTrue", logDTO);
             TestHelper.releaseLock("testConditionTrue");
