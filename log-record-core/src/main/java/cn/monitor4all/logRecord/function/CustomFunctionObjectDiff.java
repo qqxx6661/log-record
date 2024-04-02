@@ -96,7 +96,7 @@ public class CustomFunctionObjectDiff {
                     continue;
                 }
                 // 在新字段中寻找同名字段，若找不到则抛出NoSuchFieldException异常跳过本次遍历
-                Field newField = getFieldByName(oldObject.getClass(), oldField.getName());
+                Field newField = getFieldByName(newObject.getClass(), oldField.getName());
                 if (newField == null) {
                     log.info("no field named [{}] in newObject, skip", oldField.getName());
                     continue;
