@@ -82,8 +82,8 @@ public class CustomFunctionObjectDiff {
         Map<String, Object> newValueMap = new LinkedHashMap<>();
 
         // 遍历旧对象
-        Field[] fields = oldObject.getClass().getDeclaredFields();
-        for (Field oldField : fields) {
+        Field[] oldObjectFields = getAllFields(oldObject.getClass());
+        for (Field oldField : oldObjectFields) {
             try {
                 // 获取老字段值
                 oldField.setAccessible(true);
@@ -95,36 +95,36 @@ public class CustomFunctionObjectDiff {
                     log.debug("oldField [{}] not need to diff, skip", oldField.getName());
                     continue;
                 }
-                try {
-                    // 在新字段中寻找同名字段，若找不到则抛出NoSuchFieldException异常跳过本次遍历
-                    Field newField = newObject.getClass().getDeclaredField(oldField.getName());
-                    LogRecordDiffField newFieldLogRecordDiffField = newField.getDeclaredAnnotation(LogRecordDiffField.class);
-                    // 获取新字段值
-                    newField.setAccessible(true);
-                    Object newValue = newField.get(newObject);
-                    // 根据新字段判断是否需要进行diff
-                    if (!judgeFieldDiffNeeded(newValue, true, newClassEnableAllFields, newFieldLogRecordDiffField)) {
-                        log.debug("newField [{}] not need to diff, skip", newField.getName());
-                        continue;
-                    }
-
-                    // 通过LogRecordDiffField获取字段别名
-                    if (oldFieldLogRecordDiffField != null && newFieldLogRecordDiffField != null) {
-                        String oldFieldAlias = StringUtils.isNotBlank(oldFieldLogRecordDiffField.alias()) ? oldFieldLogRecordDiffField.alias() : null;
-                        String newFieldAlias = StringUtils.isNotBlank(newFieldLogRecordDiffField.alias()) ? newFieldLogRecordDiffField.alias() : null;
-                        oldFieldAliasMap.put(oldField.getName(), oldFieldAlias);
-                        newFieldAliasMap.put(newField.getName(), newFieldAlias);
-                        log.debug("field [{}] has annotation oldField alias [{}] newField alias [{}]", oldField.getName(), oldFieldAlias, newFieldAlias);
-                    }
-
-                    // 对比新老字段值
-                    if (!fieldValueEquals(oldValue, newValue)) {
-                        log.debug("field [{}] is different between oldObject [{}] newObject [{}]", oldField.getName(), oldValue, newValue);
-                        oldValueMap.put(oldField.getName(), oldValue);
-                        newValueMap.put(newField.getName(), newValue);
-                    }
-                } catch (NoSuchFieldException e) {
+                // 在新字段中寻找同名字段，若找不到则抛出NoSuchFieldException异常跳过本次遍历
+                Field newField = getFieldByName(newObject.getClass(), oldField.getName());
+                if (newField == null) {
                     log.info("no field named [{}] in newObject, skip", oldField.getName());
+                    continue;
+                }
+                LogRecordDiffField newFieldLogRecordDiffField = newField.getDeclaredAnnotation(LogRecordDiffField.class);
+                // 获取新字段值
+                newField.setAccessible(true);
+                Object newValue = newField.get(newObject);
+                // 根据新字段判断是否需要进行diff
+                if (!judgeFieldDiffNeeded(newValue, true, newClassEnableAllFields, newFieldLogRecordDiffField)) {
+                    log.debug("newField [{}] not need to diff, skip", newField.getName());
+                    continue;
+                }
+
+                // 通过LogRecordDiffField获取字段别名
+                if (oldFieldLogRecordDiffField != null && newFieldLogRecordDiffField != null) {
+                    String oldFieldAlias = StringUtils.isNotBlank(oldFieldLogRecordDiffField.alias()) ? oldFieldLogRecordDiffField.alias() : null;
+                    String newFieldAlias = StringUtils.isNotBlank(newFieldLogRecordDiffField.alias()) ? newFieldLogRecordDiffField.alias() : null;
+                    oldFieldAliasMap.put(oldField.getName(), oldFieldAlias);
+                    newFieldAliasMap.put(newField.getName(), newFieldAlias);
+                    log.debug("field [{}] has annotation oldField alias [{}] newField alias [{}]", oldField.getName(), oldFieldAlias, newFieldAlias);
+                }
+
+                // 对比新老字段值
+                if (!fieldValueEquals(oldValue, newValue)) {
+                    log.debug("field [{}] is different between oldObject [{}] newObject [{}]", oldField.getName(), oldValue, newValue);
+                    oldValueMap.put(oldField.getName(), oldValue);
+                    newValueMap.put(newField.getName(), newValue);
                 }
             } catch (Exception e) {
                 log.error("objectDiff error", e);
@@ -252,6 +252,31 @@ public class CustomFunctionObjectDiff {
      */
     private static boolean isJsonArray(Object obj) {
         return obj.getClass().isArray() || obj instanceof Collection;
+    }
+
+    /**
+     * 获取类所有字段 循环遍历所有父类
+     */
+    private static Field[] getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<>();
+        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+            Collections.addAll(fields, c.getDeclaredFields());
+        }
+        return fields.toArray(new Field[0]);
+    }
+
+    /**
+     * 获取类指定字段
+     * 使用了一个设计为通过异常来指示特定条件的Java标准库方法，这确实是一个特殊情况，通常不会使用异常来做业务逻辑。
+     */
+    private static Field getFieldByName(Class<?> type, String fieldName) {
+        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+            try {
+                return c.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException ignored) {
+            }
+        }
+        return null;
     }
 
 }

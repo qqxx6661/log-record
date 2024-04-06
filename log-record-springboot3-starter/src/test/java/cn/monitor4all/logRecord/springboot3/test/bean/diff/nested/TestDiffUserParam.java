@@ -1,4 +1,4 @@
-package cn.monitor4all.logRecord.springboot3.test.bean.diff;
+package cn.monitor4all.logRecord.springboot3.test.bean.diff.nested;
 
 import cn.monitor4all.logRecord.annotation.LogRecordDiffObject;
 import lombok.Data;
@@ -6,8 +6,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-@LogRecordDiffObject(alias = "用户信息嵌套展示实体")
-public class TestDiffUserVO {
+@LogRecordDiffObject(alias = "用户信息嵌套入参实体")
+public class TestDiffUserParam {
 
     private Integer id;
 
@@ -16,4 +16,5 @@ public class TestDiffUserVO {
     private Integer age;
 
     private List<TestDiffJob> jobList;
+
 }

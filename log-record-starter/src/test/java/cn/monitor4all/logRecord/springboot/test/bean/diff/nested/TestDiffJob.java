@@ -1,4 +1,4 @@
-package cn.monitor4all.logRecord.springboot3.test.bean.diff;
+package cn.monitor4all.logRecord.springboot.test.bean.diff.nested;
 
 import lombok.Data;
 
