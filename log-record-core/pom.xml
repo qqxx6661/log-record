@@ -162,9 +162,9 @@
             </activation>
             <properties>
                 <!-- JDK1.8 -->
-<!--                <doc.path>${java.home}/../bin/javadoc</doc.path>-->
+                <doc.path>${java.home}/../bin/javadoc</doc.path>
                 <!-- JDK17 -->
-                <doc.path>${java.home}/bin/javadoc</doc.path>
+<!--                <doc.path>${java.home}/bin/javadoc</doc.path>-->
             </properties>
             <build>
                 <plugins>

@@ -259,7 +259,7 @@ public class CustomFunctionObjectDiff {
      */
     private static Field[] getAllFields(Class<?> type) {
         List<Field> fields = new ArrayList<>();
-        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+        for (Class<?> c = type; c != null && !c.isSynthetic(); c = c.getSuperclass()) {
             Collections.addAll(fields, c.getDeclaredFields());
         }
         return fields.toArray(new Field[0]);
@@ -270,7 +270,7 @@ public class CustomFunctionObjectDiff {
      * 使用了一个设计为通过异常来指示特定条件的Java标准库方法，这确实是一个特殊情况，通常不会使用异常来做业务逻辑。
      */
     private static Field getFieldByName(Class<?> type, String fieldName) {
-        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+        for (Class<?> c = type; c != null && !c.isSynthetic(); c = c.getSuperclass()) {
             try {
                 return c.getDeclaredField(fieldName);
             } catch (NoSuchFieldException ignored) {
