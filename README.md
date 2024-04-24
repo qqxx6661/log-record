@@ -929,3 +929,7 @@ https://github.com/qqxx6661/systemLog
 全网博客名：蛮三刀酱
 
 如果觉得该项目对你有用，请点个star，谢谢！
+
+### Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=qqxx6661/log-record&type=Date)](https://star-history.com/#qqxx6661/log-record&Date)
