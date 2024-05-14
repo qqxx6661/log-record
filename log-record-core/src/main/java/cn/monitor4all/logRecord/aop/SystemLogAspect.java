@@ -148,7 +148,10 @@ public class SystemLogAspect {
                 LogRecordContext.putVariable(LogRecordContext.CONTEXT_KEY_NAME_ERROR_MSG, throwable.getMessage());
                 for (OperationLog annotation : annotations) {
                     if (!annotation.executeBeforeFunc()) {
-                        logDtoMap.put(annotation, resolveExpress(annotation, pjp));
+                        LogDTO logDTO = resolveExpress(annotation, pjp);
+                        if (logDTO != null) {
+                            logDtoMap.put(annotation, logDTO);
+                        }
                     }
                 }
                 // 写入异常执行后日志
