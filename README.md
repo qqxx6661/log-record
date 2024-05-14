@@ -893,7 +893,7 @@ public void testBizIdWithSpEL(String bizId) {
 
 应用之间通过关键操作的日志消息，互相通知。
 
-## 附录：Demo
+## Demo
 
 当你觉得用法不熟悉，可以查看单元测试用例，里面有最为详细且最全的使用示例。
 
