@@ -210,6 +210,11 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*$jacocoData</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
