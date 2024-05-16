@@ -260,7 +260,11 @@ public class CustomFunctionObjectDiff {
     private static Field[] getAllFields(Class<?> type) {
         List<Field> fields = new ArrayList<>();
         for (Class<?> c = type; c != null && !c.isSynthetic(); c = c.getSuperclass()) {
-            Collections.addAll(fields, c.getDeclaredFields());
+            for (Field field : c.getDeclaredFields()) {
+                if (!field.isSynthetic()) {
+                    fields.add(field);
+                }
+            }
         }
         return fields.toArray(new Field[0]);
     }
