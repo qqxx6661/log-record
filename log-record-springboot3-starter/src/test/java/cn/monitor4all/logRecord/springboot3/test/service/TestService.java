@@ -237,4 +237,12 @@ public class TestService {
     @OperationLog(bizId = "'1'", bizType = "'testRetryTimesAndOperationLogGetErrorHandler'")
     public void testRetryTimesAndOperationLogGetErrorHandler() {
     }
+
+    @OperationLog(bizId = "'1'", bizType = "'testCustomThreadPool'")
+    @OperationLog(bizId = "'2'", bizType = "'testCustomThreadPool'")
+    @OperationLog(bizId = "'3'", bizType = "'testCustomThreadPool'")
+    @OperationLog(bizId = "'4'", bizType = "'testCustomThreadPool'")
+    @OperationLog(bizId = "'5'", bizType = "'testCustomThreadPool'")
+    public void testCustomThreadPool() {
+    }
 }
