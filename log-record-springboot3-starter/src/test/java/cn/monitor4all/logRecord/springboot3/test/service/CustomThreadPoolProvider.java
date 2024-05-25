@@ -18,7 +18,7 @@ public class CustomThreadPoolProvider implements ThreadPoolProvider {
 
     private static ThreadPoolExecutor EXECUTOR;
 
-    private static final ThreadFactory THREAD_FACTORY = new CustomizableThreadFactory("log-record-");
+    private static final ThreadFactory THREAD_FACTORY = new CustomizableThreadFactory("custom-log-record-");
 
 
     private CustomThreadPoolProvider() {
