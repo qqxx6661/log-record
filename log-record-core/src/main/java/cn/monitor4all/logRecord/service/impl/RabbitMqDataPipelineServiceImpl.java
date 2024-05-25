@@ -4,7 +4,7 @@ import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.constants.LogConstants;
 import cn.monitor4all.logRecord.service.DataPipelineService;
-import com.alibaba.fastjson.JSON;
+import cn.monitor4all.logRecord.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class RabbitMqDataPipelineServiceImpl implements DataPipelineService {
     @Override
     public boolean createLog(LogDTO logDTO) {
         log.info("LogRecord RabbitMq ready to send routingKey [{}] LogDTO [{}]", properties.getRabbitMqProperties().getRoutingKey(), logDTO);
-        rubeExchangeTemplate.convertAndSend(properties.getRabbitMqProperties().getRoutingKey(), JSON.toJSONString(logDTO));
+        rubeExchangeTemplate.convertAndSend(properties.getRabbitMqProperties().getRoutingKey(), JsonUtil.safeToJsonString(logDTO));
         return true;
     }
 }

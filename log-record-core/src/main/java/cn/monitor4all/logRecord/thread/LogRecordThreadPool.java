@@ -22,7 +22,7 @@ public class LogRecordThreadPool {
     public LogRecordThreadPool(LogRecordProperties logRecordProperties) {
         log.info("LogRecordThreadPool init poolSize [{}]", logRecordProperties.getThreadPool().getPoolSize());
         int poolSize = logRecordProperties.getThreadPool().getPoolSize();
-        this.LOG_RECORD_POOL_EXECUTOR = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024), THREAD_FACTORY, new ThreadPoolExecutor.CallerRunsPolicy());
+        this.LOG_RECORD_POOL_EXECUTOR = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024), THREAD_FACTORY, new ThreadPoolExecutor.AbortPolicy());
     }
 
     public ExecutorService getLogRecordPoolExecutor() {
