@@ -20,7 +20,7 @@ public class LogRecordThreadPool {
 
     /**
      * 操作日志主逻辑线程池
-     * 提供顺序：用户传入线程池 > 通过配置文件创建的默认线程池
+     * 提供顺序：用户传入线程池 优先于 通过配置文件创建的默认线程池
      */
     public LogRecordThreadPool(LogRecordProperties logRecordProperties, ApplicationContext applicationContext) {
         ThreadPoolProvider threadPoolProvider = applicationContext.getBeanProvider(ThreadPoolProvider.class)
