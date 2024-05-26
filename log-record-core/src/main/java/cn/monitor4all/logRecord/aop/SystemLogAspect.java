@@ -10,8 +10,7 @@ import cn.monitor4all.logRecord.service.IOperationLogGetService;
 import cn.monitor4all.logRecord.service.IOperatorIdGetService;
 import cn.monitor4all.logRecord.service.LogRecordErrorHandlerService;
 import cn.monitor4all.logRecord.thread.LogRecordThreadPool;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import cn.monitor4all.logRecord.util.JsonUtil;
 import com.alibaba.ttl.TtlRunnable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -128,7 +127,7 @@ public class SystemLogAspect {
                         logDTO.setSuccess(true);
                     }
                     if (annotation.recordReturnValue() && result != null) {
-                        logDTO.setReturnStr(JSON.toJSONString(result));
+                        logDTO.setReturnStr(JsonUtil.safeToJsonString(result));
                     }
                 });
             } catch (Throwable throwableAfterFuncSuccess) {
@@ -305,7 +304,7 @@ public class SystemLogAspect {
         Expression msgExpression = parser.parseExpression(spel);
         Object obj = msgExpression.getValue(context, Object.class);
         if (obj != null) {
-            return obj instanceof String ? (String) obj : JSON.toJSONString(obj, SerializerFeature.WriteMapNullValue);
+            return obj instanceof String ? (String) obj : JsonUtil.safeToJsonString(obj);
         }
         return null;
     }

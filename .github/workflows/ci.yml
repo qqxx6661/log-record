@@ -23,6 +23,9 @@ jobs:
           path: ~/.m2
           key: ${{ env.cache-name }}-${{ hashFiles('./log-record-starter/pom.xml') }}
           restore-keys: ${{ env.cache-name }}-
+      - name: Install current version to local repository
+        run: mvn install -DskipTests -Dgpg.skip
+        working-directory: ./log-record-core
       - name: Test with Maven
         working-directory: ./log-record-starter
         run: mvn -V --no-transfer-progress test

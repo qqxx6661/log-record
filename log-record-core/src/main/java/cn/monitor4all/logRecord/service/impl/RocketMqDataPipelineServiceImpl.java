@@ -4,7 +4,7 @@ import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.constants.LogConstants;
 import cn.monitor4all.logRecord.service.DataPipelineService;
-import com.alibaba.fastjson.JSON;
+import cn.monitor4all.logRecord.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
@@ -30,7 +30,7 @@ public class RocketMqDataPipelineServiceImpl implements DataPipelineService {
     @Override
     public boolean createLog(LogDTO logDTO) {
         try {
-            Message msg = new Message(properties.getRocketMqProperties().getTopic(), properties.getRocketMqProperties().getTag(), (JSON.toJSONString(logDTO)).getBytes(RemotingHelper.DEFAULT_CHARSET));
+            Message msg = new Message(properties.getRocketMqProperties().getTopic(), properties.getRocketMqProperties().getTag(), (JsonUtil.safeToJsonString(logDTO)).getBytes(RemotingHelper.DEFAULT_CHARSET));
             SendResult sendResult = defaultMqProducer.send(msg);
             log.info("LogRecord RocketMq send LogDTO [{}] sendResult: [{}]", logDTO, sendResult);
             return true;

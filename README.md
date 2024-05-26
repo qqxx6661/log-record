@@ -147,6 +147,8 @@ public Response<T> function(Request request) {
 - 支持自动重试和兜底处理：支持配置重试次数和处理失败兜底逻辑`SPI`
 - 支持控制切面执行时机（方法执行前后）
 - 支持自定义执行成功判断
+- 支持非注解方式手动记录日志
+- 自定义消息线程池
 - 更多特性等你来发掘...
 
 **日志实体(LogDTO)内包含：**
@@ -347,8 +349,9 @@ public Response<T> function(Request request) {
 - [实体类`Diff`](#实体类Diff)
 - [日志处理重试次数及兜底函数配置](#日志处理重试次数及兜底函数配置)
 - [重复注解](#重复注解)
-- [消息分发线程池配置](#消息分发线程池配置)
+- [自定义消息线程池](#自定义消息线程池)
 - [函数返回值记录开关](#函数返回值记录开关)
+- [非注解方式手动记录日志](#非注解方式)
 - [操作日志数据表结构推荐](#操作日志数据表结构推荐)
 - [让注解支持`IDEA`自动补全](#让注解支持IDEA自动补全)
 
@@ -512,7 +515,7 @@ public Response<T> function(Request request) {
 }
 ```
 
-LogRecordContext内部使用TransmittableThreadLocal，在线程池中也可以读取到主线程的ThreadLocal。
+LogRecordContext内部使用TransmittableThreadLocal实现与主线程的ThreadLocal传递。
 
 ### 自定义函数
 
@@ -795,20 +798,49 @@ public class LogRecordErrorHandlerServiceImpl implements LogRecordErrorHandlerSe
 
 我们还加上了重复注解的支持，可以在一个方法上同时加多个`@OperationLog`，**会保证按照`@OperationLog`从上到下的顺序输出日志**。
 
-### 消息分发线程池配置
+### 自定义消息线程池
 
-在组装好`logDTO`后，默认使用线程池对消息进行分发，发送至本地监听函数或者消息队列发送者。
-
-**注意：`logDTO`的组装在切面中，该切面仍然在函数执行的线程中运行。**
-
-可以使用如下配置：
+starter提供了如下配置：
 
 ```properties
 log-record.thread-pool.pool-size=4（线程池核心线程大小 默认为4）
-log-record.thread-pool.enabled=true（线程池开关 默认为开启 若关闭则使用主线程进行消息处理发送）
+log-record.thread-pool.enabled=true（线程池开关 默认为开启 若关闭则使用业务线程进行消息处理发送）
 ```
 
-关闭使用线程池后，所有发送由主线程执行，带来的副作用是大量日志并发发送，会降低主线程处理效率。
+在组装好`logDTO`后，默认会使用线程池对消息进行处理，发送至本地监听函数或者消息队列发送者，也可以通过配置关闭线程池，让主线程执行全部消息处理逻辑。
+
+**注意：`logDTO`的组装逻辑在切面中，该切面仍然在函数执行的线程中运行。**
+
+默认线程池配置如下（拒绝策略为丢弃）：
+
+```java
+return new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024), THREAD_FACTORY, new ThreadPoolExecutor.AbortPolicy());
+```
+
+此外，还提供了用户传入自定义线程池的方式，用户可自行实现cn.monitor4all.logRecord.thread.ThreadPoolProvider，传入线程池。
+
+示例：
+
+```java
+public class CustomThreadPoolProvider implements ThreadPoolProvider {
+
+    private static ThreadPoolExecutor EXECUTOR;
+
+    private static final ThreadFactory THREAD_FACTORY = new CustomizableThreadFactory("custom-log-record-");
+
+
+    private CustomThreadPoolProvider() {
+        log.info("CustomThreadPoolProvider init");
+        EXECUTOR = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100), THREAD_FACTORY, new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    @Override
+    public ThreadPoolExecutor buildLogRecordThreadPool() {
+        return EXECUTOR;
+    }
+}
+```
+
 
 ### 函数返回值记录开关
 
@@ -893,7 +925,7 @@ public void testBizIdWithSpEL(String bizId) {
 
 应用之间通过关键操作的日志消息，互相通知。
 
-## 附录：Demo
+## Demo
 
 当你觉得用法不熟悉，可以查看单元测试用例，里面有最为详细且最全的使用示例。
 
