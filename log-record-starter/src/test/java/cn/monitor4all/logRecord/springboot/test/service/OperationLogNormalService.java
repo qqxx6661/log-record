@@ -225,6 +225,11 @@ public class OperationLogNormalService implements IOperationLogGetService {
             TestHelper.releaseLock("testLogRecordContextTransmittableThreadLocal");
         }
 
+        if ("testBuildLogRequest".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testBuildLogRequest", logDTO);
+            TestHelper.releaseLock("testBuildLogRequest");
+        }
+
         return true;
     }
 }

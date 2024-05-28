@@ -2,13 +2,10 @@ package cn.monitor4all.logRecord.aop;
 
 import cn.monitor4all.logRecord.annotation.OperationLog;
 import cn.monitor4all.logRecord.bean.LogDTO;
-import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.function.CustomFunctionRegistrar;
-import cn.monitor4all.logRecord.service.DataPipelineService;
-import cn.monitor4all.logRecord.service.IOperationLogGetService;
+import cn.monitor4all.logRecord.handler.OperationLogHandler;
 import cn.monitor4all.logRecord.service.IOperatorIdGetService;
-import cn.monitor4all.logRecord.service.LogRecordErrorHandlerService;
 import cn.monitor4all.logRecord.thread.LogRecordThreadPool;
 import cn.monitor4all.logRecord.util.JsonUtil;
 import com.alibaba.ttl.TtlRunnable;
@@ -43,22 +40,13 @@ import java.util.function.Consumer;
 public class SystemLogAspect {
 
     @Autowired
-    private LogRecordProperties logRecordProperties;
+    private OperationLogHandler operationLogHandler;
 
     @Autowired(required = false)
     private LogRecordThreadPool logRecordThreadPool;
 
     @Autowired(required = false)
-    private DataPipelineService dataPipelineService;
-
-    @Autowired(required = false)
-    private IOperationLogGetService iOperationLogGetService;
-
-    @Autowired(required = false)
     private IOperatorIdGetService iOperatorIdGetService;
-
-    @Autowired(required = false)
-    private LogRecordErrorHandlerService logRecordErrorHandlerService;
 
     private final SpelExpressionParser parser = new SpelExpressionParser();
 
@@ -168,7 +156,7 @@ public class SystemLogAspect {
             try {
                 // 提交日志至主线程或线程池
                 Long finalExecutionTime = executionTime;
-                Consumer<LogDTO> createLogFunction = logDTO -> createLog(logDTO, finalExecutionTime);
+                Consumer<LogDTO> createLogFunction = logDTO -> operationLogHandler.createLog(logDTO, finalExecutionTime);
                 if (logRecordThreadPool != null) {
                     logDTOList.forEach(logDTO -> {
                         Runnable task = () -> createLogFunction.accept(logDTO);
@@ -320,50 +308,5 @@ public class SystemLogAspect {
             log.error("OperationLogAspect getMethod error", e);
         }
         return method;
-    }
-
-    private void createLog(LogDTO logDTO, Long finalExecutionTime) {
-        int maxRetryTimes = logRecordProperties.getRetry().getRetryTimes();
-
-        // 发送日志本地监听
-        boolean iOperationLogGetResult = false;
-        if (iOperationLogGetService != null) {
-            for (int retryTimes = 0; retryTimes <= maxRetryTimes; retryTimes++) {
-                try {
-                    logDTO.setExecutionTime(finalExecutionTime);
-                    iOperationLogGetResult = iOperationLogGetService.createLog(logDTO);
-                    if (iOperationLogGetResult) {
-                        break;
-                    }
-                } catch (Throwable throwable) {
-                    log.error("OperationLogAspect send logDTO error", throwable);
-                }
-            }
-        }
-
-        if (!iOperationLogGetResult && iOperationLogGetService != null && logRecordErrorHandlerService != null) {
-            logRecordErrorHandlerService.operationLogGetErrorHandler();
-        }
-
-        // 发送消息管道
-        boolean dataPipelineServiceResult = false;
-        if (dataPipelineService != null) {
-            for (int retryTimes = 0; retryTimes <= maxRetryTimes; retryTimes++) {
-                try {
-                    logDTO.setExecutionTime(finalExecutionTime);
-                    dataPipelineServiceResult = dataPipelineService.createLog(logDTO);
-                    if (dataPipelineServiceResult) {
-                        break;
-                    }
-                } catch (Throwable throwable) {
-                    log.error("OperationLogAspect send logDTO error", throwable);
-                }
-            }
-        }
-
-        if (!dataPipelineServiceResult && dataPipelineService != null && logRecordErrorHandlerService != null) {
-            logRecordErrorHandlerService.dataPipelineErrorHandler();
-        }
-
     }
 }
