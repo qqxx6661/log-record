@@ -11,8 +11,8 @@ import org.springframework.boot.test.context.TestComponent;
 
 @Slf4j
 @TestComponent
-@ConditionalOnProperty(name = "test.config", havingValue = "normal")
-public class OperationLogNormalService implements IOperationLogGetService {
+@ConditionalOnProperty(name = "test.config", havingValue = "common")
+public class OperationLogCommonGetService implements IOperationLogGetService {
 
     @Override
     public boolean createLog(LogDTO logDTO) {

@@ -1,4 +1,4 @@
-package cn.monitor4all.logRecord.springboot.test.service;
+package cn.monitor4all.logRecord.springboot3.test.service;
 
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.exception.LogRecordException;
@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.TestComponent;
 @Slf4j
 @TestComponent
 @ConditionalOnProperty(name = "test.config", havingValue = "exception")
-public class OperationLogExceptionService implements IOperationLogGetService {
+public class OperationLogExceptionGetService implements IOperationLogGetService {
 
     @Override
     public boolean createLog(LogDTO logDTO) throws Exception {

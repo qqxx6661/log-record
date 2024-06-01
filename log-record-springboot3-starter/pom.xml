@@ -10,7 +10,7 @@
 
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-springboot3-starter</artifactId>
-    <version>1.6.3</version>
+    <version>1.7.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>cn.monitor4all</groupId>
             <artifactId>log-record-core</artifactId>
-            <version>1.6.3</version>
+            <version>1.7.0</version>
         </dependency>
 
         <!-- 单元测试依赖 -->
@@ -171,7 +171,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>

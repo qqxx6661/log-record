@@ -10,17 +10,16 @@ import org.springframework.boot.test.context.TestComponent;
 
 @Slf4j
 @TestComponent
-@ConditionalOnProperty(name = "test.config", havingValue = "logRecordDiffIgnoreNullValue")
-public class TestLogRecordDiffIgnoreNullValueService implements IOperationLogGetService {
+@ConditionalOnProperty(name = "test.config", havingValue = "customLog")
+public class OperationLogCustomLogGetService implements IOperationLogGetService {
 
     @Override
     public boolean createLog(LogDTO logDTO) throws Exception {
-
         log.info("logDTO: [{}]", JSON.toJSONString(logDTO));
 
-        if ("testLogRecordDiffIgnoreNewObjectNullValue".equals(logDTO.getBizType())) {
-            TestHelper.putLogDTO("testLogRecordDiffIgnoreNewObjectNullValue", logDTO);
-            TestHelper.releaseLock("testLogRecordDiffIgnoreNewObjectNullValue");
+        if ("testBuildLogRequest".equals(logDTO.getBizType())) {
+            TestHelper.putLogDTO("testBuildLogRequest", logDTO);
+            TestHelper.releaseLock("testBuildLogRequest");
         }
 
         return true;

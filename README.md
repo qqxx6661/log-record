@@ -846,6 +846,31 @@ public class CustomThreadPoolProvider implements ThreadPoolProvider {
 
 `@OperationLog`注解提供布尔值`recordReturnValue()`用于是否开启记录函数返回值，默认关闭，防止返回值实体过大，造成序列化时性能消耗过多。
 
+### 非注解方式
+
+在实际业务场景中，很多时候由于注解的限制，无法很好的使用注解记录日志，此时可以使用纯手动的方式进行日志记录。
+
+框架提供了手动记录日志的方法：
+
+cn.monitor4all.logRecord.util.OperationLogUtil
+
+```java
+LogRequest logRequest = LogRequest.builder()
+        .bizId("testBizId")
+        .bizType("testBuildLogRequest")
+        .success(true)
+        .msg("testMsg")
+        .tag("testTag")
+        .returnStr("testReturnStr")
+        .extra("testExtra")
+        // 其他字段
+        .build();
+OperationLogUtil.log(logRequest);
+```
+
+使用该方式记录日志，注解带来的相关功能则无法使用，如SpEL表达式，自定义函数等。
+
+
 ### 操作日志数据表结构推荐
 
 以MySQL表为例：
