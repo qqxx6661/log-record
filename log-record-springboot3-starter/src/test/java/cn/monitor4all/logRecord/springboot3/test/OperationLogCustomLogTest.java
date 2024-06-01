@@ -1,12 +1,12 @@
-package cn.monitor4all.logRecord.springboot.test;
+package cn.monitor4all.logRecord.springboot3.test;
 
 
 import cn.monitor4all.logRecord.bean.LogDTO;
 import cn.monitor4all.logRecord.bean.LogRequest;
-import cn.monitor4all.logRecord.springboot.LogRecordAutoConfiguration;
-import cn.monitor4all.logRecord.springboot.test.service.OperatorIdGetService;
-import cn.monitor4all.logRecord.springboot.test.service.TestService;
-import cn.monitor4all.logRecord.springboot.test.utils.TestHelper;
+import cn.monitor4all.logRecord.springboot3.LogRecordAutoConfiguration;
+import cn.monitor4all.logRecord.springboot3.test.service.OperatorIdGetService;
+import cn.monitor4all.logRecord.springboot3.test.service.TestService;
+import cn.monitor4all.logRecord.springboot3.test.utils.TestHelper;
 import cn.monitor4all.logRecord.util.OperationLogUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -27,9 +27,9 @@ import java.util.Date;
         LogRecordAutoConfiguration.class,
         OperatorIdGetService.class,
         TestService.class,})
-@PropertySource("classpath:testNormal.properties")
+@PropertySource("classpath:testCustomLog.properties")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class OperationLogUtilTest {
+public class OperationLogCustomLogTest {
 
     @Test
     public void testBuildLogRequest() {

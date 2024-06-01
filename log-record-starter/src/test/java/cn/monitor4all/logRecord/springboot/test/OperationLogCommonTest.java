@@ -1,16 +1,16 @@
-package cn.monitor4all.logRecord.springboot3.test;
+package cn.monitor4all.logRecord.springboot.test;
 
 import cn.monitor4all.logRecord.bean.LogDTO;
-import cn.monitor4all.logRecord.springboot3.LogRecordAutoConfiguration;
-import cn.monitor4all.logRecord.springboot3.test.bean.TestComplexUser;
-import cn.monitor4all.logRecord.springboot3.test.bean.TestUser;
-import cn.monitor4all.logRecord.springboot3.test.bean.diff.extend.TestDiffChildClass;
-import cn.monitor4all.logRecord.springboot3.test.bean.diff.nested.TestDiffDuty;
-import cn.monitor4all.logRecord.springboot3.test.bean.diff.nested.TestDiffJob;
-import cn.monitor4all.logRecord.springboot3.test.bean.diff.nested.TestDiffUserParam;
-import cn.monitor4all.logRecord.springboot3.test.service.OperatorIdGetService;
-import cn.monitor4all.logRecord.springboot3.test.service.TestService;
-import cn.monitor4all.logRecord.springboot3.test.utils.TestHelper;
+import cn.monitor4all.logRecord.springboot.LogRecordAutoConfiguration;
+import cn.monitor4all.logRecord.springboot.test.bean.diff.extend.TestDiffChildClass;
+import cn.monitor4all.logRecord.springboot.test.service.OperatorIdGetService;
+import cn.monitor4all.logRecord.springboot.test.service.TestService;
+import cn.monitor4all.logRecord.springboot.test.utils.TestHelper;
+import cn.monitor4all.logRecord.springboot.test.bean.TestComplexUser;
+import cn.monitor4all.logRecord.springboot.test.bean.TestUser;
+import cn.monitor4all.logRecord.springboot.test.bean.diff.nested.TestDiffDuty;
+import cn.monitor4all.logRecord.springboot.test.bean.diff.nested.TestDiffJob;
+import cn.monitor4all.logRecord.springboot.test.bean.diff.nested.TestDiffUserParam;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -31,9 +31,9 @@ import java.util.Arrays;
         LogRecordAutoConfiguration.class,
         OperatorIdGetService.class,
         TestService.class,})
-@PropertySource("classpath:testNormal.properties")
+@PropertySource("classpath:testCommon.properties")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class OperationLogNormalTest {
+public class OperationLogCommonTest {
 
     @Autowired
     private TestService testService;
@@ -268,7 +268,7 @@ public class OperationLogNormalTest {
         LogDTO logDTO = TestHelper.getLogDTO("testLogRecordDiffField");
 
         Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot3.test.bean.TestUser");
+        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot.test.bean.TestUser");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息实体");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
@@ -285,7 +285,7 @@ public class OperationLogNormalTest {
         LogDTO logDTO = TestHelper.getLogDTO("testLogRecordDiffObject");
 
         Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【张三】变成了【 】 【age】从【 】变成了【20】 【nickNameList】从【[小张三, 大张三]】变成了【[小李四, 大李四]】");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot3.test.bean.TestComplexUser");
+        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot.test.bean.TestComplexUser");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息复杂实体");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
@@ -302,7 +302,7 @@ public class OperationLogNormalTest {
         LogDTO logDTO = TestHelper.getLogDTO("testLogRecordDiffIgnoreField");
 
         Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【张三】变成了【 】 【age】从【 】变成了【20】 【nickNameList】从【[小张三, 大张三]】变成了【[小李四, 大李四]】");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot3.test.bean.TestComplexUser");
+        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot.test.bean.TestComplexUser");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息复杂实体");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
@@ -321,9 +321,9 @@ public class OperationLogNormalTest {
         Assertions.assertEquals(logDTO.getMsg(), "【id】从【2】变成了【3】 【name】从【小张三】变成了【小李四】" +
                 " 【jobList】从【[TestDiffJob(jobId=22, jobName=222, dutyList=[TestDiffDuty(dutyId=222, dutyName=222)])]】" +
                 "变成了【[TestDiffJob(jobId=22, jobName=222, dutyList=[TestDiffDuty(dutyId=333, dutyName=222)])]】");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot3.test.bean.diff.nested.TestDiffUserVO");
+        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot.test.bean.diff.nested.TestDiffUserVO");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息嵌套展示实体");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getNewClassName(), "cn.monitor4all.logRecord.springboot3.test.bean.diff.nested.TestDiffUserParam");
+        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getNewClassName(), "cn.monitor4all.logRecord.springboot.test.bean.diff.nested.TestDiffUserParam");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getNewClassAlias(), "用户信息嵌套入参实体");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 2);
@@ -338,7 +338,7 @@ public class OperationLogNormalTest {
         LogDTO logDTO = TestHelper.getLogDTO("testMultipleDiff");
 
         Assertions.assertEquals(logDTO.getMsg(), "第一个DIFF：【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】第二个DIFF【用户工号】从【3】变成了【2】 【name】从【王五】变成了【李四】");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot3.test.bean.TestUser");
+        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot.test.bean.TestUser");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息实体");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
@@ -358,7 +358,7 @@ public class OperationLogNormalTest {
         LogDTO logDTO = TestHelper.getLogDTO("testExtendClassDiff");
 
         Assertions.assertEquals(logDTO.getMsg(), "【paramFromChild】从【oldObject childParam】变成了【newObject childParam】 【paramFromParent】从【oldObject parentParam】变成了【newObject parentParam】");
-        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot3.test.bean.diff.extend.TestDiffChildClass");
+        Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.springboot.test.bean.diff.extend.TestDiffChildClass");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "DIFF测试类子类");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "paramFromChild");
         Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), "oldObject childParam");

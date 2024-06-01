@@ -26,9 +26,9 @@ import java.util.Arrays;
         LogRecordAutoConfiguration.class,
         OperatorIdGetService.class,
         TestService.class,})
-@PropertySource("classpath:testLogRecordDiffIgnoreNullValue.properties")
+@PropertySource("classpath:testDiffIgnoreNullValue.properties")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class LogRecordDiffIgnoreNullValueTest {
+public class OperationLogDiffIgnoreNullValueTest {
 
     @Autowired
     private TestService testService;

@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.TestComponent;
 @Slf4j
 @TestComponent
 @ConditionalOnProperty(name = "test.config", havingValue = "customThreadPool")
-public class OperationLogGetCustomThreadPoolService implements IOperationLogGetService {
+public class OperationLogCustomThreadPoolGetService implements IOperationLogGetService {
 
     @Override
     public boolean createLog(LogDTO logDTO) throws Exception {
