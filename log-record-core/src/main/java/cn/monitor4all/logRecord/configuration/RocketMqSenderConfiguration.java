@@ -31,7 +31,7 @@ public class RocketMqSenderConfiguration {
     private LogRecordProperties properties;
 
     @PostConstruct
-    public void rabbitMqConfig() {
+    public void rocketMqConfig() {
         this.namesrvAddr = properties.getRocketMqProperties().getNamesrvAddr();
         this.groupName = properties.getRocketMqProperties().getGroupName();
         this.maxMessageSize = properties.getRocketMqProperties().getMaxMessageSize();
