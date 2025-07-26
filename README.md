@@ -10,7 +10,7 @@
 [![](https://img.shields.io/github/issues-pr/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls)
 [![](https://img.shields.io/github/issues-pr-closed/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls?q=is%3Apr+is%3Aclosed)
 
-> 注意：本仓库最初灵感来源于[美团技术博客](https://tech.meituan.com/2021/09/16/operational-logbook.html) ，若您需要寻找的是原文中作者的代码仓库，可以跳转[这里](https://github.com/mouzt/mzt-biz-log/) 。本仓库从零实现了原文中描述的大部分特性，并吸取大量生产环境实践和内外网用户反馈，随着持续稳定的维护和更新，期望给用户提供更多差异化的功能。
+> 注意：本仓库最初灵感来源于[美团技术博客](https://tech.meituan.com/2021/09/16/operational-logbook.html) ，若您需要寻找的是原文中作者的代码仓库，可以跳转[这里](https://github.com/mouzt/mzt-biz-log/) 。本仓库从零实现了原文中描述的大部分特性，并吸取大量生产环境实践和用户反馈，随着持续稳定的维护和更新，期望给用户提供更多差异化的功能。
 
 通过`Java`注解优雅的记录操作日志，并支持`SpEL`表达式，自定义上下文，自定义函数，实体类`DIFF`等功能，最终日志可由用户自行采集并处理，或推送至预配置的消息队列，支持SpringBoot1&2&3（JDK8~JDK21）。
 

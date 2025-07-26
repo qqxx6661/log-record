@@ -17,8 +17,13 @@ import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.expression.BeanResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -37,7 +42,7 @@ import java.util.function.Consumer;
 @Aspect
 @Component
 @Slf4j
-public class SystemLogAspect {
+public class SystemLogAspect implements ApplicationContextAware {
 
     @Autowired
     private OperationLogHandler operationLogHandler;
@@ -53,6 +58,13 @@ public class SystemLogAspect {
     private final DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 
     private static final String ARGS_PREFIX = "p";
+
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 
     @Around("@annotation(cn.monitor4all.logRecord.annotation.OperationLog) || @annotation(cn.monitor4all.logRecord.annotation.OperationLogs)")
     public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
@@ -197,6 +209,8 @@ public class SystemLogAspect {
             Method method = getMethod(joinPoint);
             String[] params = discoverer.getParameterNames(method);
             StandardEvaluationContext context = LogRecordContext.getContext();
+            BeanResolver beanResolver = new BeanFactoryResolver(applicationContext);
+            context.setBeanResolver(beanResolver);
             CustomFunctionRegistrar.register(context);
 
             // 若能够获取参数名则使用参数名作为key
