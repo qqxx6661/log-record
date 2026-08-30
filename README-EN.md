@@ -751,8 +751,6 @@ CREATE TABLE `operation_log` (
 
 Completion for annotations such as `@Cacheable` is provided by the IDE. Add this library's annotation to IntelliJ IDEA's SpEL annotation settings to enable completion and expression validation.
 
-![IntelliJ IDEA SpEL language injection settings](docs-images/idea-spel-language-injection.png)
-
 ## Differences in Spring Boot 3 (JDK 17+)
 
 The framework aims to offer the same behavior across Spring Boot versions, but JDK reflection restrictions create one important difference.

@@ -621,8 +621,6 @@ CREATE TABLE `operation_log` (
 
 `@Cacheable` などのアノテーション補完は IDE が提供しています。IntelliJ IDEA の SpEL アノテーション設定に本ライブラリのアノテーションを追加すると、補完と式の検証を有効にできます。
 
-![IntelliJ IDEA の SpEL 言語インジェクション設定](docs-images/idea-spel-language-injection.png)
-
 ## Spring Boot 3（JDK 17 以上）での相違点
 
 Spring Boot の各バージョンで同じ機能を提供することを目指していますが、JDK のリフレクション制限により、メソッド引数の参照方法が異なります。

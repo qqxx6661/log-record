@@ -905,8 +905,6 @@ CREATE TABLE `operation_log` (
 
 在自定义注解想实现类似`@Cacheable`的自动补全，其实是`IDEA`等`IDE`自己的支持，可以在配置中将本二方库的注解添加上去，从而支持自动补全和`SpEL`表达式校验。
 
-![IntelliJ IDEA SpEL语言注入设置](docs-images/idea-spel-language-injection.png)
-
 ## SpringBoot3(JDK17+)版本与SpringBoot1&SpringBoot2(JDK8+)版本使用差异
 
 本框架尽可能在不同SpringBoot版本下提供统一的功能和特性，但由于JDK兼容等问题，在使用上仍有一些差异。

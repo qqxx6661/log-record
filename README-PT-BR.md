@@ -641,8 +641,6 @@ CREATE TABLE `operation_log` (
 
 O preenchimento de anotações como `@Cacheable` é fornecido pela IDE. Adicione a anotação desta biblioteca às configurações de anotações SpEL do IntelliJ IDEA para habilitar o preenchimento e a validação das expressões.
 
-![Configurações de injeção de linguagem SpEL no IntelliJ IDEA](docs-images/idea-spel-language-injection.png)
-
 ## Diferenças no Spring Boot 3 (JDK 17+)
 
 O framework procura oferecer o mesmo comportamento entre as versões do Spring Boot, mas as restrições de reflexão do JDK criam uma diferença importante.
