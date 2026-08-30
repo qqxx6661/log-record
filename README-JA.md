@@ -1,6 +1,11 @@
 # log-record
 
-[简体中文](README.md) | [English](README-EN.md) | **日本語** | [Português (Brasil)](README-PT-BR.md)
+> [!TIP]
+> 🌐 **README の言語を選択**
+>
+> [简体中文](README.md) ｜ [English](README-EN.md) ｜ **日本語（現在）** ｜ [Português (Brasil)](README-PT-BR.md)
+
+---
 
 [![CI](https://img.shields.io/github/actions/workflow/status/qqxx6661/log-record/ci.yml?branch=master&logo=github&logoColor=white)](https://github.com/qqxx6661/log-record/actions/workflows/ci.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/qqxx6661/log-record?logo=codecov&logoColor=white)](https://codecov.io/gh/qqxx6661/log-record/branch/master)
