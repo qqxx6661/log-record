@@ -6,7 +6,7 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/qqxx6661/log-record/ci.yml?branch=master&logo=github&logoColor=white)](https://github.com/qqxx6661/log-record/actions/workflows/ci.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/qqxx6661/log-record?logo=codecov&logoColor=white)](https://codecov.io/gh/qqxx6661/log-record/branch/master)
-[![Maven Central](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+[![Maven Central](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter?logo=apache-maven&logoColor=white)](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter)
 [![License](https://img.shields.io/github/license/qqxx6661/log-record?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![GitHub stars](https://img.shields.io/github/stars/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues)
@@ -57,15 +57,15 @@ For Spring Boot 3 (JDK 17+), add:
 </dependency>
 ```
 
-See [Maven Central](https://mvnrepository.com/artifact/cn.monitor4all/log-record-starter) for the latest version.
+See [Maven Central](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter) for the latest version.
 
 ## Background
 
 You have probably seen operation logs like these:
 
-![](pic/sample1.png)
+![Operation log list example](docs-images/operation-log-list.png)
 
-![](pic/sample2.png)
+![Operation log field-diff example](docs-images/operation-log-diff.png)
 
 How can we record these logs cleanly in code?
 
@@ -93,7 +93,7 @@ public Response<T> function(Request request) {
 
 The log definition is now separate from the method body, but the values are hard-coded. We still need to pass the order ID, user information, old database value, and new request value to the annotation.
 
-[Spring Expression Language (SpEL)](https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html) lets the annotation read method arguments:
+[Spring Expression Language (SpEL)](https://docs.spring.io/spring-framework/reference/core/expressions.html) lets the annotation read method arguments:
 
 - Order ID: `#request.orderId`
 - New follower: `#request.newFollower`
@@ -256,7 +256,7 @@ For Spring Boot 3 (JDK 17+):
 </dependency>
 ```
 
-Find the latest version on [Maven Central](https://search.maven.org/artifact/cn.monitor4all/log-record-starter). Version 1.6.x or later is recommended.
+Find the latest version on [Maven Central](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter). Version 1.6.x or later is recommended.
 
 ### Step 2: Choose how logs are handled
 
@@ -352,7 +352,7 @@ public Response<T> function(Request request) {
 
 ### Using SpEL
 
-SpEL is Spring's standard expression language. See the [Spring Framework documentation](https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html) for an introduction.
+SpEL is Spring's standard expression language. See the [Spring Framework documentation](https://docs.spring.io/spring-framework/reference/core/expressions.html) for an introduction.
 
 Except for the boolean attributes `executeBeforeFunc` and `recordReturnValue`, every `@OperationLog` attribute must be a valid SpEL expression.
 
@@ -751,7 +751,7 @@ CREATE TABLE `operation_log` (
 
 Completion for annotations such as `@Cacheable` is provided by the IDE. Add this library's annotation to IntelliJ IDEA's SpEL annotation settings to enable completion and expression validation.
 
-![](pic/IDEA_SpEL.png)
+![IntelliJ IDEA SpEL language injection settings](docs-images/idea-spel-language-injection.png)
 
 ## Differences in Spring Boot 3 (JDK 17+)
 

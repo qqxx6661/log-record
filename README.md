@@ -6,7 +6,7 @@
 
 [![](https://img.shields.io/github/actions/workflow/status/qqxx6661/log-record/ci.yml?branch=master&logo=github&logoColor=white)](https://github.com/qqxx6661/log-record/actions/workflows/ci.yml)
 [![](https://img.shields.io/codecov/c/github/qqxx6661/log-record?logo=codecov&logoColor=white)](https://codecov.io/gh/qqxx6661/log-record/branch/master)
-[![](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+[![](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter?logo=apache-maven&logoColor=white)](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter)
 [![](https://img.shields.io/github/license/qqxx6661/log-record?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![](https://img.shields.io/github/stars/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/stargazers)
 [![](https://img.shields.io/github/issues/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues)
@@ -49,24 +49,24 @@ SpringBoot3(JDK17+)请引用：
 </dependency>
 ```
 
-> 最新版本号请查阅[`Maven`公共仓库](https://mvnrepository.com/artifact/cn.monitor4all/log-record-starter)
+> 最新版本号请查阅[`Maven Central`](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter)
 
 
 ## 项目背景
 
 大家一定见过下图的操作日志：
 
-![](pic/sample1.png)
+![操作日志列表示例](docs-images/operation-log-list.png)
 
-![](pic/sample2.png)
+![操作日志字段变更详情示例](docs-images/operation-log-diff.png)
 
 在代码层面，如何优雅的记录上面的日志呢？
 
 能想到最粗暴的方式，**封装一个操作日志记录类**，如下：
 
 ```java
-String template = "用户%s修改了订单的跟进人：从“%s”修改到“%s”"
-LogUtil.log(orderNo, String.format(tempalte, "张三", "李四", "王五"),  "张三")
+String template = "用户%s修改了订单的跟进人：从“%s”修改到“%s”";
+LogUtil.log(orderNo, String.format(template, "张三", "李四", "王五"), "张三");
 ```
 
 这种方式会导致业务代码被记录日志的代码侵入，**对于代码的可读性和可维护性来说是一个灾难。**
@@ -84,7 +84,7 @@ public Response<T> function(Request request) {
 
 但是新的问题来了，我们该如何把**订单ID、用户信息、数据库里的旧地址、函数入参的新地址传递给注解呢？**
 
-`Spring`的 [`SpEL`表达式（`Spring Expression Language`）](https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html) 可以帮助我们，通过引入`SpEL`表达式，我们可以获取函数的入参。这样我们就可以对上面的注解进行修改：
+`Spring`的 [`SpEL`表达式（`Spring Expression Language`）](https://docs.spring.io/spring-framework/reference/core/expressions.html) 可以帮助我们，通过引入`SpEL`表达式，我们可以获取函数的入参。这样我们就可以对上面的注解进行修改：
 
 - 订单ID：`#request.orderId`
 - 新地址"王五"：`#request.newFollower`
@@ -260,7 +260,7 @@ SpringBoot3(JDK17+)请引用：
 ```
 
 
-> 最新版本号请查阅[`Maven`公共仓库](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+> 最新版本号请查阅[`Maven Central`](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter)
 > 
 > 推荐使用 >= 1.6.x版本
 
@@ -344,33 +344,30 @@ public Response<T> function(Request request) {
 
 ## 进阶特性
 
-- [`SpEL`的使用](#SpEL的使用)
-- [自定义`SpEL`解析顺序](#自定义SpEL解析顺序)
+- [`SpEL`的使用](#spel的使用)
+- [自定义`SpEL`解析顺序](#自定义spel解析顺序)
 - [内置自定义函数和自定义参数](#内置自定义函数和自定义参数)
 - [根据条件记录日志](#根据条件记录日志)
 - [全局操作人信息获取](#全局操作人信息获取)
 - [自定义上下文](#自定义上下文)
 - [自定义函数](#自定义函数)
 - [自定义原方法是否执行成功](#自定义原方法是否执行成功)
-- [实体类`Diff`](#实体类Diff)
+- [实体类`Diff`](#实体类diff)
 - [日志处理重试次数及兜底函数配置](#日志处理重试次数及兜底函数配置)
 - [重复注解](#重复注解)
 - [自定义消息线程池](#自定义消息线程池)
 - [函数返回值记录开关](#函数返回值记录开关)
 - [非注解方式手动记录日志](#非注解方式)
 - [操作日志数据表结构推荐](#操作日志数据表结构推荐)
-- [让注解支持`IDEA`自动补全](#让注解支持IDEA自动补全)
+- [让注解支持`IDEA`自动补全](#让注解支持idea自动补全)
 
 ### SpEL的使用
 
 `SpEL`是`Spring`实现的标准的表达式语言，具体的使用可以学习官方文档或者自行搜索资料，入门非常的简单，推荐几篇文章：
 
-- http://itmyhome.com/spring/expressions.html
-- https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html
+- https://docs.spring.io/spring-framework/reference/core/expressions.html
 
 需要注意的是，`@OperationLog`注解中，除了`executeBeforeFunc`和`recordReturnValue`两个`boolean`类型的参数，**其他的参数均需要严格遵循`SpEL`表达式语法。**
-`
-
 举例来说，`bizType`中我们经常会填入常量，例如订单创建`orderCreate`, 订单修改`orderModify`。
 
 在`SpEL`表达式中，若传入`bizType="orderCreate"`，SpEL会解析失败，因为纯字符串会被认为是一个方法名，导致`SpEL`找不到方法而报错，需要使用`bizType="'orderCreate'"`，才能被正确解析。
@@ -490,7 +487,7 @@ testService.testCondition(new TestUser(1, "张三"));
 
 ### 全局操作人信息获取
 
-大部分情况下，操作人ID往往不会在方法参数中传递，更多会是查询集团内`BUC`信息、查询外部服务、查表等获取。所以开放了`SPI`，只需要实现接口`IOperationLogGetService`，便可以统一注入操作人ID。
+大部分情况下，操作人ID往往不会在方法参数中传递，更多会是查询集团内`BUC`信息、查询外部服务、查表等获取。所以开放了`SPI`，只需要实现接口`IOperatorIdGetService`，便可以统一注入操作人ID。
 
 ```java
 @Component
@@ -504,7 +501,7 @@ public class IOperatorIdGetServiceImpl implements IOperatorIdGetService {
 }
 ```
 
-**注意：若实现了接口后仍在注解手动传入`OperatorID`，则以传入的`OperatorID`优先。**
+**注意：若实现了接口后仍在注解手动传入`operatorId`，则以传入的`operatorId`优先。**
 
 ### 自定义上下文
 
@@ -525,7 +522,7 @@ LogRecordContext内部使用TransmittableThreadLocal实现与主线程的ThreadL
 
 ### 自定义函数
 
-将`@LogRecordFunc`注解申明在需要注册到`SpEL`的自定义函数上，参与`SpEL`表达式的运算。
+将`@LogRecordFunc`注解声明在需要注册到`SpEL`的自定义函数上，参与`SpEL`表达式的运算。
 
 注意，需要在类上也声明`@LogRecordFunc`，否则无法找到该函数。
 
@@ -552,20 +549,20 @@ public class CustomFunctionStatic {
 }
 ```
 
-上述代码中，注册的自定义函数名为`CustomFunctionStatic_testStaticMethodWithoutCustomName`和`CustomFunctionStatic_testStaticMethodWithoutCustomName`，若类上的注解更改为`@LogRecordFunc("test")`，则注册的自定义函数名为`testStaticMethodWithCustomName`和`testStaticMethodWithoutCustomName`
+上述代码中，注册的自定义函数名为`CustomFunctionStatic_testStaticMethodWithCustomName`和`CustomFunctionStatic_testStaticMethodWithoutCustomName`。若类上的注解更改为`@LogRecordFunc("test")`，则注册的自定义函数名为`test_testStaticMethodWithCustomName`和`test_testStaticMethodWithoutCustomName`。
 
 非静态自定义方法：
 
 ~~原理主要是依靠我们框架内部转换，将非静态方法需要包装为静态方法再传给`SpEL`。原理详见[#PR25](https://github.com/qqxx6661/log-record/pull/25)~~
 
-在1.6.x版本之前，部分版本(1.5.x)支持非静态自定义函数，但由于其大量使用反射，写法较为Hack，兼容性不佳（在JDk11+后反射限制更加严格），在1.6.x+ 版本后删除，仅支持静态方法。
+在1.6.x版本之前，部分版本（1.5.x）支持非静态自定义函数，但由于其大量使用反射，写法较为Hack，兼容性不佳（JDK 11+的反射限制更加严格），在1.6.x+版本后删除，仅支持静态方法。
 
 
 
 注意：所有自定义函数可在应用启动时的日志中找到
 
 ```
-2022-06-09 11:35:18.672  INFO 73757 --- [           main] c.a.i.l.f.CustomFunctionRegistrar        : LogRecord register custom function [public static java.lang.String cn.monitor4all.logRecord.test.service.CustomFunctionStaticService.testStaticMethodWithCustomName()] as name [CustomFunctionStatic_testStaticMethodWithoutCustomName]
+2022-06-09 11:35:18.672  INFO 73757 --- [           main] c.a.i.l.f.CustomFunctionRegistrar        : LogRecord register custom function [public static java.lang.String cn.monitor4all.logRecord.test.service.CustomFunctionStaticService.testStaticMethodWithCustomName()] as name [CustomFunctionStatic_testStaticMethodWithCustomName]
 2022-06-09 11:35:18.672  INFO 73757 --- [           main] c.a.i.l.f.CustomFunctionRegistrar        : LogRecord register custom function [public static java.lang.String cn.monitor4all.logRecord.test.service.CustomFunctionStaticService.testStaticMethodWithoutCustomName()] as name [CustomFunctionStatic_testStaticMethodWithoutCustomName]
 2022-06-09 11:35:18.672  INFO 73757 --- [           main] c.a.i.l.f.CustomFunctionRegistrar        : LogRecord register custom function [public static java.lang.String cn.monitor4all.logRecord.function.CustomFunctionObjectDiff.objectDiff(java.lang.Object,java.lang.Object)] as name [_DIFF]
 ```
@@ -591,7 +588,7 @@ public void testCustomFunc() {
 @OperationLog(
         success = "#isSuccess",
         bizId = "#request.trade.id",
-        bizType = "'createOrder'",
+        bizType = "'createOrder'"
     )
 @Override
 public Result<Void> createOrder(Request request) {
@@ -605,7 +602,7 @@ public Result<Void> createOrder(Request request) {
 }
 ```
 
-可以通过接口返回的`response.getIsSuccess()`来表名该创建订单方法是否执行成功。
+可以通过接口返回的`response.getIsSuccess()`来表明该创建订单方法是否执行成功。
 
 ### 实体类`Diff`
 
@@ -613,8 +610,8 @@ public Result<Void> createOrder(Request request) {
 
 有如下注解：
 
-- `@LogRecordDiffField`：在字段上申明`@LogRecordDiffField(alias = "用户工号", ignored = true)`，`alias`别名为可选字段。 `ignored`为可选字段，默认为`false`，若为`true`，则该字段不参与`DIFF`。
-- `@LogRecordDiffObject`：在类上允许可以申明`@LogRecordDiffObject(alias = "用户信息实体")`，`alias`别名为可选字段，默认类下所有字段会进行`DIFF`，可通过`enableAllFields`手动关闭，关闭后等于该注解只用于获取类别名。
+- `@LogRecordDiffField`：在字段上声明`@LogRecordDiffField(alias = "用户工号", ignored = true)`，`alias`别名为可选字段。`ignored`为可选字段，默认为`false`，若为`true`，则该字段不参与`DIFF`。
+- `@LogRecordDiffObject`：在类上可以声明`@LogRecordDiffObject(alias = "用户信息实体")`，`alias`别名为可选字段。默认情况下类中的所有字段都会参与`DIFF`，可通过`enableAllFields`手动关闭；关闭后，该注解只用于获取类别名。
 
 类对象使用示例：
 
@@ -817,7 +814,7 @@ log-record.thread-pool.enabled=true（线程池开关 默认为开启 若关闭�
 
 **注意：`logDTO`的组装逻辑在切面中，该切面仍然在函数执行的线程中运行。**
 
-默认线程池配置如下（拒绝策略为丢弃）：
+默认线程池配置如下（队列已满且无法接收新任务时，`AbortPolicy`会抛出`RejectedExecutionException`）：
 
 ```java
 return new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024), THREAD_FACTORY, new ThreadPoolExecutor.AbortPolicy());
@@ -908,11 +905,11 @@ CREATE TABLE `operation_log` (
 
 在自定义注解想实现类似`@Cacheable`的自动补全，其实是`IDEA`等`IDE`自己的支持，可以在配置中将本二方库的注解添加上去，从而支持自动补全和`SpEL`表达式校验。
 
-![](pic/IDEA_SpEL.png)
+![IntelliJ IDEA SpEL语言注入设置](docs-images/idea-spel-language-injection.png)
 
 ## SpringBoot3(JDK17+)版本与SpringBoot1&SpringBoot2(JDK8+)版本使用差异
 
-本框架尽可能在不同SpringBoot版本下提供统一的功能和特性，但由于JDk兼容等问题，在使用上仍有一些差异。
+本框架尽可能在不同SpringBoot版本下提供统一的功能和特性，但由于JDK兼容等问题，在使用上仍有一些差异。
 
 在这里列举需要本框架使用者注意的差异：
 
