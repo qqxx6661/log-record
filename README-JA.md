@@ -1,14 +1,18 @@
+<div align="center">
+
 # log-record
 
-[简体中文](README.md) | [English](README-EN.md) | **日本語** | [Português (Brasil)](README-PT-BR.md)
+**README:** [简体中文](README.md) · [English](README-EN.md) · **日本語** · [Português (Brasil)](README-PT-BR.md)
 
 [![CI](https://img.shields.io/github/actions/workflow/status/qqxx6661/log-record/ci.yml?branch=master&logo=github&logoColor=white)](https://github.com/qqxx6661/log-record/actions/workflows/ci.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/qqxx6661/log-record?logo=codecov&logoColor=white)](https://codecov.io/gh/qqxx6661/log-record/branch/master)
-[![Maven Central](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+[![Maven Central](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter?logo=apache-maven&logoColor=white)](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter)
 [![License](https://img.shields.io/github/license/qqxx6661/log-record?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![GitHub stars](https://img.shields.io/github/stars/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues)
 [![Pull requests](https://img.shields.io/github/issues-pr/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls)
+
+</div>
 
 > **注記**
 > このリポジトリは、[Meituan Tech Blog の操作ログに関する記事](https://tech.meituan.com/2021/09/16/operational-logbook.html)から着想を得ています。記事の著者が公開した実装をお探しの場合は、[mzt-biz-log](https://github.com/mouzt/mzt-biz-log/)をご覧ください。本プロジェクトは記事で紹介された機能の大部分を独自に実装し、本番環境での知見とコミュニティからのフィードバックを取り入れながら継続的に改善しています。
@@ -50,15 +54,15 @@ Spring Boot 3（JDK 17 以上）の場合：
 </dependency>
 ```
 
-最新バージョンは [Maven Central](https://mvnrepository.com/artifact/cn.monitor4all/log-record-starter) で確認できます。
+最新バージョンは [Maven Central](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter) で確認できます。
 
 ## 背景
 
 次のような操作ログを見たことがあるでしょう。
 
-![](pic/sample1.png)
+![操作ログ一覧の例](docs-images/operation-log-list.png)
 
-![](pic/sample2.png)
+![操作ログのフィールド差分の例](docs-images/operation-log-diff.png)
 
 このようなログをコード上で読みやすく記録するには、どうすればよいでしょうか。
 
@@ -86,7 +90,7 @@ public Response<T> function(Request request) {
 
 ただし、注文 ID、ユーザー情報、データベース内の変更前の値、リクエストに含まれる変更後の値を、固定文字列ではなく動的に渡す必要があります。
 
-[Spring Expression Language（SpEL）](https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html)を使うと、アノテーションからメソッド引数を参照できます。
+[Spring Expression Language（SpEL）](https://docs.spring.io/spring-framework/reference/core/expressions.html)を使うと、アノテーションからメソッド引数を参照できます。
 
 - 注文 ID：`#request.orderId`
 - 新しい担当者：`#request.newFollower`
@@ -202,7 +206,7 @@ Spring Boot 3（JDK 17 以上）：
 </dependency>
 ```
 
-最新バージョンは [Maven Central](https://search.maven.org/artifact/cn.monitor4all/log-record-starter) で確認してください。1.6.x 以降を推奨します。
+最新バージョンは [Maven Central](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter) で確認してください。1.6.x 以降を推奨します。
 
 ### ステップ 2：ログの処理方法を選択する
 
@@ -298,7 +302,7 @@ public Response<T> function(Request request) {
 
 ### SpEL の使用
 
-SpEL は Spring が提供する標準の式言語です。基本的な構文は [Spring Framework ドキュメント](https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html)を参照してください。
+SpEL は Spring が提供する標準の式言語です。基本的な構文は [Spring Framework ドキュメント](https://docs.spring.io/spring-framework/reference/core/expressions.html)を参照してください。
 
 boolean 型の `executeBeforeFunc` と `recordReturnValue` を除き、`@OperationLog` のすべての属性は有効な SpEL 式でなければなりません。
 
@@ -616,8 +620,6 @@ CREATE TABLE `operation_log` (
 ### IntelliJ IDEA での SpEL 補完
 
 `@Cacheable` などのアノテーション補完は IDE が提供しています。IntelliJ IDEA の SpEL アノテーション設定に本ライブラリのアノテーションを追加すると、補完と式の検証を有効にできます。
-
-![](pic/IDEA_SpEL.png)
 
 ## Spring Boot 3（JDK 17 以上）での相違点
 

@@ -1,16 +1,20 @@
+<div align="center">
+
 # log-record
 
-[简体中文](README.md) | **English** | [日本語](README-JA.md) | [Português (Brasil)](README-PT-BR.md)
+**README:** [简体中文](README.md) · **English** · [日本語](README-JA.md) · [Português (Brasil)](README-PT-BR.md)
 
 [![CI](https://img.shields.io/github/actions/workflow/status/qqxx6661/log-record/ci.yml?branch=master&logo=github&logoColor=white)](https://github.com/qqxx6661/log-record/actions/workflows/ci.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/qqxx6661/log-record?logo=codecov&logoColor=white)](https://codecov.io/gh/qqxx6661/log-record/branch/master)
-[![Maven Central](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
+[![Maven Central](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter?logo=apache-maven&logoColor=white)](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter)
 [![License](https://img.shields.io/github/license/qqxx6661/log-record?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![GitHub stars](https://img.shields.io/github/stars/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues)
 [![Closed issues](https://img.shields.io/github/issues-closed/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues?q=is%3Aissue+is%3Aclosed)
 [![Pull requests](https://img.shields.io/github/issues-pr/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls)
 [![Closed pull requests](https://img.shields.io/github/issues-pr-closed/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls?q=is%3Apr+is%3Aclosed)
+
+</div>
 
 > **Note**
 > This repository was originally inspired by the [Meituan Tech Blog article on operation logs](https://tech.meituan.com/2021/09/16/operational-logbook.html). If you are looking for the source code written by that article's author, see [mzt-biz-log](https://github.com/mouzt/mzt-biz-log/). This project independently implements most of the ideas described in the article and has continued to evolve based on production experience and community feedback.
@@ -53,15 +57,15 @@ For Spring Boot 3 (JDK 17+), add:
 </dependency>
 ```
 
-See [Maven Central](https://mvnrepository.com/artifact/cn.monitor4all/log-record-starter) for the latest version.
+See [Maven Central](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter) for the latest version.
 
 ## Background
 
 You have probably seen operation logs like these:
 
-![](pic/sample1.png)
+![Operation log list example](docs-images/operation-log-list.png)
 
-![](pic/sample2.png)
+![Operation log field-diff example](docs-images/operation-log-diff.png)
 
 How can we record these logs cleanly in code?
 
@@ -89,7 +93,7 @@ public Response<T> function(Request request) {
 
 The log definition is now separate from the method body, but the values are hard-coded. We still need to pass the order ID, user information, old database value, and new request value to the annotation.
 
-[Spring Expression Language (SpEL)](https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html) lets the annotation read method arguments:
+[Spring Expression Language (SpEL)](https://docs.spring.io/spring-framework/reference/core/expressions.html) lets the annotation read method arguments:
 
 - Order ID: `#request.orderId`
 - New follower: `#request.newFollower`
@@ -252,7 +256,7 @@ For Spring Boot 3 (JDK 17+):
 </dependency>
 ```
 
-Find the latest version on [Maven Central](https://search.maven.org/artifact/cn.monitor4all/log-record-starter). Version 1.6.x or later is recommended.
+Find the latest version on [Maven Central](https://central.sonatype.com/artifact/cn.monitor4all/log-record-starter). Version 1.6.x or later is recommended.
 
 ### Step 2: Choose how logs are handled
 
@@ -348,7 +352,7 @@ public Response<T> function(Request request) {
 
 ### Using SpEL
 
-SpEL is Spring's standard expression language. See the [Spring Framework documentation](https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html) for an introduction.
+SpEL is Spring's standard expression language. See the [Spring Framework documentation](https://docs.spring.io/spring-framework/reference/core/expressions.html) for an introduction.
 
 Except for the boolean attributes `executeBeforeFunc` and `recordReturnValue`, every `@OperationLog` attribute must be a valid SpEL expression.
 
@@ -746,8 +750,6 @@ CREATE TABLE `operation_log` (
 ### SpEL completion in IntelliJ IDEA
 
 Completion for annotations such as `@Cacheable` is provided by the IDE. Add this library's annotation to IntelliJ IDEA's SpEL annotation settings to enable completion and expression validation.
-
-![](pic/IDEA_SpEL.png)
 
 ## Differences in Spring Boot 3 (JDK 17+)
 
