@@ -1,11 +1,8 @@
+<div align="center">
+
 # log-record
 
-> [!TIP]
-> 🌐 **Idiomas do README**
->
-> [简体中文](README.md) ｜ [English](README-EN.md) ｜ [日本語](README-JA.md) ｜ **Português (Brasil, atual)**
-
----
+**README:** [简体中文](README.md) · [English](README-EN.md) · [日本語](README-JA.md) · **Português (Brasil)**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/qqxx6661/log-record/ci.yml?branch=master&logo=github&logoColor=white)](https://github.com/qqxx6661/log-record/actions/workflows/ci.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/qqxx6661/log-record?logo=codecov&logoColor=white)](https://codecov.io/gh/qqxx6661/log-record/branch/master)
@@ -14,6 +11,8 @@
 [![GitHub stars](https://img.shields.io/github/stars/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues)
 [![Pull requests](https://img.shields.io/github/issues-pr/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls)
+
+</div>
 
 > **Observação**
 > Este repositório foi originalmente inspirado pelo [artigo do Meituan Tech Blog sobre logs de operações](https://tech.meituan.com/2021/09/16/operational-logbook.html). Se você procura o código escrito pelo autor do artigo, consulte o [mzt-biz-log](https://github.com/mouzt/mzt-biz-log/). Este projeto implementa de forma independente a maior parte das ideias apresentadas no artigo e continua evoluindo com base em experiências de produção e no feedback da comunidade.

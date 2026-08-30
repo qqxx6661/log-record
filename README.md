@@ -1,21 +1,20 @@
+<div align="center">
+
 # log-record
 
-> [!TIP]
-> 🌐 **选择 README 语言 / Choose a language**
->
-> **简体中文（当前）** ｜ [English](README-EN.md) ｜ [日本語](README-JA.md) ｜ [Português (Brasil)](README-PT-BR.md)
-
----
+**README:** **简体中文** · [English](README-EN.md) · [日本語](README-JA.md) · [Português (Brasil)](README-PT-BR.md)
 
 [![](https://img.shields.io/github/actions/workflow/status/qqxx6661/log-record/ci.yml?branch=master&logo=github&logoColor=white)](https://github.com/qqxx6661/log-record/actions/workflows/ci.yml)
 [![](https://img.shields.io/codecov/c/github/qqxx6661/log-record?logo=codecov&logoColor=white)](https://codecov.io/gh/qqxx6661/log-record/branch/master)
 [![](https://img.shields.io/maven-central/v/cn.monitor4all/log-record-starter?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/cn.monitor4all/log-record-starter)
-[![](https://img.shields.io/github/license/qqxx6661/log-record?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)  
+[![](https://img.shields.io/github/license/qqxx6661/log-record?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![](https://img.shields.io/github/stars/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/stargazers)
 [![](https://img.shields.io/github/issues/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues)
 [![](https://img.shields.io/github/issues-closed/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues?q=is%3Aissue+is%3Aclosed)
 [![](https://img.shields.io/github/issues-pr/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls)
 [![](https://img.shields.io/github/issues-pr-closed/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls?q=is%3Apr+is%3Aclosed)
+
+</div>
 
 > 注意：本仓库最初灵感来源于[美团技术博客](https://tech.meituan.com/2021/09/16/operational-logbook.html) ，若您需要寻找的是原文中作者的代码仓库，可以跳转[这里](https://github.com/mouzt/mzt-biz-log/) 。本仓库从零实现了原文中描述的大部分特性，并吸取大量生产环境实践和用户反馈，随着持续稳定的维护和更新，期望给用户提供更多差异化的功能。
 

@@ -1,11 +1,8 @@
+<div align="center">
+
 # log-record
 
-> [!TIP]
-> 🌐 **README languages**
->
-> [简体中文](README.md) ｜ **English (current)** ｜ [日本語](README-JA.md) ｜ [Português (Brasil)](README-PT-BR.md)
-
----
+**README:** [简体中文](README.md) · **English** · [日本語](README-JA.md) · [Português (Brasil)](README-PT-BR.md)
 
 [![CI](https://img.shields.io/github/actions/workflow/status/qqxx6661/log-record/ci.yml?branch=master&logo=github&logoColor=white)](https://github.com/qqxx6661/log-record/actions/workflows/ci.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/qqxx6661/log-record?logo=codecov&logoColor=white)](https://codecov.io/gh/qqxx6661/log-record/branch/master)
@@ -16,6 +13,8 @@
 [![Closed issues](https://img.shields.io/github/issues-closed/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/issues?q=is%3Aissue+is%3Aclosed)
 [![Pull requests](https://img.shields.io/github/issues-pr/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls)
 [![Closed pull requests](https://img.shields.io/github/issues-pr-closed/qqxx6661/log-record)](https://github.com/qqxx6661/log-record/pulls?q=is%3Apr+is%3Aclosed)
+
+</div>
 
 > **Note**
 > This repository was originally inspired by the [Meituan Tech Blog article on operation logs](https://tech.meituan.com/2021/09/16/operational-logbook.html). If you are looking for the source code written by that article's author, see [mzt-biz-log](https://github.com/mouzt/mzt-biz-log/). This project independently implements most of the ideas described in the article and has continued to evolve based on production experience and community feedback.
