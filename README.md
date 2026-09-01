@@ -16,6 +16,16 @@
 
 </div>
 
+## Star History
+
+<a href="https://www.star-history.com/?repos=qqxx6661%2Flog-record&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=qqxx6661/log-record&type=date&theme=dark&legend=top-left&sealed_token=Wg_yQSitNi55tK-l1qXnxmo9-xutUH7xgkzs17R5r1ol_sa_kRWzGphIZQsmXv2UFkSHntM25Lt5LbtztG96iRbj_pu6yHlPhWrAmPdf2MCt6x2IgPp6tg" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=qqxx6661/log-record&type=date&legend=top-left&sealed_token=Wg_yQSitNi55tK-l1qXnxmo9-xutUH7xgkzs17R5r1ol_sa_kRWzGphIZQsmXv2UFkSHntM25Lt5LbtztG96iRbj_pu6yHlPhWrAmPdf2MCt6x2IgPp6tg" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=qqxx6661/log-record&type=date&legend=top-left&sealed_token=Wg_yQSitNi55tK-l1qXnxmo9-xutUH7xgkzs17R5r1ol_sa_kRWzGphIZQsmXv2UFkSHntM25Lt5LbtztG96iRbj_pu6yHlPhWrAmPdf2MCt6x2IgPp6tg" />
+ </picture>
+</a>
+
 > 注意：本仓库最初灵感来源于[美团技术博客](https://tech.meituan.com/2021/09/16/operational-logbook.html) ，若您需要寻找的是原文中作者的代码仓库，可以跳转[这里](https://github.com/mouzt/mzt-biz-log/) 。本仓库从零实现了原文中描述的大部分特性，并吸取大量生产环境实践和用户反馈，随着持续稳定的维护和更新，期望给用户提供更多差异化的功能。
 
 通过`Java`注解优雅的记录操作日志，并支持`SpEL`表达式，自定义上下文，自定义函数，实体类`DIFF`等功能，最终日志可由用户自行采集并处理，或推送至预配置的消息队列，支持SpringBoot1&2&3（JDK8~JDK21）。
@@ -988,6 +998,3 @@ https://github.com/qqxx6661/systemLog
 
 如果觉得该项目对你有用，请点个star，谢谢！
 
-### Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=qqxx6661/log-record&type=Date)](https://star-history.com/#qqxx6661/log-record&Date)
